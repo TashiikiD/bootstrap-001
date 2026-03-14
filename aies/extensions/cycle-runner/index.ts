@@ -274,6 +274,79 @@ function latestMemorySignals(): { devlog: string | null; durable: string | null 
   };
 }
 
+type OperatorControlsSummary = {
+  activeSessionPath: string | null;
+  verificationMode: string | null;
+  verificationSource: string | null;
+  verificationUpdatedAt: string | null;
+};
+
+function toOptionalJsonString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  return normalized ? normalized : null;
+}
+
+function readOperatorControls(): OperatorControlsSummary | null {
+  const filePath = resolve(getAiesPaths().runtimeRoot, "operator-ui", "controls.json");
+  if (!existsSync(filePath)) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(readFileSync(filePath, "utf8")) as {
+      activeSessionPath?: unknown;
+      verification?: {
+        mode?: unknown;
+        source?: unknown;
+        updatedAt?: unknown;
+      };
+    };
+
+    return {
+      activeSessionPath: toOptionalJsonString(parsed.activeSessionPath),
+      verificationMode: toOptionalJsonString(parsed.verification?.mode),
+      verificationSource: toOptionalJsonString(parsed.verification?.source),
+      verificationUpdatedAt: toOptionalJsonString(parsed.verification?.updatedAt),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function renderLiveStatusSection(
+  ctx: ExtensionContext,
+  modeEntry: VerificationModeEntry | null,
+  verification: VerificationEntry | null,
+  recovery: RecoveryEntry | null,
+): string[] {
+  const controls = readOperatorControls();
+  const currentSession = getSessionId(ctx);
+  const currentSessionLabel = currentSession === "ephemeral" ? currentSession : basename(currentSession);
+  const controlSessionLabel = controls?.activeSessionPath ? basename(controls.activeSessionPath) : "none";
+  const sessionMismatch = controls?.activeSessionPath
+    && currentSession !== "ephemeral"
+    && resolve(controls.activeSessionPath) !== resolve(currentSession)
+      ? ` [mismatch: current session is ${currentSessionLabel}]`
+      : "";
+  const controlModeLabel = controls?.verificationMode
+    ? `${controls.verificationMode}${controls?.verificationSource ? ` (${controls.verificationSource})` : ""}`
+    : "none";
+  const recordedModeLabel = modeEntry ? `${modeEntry.mode} (${modeEntry.source})` : "none";
+  const verificationLabel = verification ? `${verification.record.mode}/${verification.record.result}` : "none";
+  const recoveryLabel = recovery ? `${recovery.status}/${recovery.reasonType}/${recovery.severity}` : "none";
+
+  return [
+    "Live status surfaces:",
+    `- Operator controls session: ${controlSessionLabel}${sessionMismatch}`,
+    `- Operator controls verification mode: ${controlModeLabel}`,
+    `- Operator controls updated: ${controls?.verificationUpdatedAt ?? "none"}`,
+    `- Session verification mode entry: ${recordedModeLabel}`,
+    `- Session verification record: ${verificationLabel}`,
+    `- Session recovery record: ${recoveryLabel}`,
+  ];
+}
+
 function renderOpenSpecSection(openSpec: OpenSpecEntry | null): string[] {
   if (!openSpec?.context.activeChangeId) {
     return [
@@ -409,6 +482,8 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     ...renderEvaluationSection(evaluation),
     "",
     ...renderVerificationSection(verification, verificationMode),
+    "",
+    ...renderLiveStatusSection(ctx, verificationMode, verification, recovery),
     "",
     ...renderRecoverySection(recovery),
     "",
