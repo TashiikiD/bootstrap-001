@@ -1,14 +1,14 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFile, spawn } from "node:child_process";
+import { execFile, spawn, spawnSync } from "node:child_process";
 const serverDir = dirname(fileURLToPath(import.meta.url));
 export const operatorUiRoot = resolve(serverDir, "..");
 export const projectRoot = resolve(operatorUiRoot, "..");
 export const runtimeStateRoot = resolve(projectRoot, ".aies-runtime", "operator-ui");
 export const actionsFile = resolve(runtimeStateRoot, "actions.json");
 export const controlsFile = resolve(runtimeStateRoot, "controls.json");
-export const launchAiesTuiScript = resolve(projectRoot, "launch-aies-tui.ps1");
+export const launchAiesWatchTuiScript = resolve(projectRoot, "launch-aies-watch-tui.ps1");
 export const powershellExe = resolve(process.env.WINDIR ?? "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
 const configuredPiMonoRoot = process.env.AIES_PI_MONO_ROOT?.trim();
 export const piMonoRoot = configuredPiMonoRoot ? resolve(configuredPiMonoRoot) : resolve(projectRoot, "pi-mono");
@@ -828,7 +828,7 @@ export function runPiDetached(args: string[]): PiDetachedLaunchResult {
 
 export function launchTuiWindow(piArgs: string[]): WindowLaunchResult {
   const missingPaths: string[] = [];
-  if (!existsSync(launchAiesTuiScript)) missingPaths.push(`TUI launcher not found at ${launchAiesTuiScript}`);
+  if (!existsSync(launchAiesWatchTuiScript)) missingPaths.push(`desktop TUI launcher not found at ${launchAiesWatchTuiScript}`);
   if (!existsSync(powershellExe)) missingPaths.push(`powershell.exe not found at ${powershellExe}`);
 
   if (missingPaths.length > 0) {
@@ -841,20 +841,23 @@ export function launchTuiWindow(piArgs: string[]): WindowLaunchResult {
   }
 
   try {
-    const child = spawn(
+    const launched = spawnSync(
       powershellExe,
-      ["-NoExit", "-ExecutionPolicy", "Bypass", "-File", launchAiesTuiScript, ...piArgs],
+      ["-ExecutionPolicy", "Bypass", "-File", launchAiesWatchTuiScript, ...piArgs],
       {
         cwd: projectRoot,
-        windowsHide: false,
-        detached: true,
-        stdio: "ignore",
+        windowsHide: true,
+        encoding: "utf8",
       },
     );
-    child.unref();
+    if (launched.error) {
+      throw launched.error;
+    }
+    const pidText = typeof launched.stdout === "string" ? launched.stdout.trim() : "";
+    const pid = pidText ? Number(pidText) : null;
     return {
       ok: true,
-      pid: child.pid ?? null,
+      pid: Number.isFinite(pid) ? pid : null,
       args: piArgs,
       errorMessage: null,
     };
