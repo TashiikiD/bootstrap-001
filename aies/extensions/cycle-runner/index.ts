@@ -223,13 +223,40 @@ function listMarkdownFiles(directory: string): string[] {
     .sort((left, right) => statSync(right).mtimeMs - statSync(left).mtimeMs);
 }
 
-function readMarkdownSummary(filePath: string): { title: string; summary: string | null } {
+type MarkdownSummary = {
+  title: string;
+  summary: string | null;
+  focusType: string | null;
+  relatedChangeId: string | null;
+};
+
+function toOptionalString(value: string | string[] | undefined): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  return normalized ? normalized : null;
+}
+
+function readMarkdownSummary(filePath: string): MarkdownSummary {
   const content = readFileSync(filePath, "utf8");
   const frontmatter = parseFrontmatter(content);
   return {
     title: String(frontmatter.title ?? frontmatter.id ?? basename(filePath)),
     summary: parseSection(content, "Summary"),
+    focusType: toOptionalString(frontmatter.focus_type),
+    relatedChangeId: toOptionalString(frontmatter.related_change_id),
   };
+}
+
+function formatMarkdownSignal(entry: MarkdownSummary | null): string | null {
+  if (!entry) return null;
+
+  const annotations: string[] = [];
+  if (entry.focusType === "active_change_continuation" && !entry.relatedChangeId) {
+    annotations.push("focus/change mismatch: no related change");
+  }
+
+  const label = annotations.length > 0 ? `${entry.title} [${annotations.join("; ")}]` : entry.title;
+  return shorten(`${label}: ${entry.summary ?? "no summary"}`);
 }
 
 function latestMemorySignals(): { devlog: string | null; durable: string | null } {
@@ -242,8 +269,8 @@ function latestMemorySignals(): { devlog: string | null; durable: string | null 
   const durable = durablePath ? readMarkdownSummary(durablePath) : null;
 
   return {
-    devlog: devlog ? shorten(`${devlog.title}: ${devlog.summary ?? "no summary"}`) : null,
-    durable: durable ? shorten(`${durable.title}: ${durable.summary ?? "no summary"}`) : null,
+    devlog: formatMarkdownSignal(devlog),
+    durable: formatMarkdownSignal(durable),
   };
 }
 
@@ -395,7 +422,8 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     "- Keep your rationale explicit.",
     "- Continue the active change if it is the best move.",
     "- If there is no active change, choose the best self-maintenance/evolution action from current evidence.",
-    "- Do not start a second cycle or outline a long queue of future cycles.",
+    "- If planning a multi-cycle change, ensure to create a proper OpenSpec change with a clear task queue and do not rely on implicit future cycles to carry important context or rationale.",
+    "- Do not self-start a second cycle.",
     "- Leave verification and recovery state visible; do not invent hidden completion criteria.",
     "- Before creating a new user request, first run `/user-requests` and, if needed, `/user-request-status <requestId>` to review prior approvals and denials.",
     "- If you still need operator help, create exactly one explicit request with `/user-request <category> | <summary> | <details>` and avoid repeating previously denied asks unless you have materially new justification.",
@@ -403,7 +431,7 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     "- Before writing your final operator-facing summary, check the live verification and recovery state and align your summary with that recorded state.",
     "- If you describe verification or recovery status, prefer the actual AIES status surfaces and recorded state over your own optimistic narrative.",
     "- If the slice is docs-only or explanation-only, say that plainly instead of implying code/runtime verification happened.",
-    "- If you changed any non-document files, run `cd operator-ui && npm run build` and `cd operator-ui && npx tsc --noEmit` before finalizing, unless the environment clearly prevents it; if they do not run, say so plainly.",
+    "- If you changed any non-document files, run `./verify-aies-quick.ps1` before finalizing; it covers the standard operator-ui build/typecheck checks plus a local AIES runtime slash-command smoke check. If it cannot run, say so plainly and explain which step was blocked.",
   ];
 
   return {

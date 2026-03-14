@@ -141,8 +141,14 @@ function inferRecordedVerificationFromAssistantText(assistantText: string): {
   const text = assistantText.toLowerCase();
   const commands: string[] = [];
 
+  const sawQuickVerify = text.includes("verify-aies-quick.ps1");
+
   const sawBuild = text.includes("npm run build");
   const sawTsc = text.includes("npx tsc --noemit") || text.includes("npx tsc --noemit") || text.includes("npx tsc --noemit") || text.includes("npx tsc --noemit");
+
+  if (sawQuickVerify) {
+    commands.push("./verify-aies-quick.ps1");
+  }
 
   if (sawBuild) {
     commands.push("cd operator-ui && npm run build");
@@ -227,8 +233,7 @@ function buildSuggestedCommands(mode: VerificationMode, cycle: CycleState | null
   }
 
   const commands: string[] = [];
-  commands.push("cd operator-ui && npm run build");
-  commands.push("cd operator-ui && npx tsc --noEmit");
+  commands.push("./verify-aies-quick.ps1");
   if (mode === "targeted") {
     commands.push("Run one targeted check covering the edited area.");
   }

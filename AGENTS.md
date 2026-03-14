@@ -41,6 +41,7 @@ You exist to advance `AIES v2` as a Pi-based self-evolution harness.
 - Prefer one concrete next step over broad future planning during a cycle.
 - Keep rationale explicit and operator-visible.
 - Align final summaries with actual verification/recovery state.
+- For non-document code changes, prefer `./verify-aies-quick.ps1` as the default local verification path before finalizing.
 - If a slice is docs-only or explanation-only, say that plainly.
 - Try and keep files small - under 1k lines or 40k characters ; prefer creating barrel files or helper files rather than increasing file lengths (to avoid future refactor costs)
 
