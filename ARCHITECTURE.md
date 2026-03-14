@@ -15,12 +15,12 @@ The bootstrap is designed to sit on top of a `pi-mono` execution core rather tha
 
 If you need to understand the repo quickly, start here:
 
-- `aies/config.json` — canonical run-level configuration: project name, runtime roots, and execution core
-- `aies/extensions/shared/paths.ts` — canonical path map for runtime, memory, OpenSpec, prompts, skills, and handoffs
-- `operator-ui/server/index.ts` — HTTP API and static-server entrypoint for the operator console
-- `operator-ui/server/lib.ts` — runtime state, session parsing, timeline generation, and `pi-mono` execution bridge
-- `operator-ui/src/main.ts` — Lit frontend that drives the operator console
-- `run-operator-ui.ps1` and `launch-aies-run.ps1` — local entrypoints for running the system
+- `aies/config.json` - canonical run-level configuration: project name, runtime roots, and execution core
+- `aies/extensions/shared/paths.ts` - canonical path map for runtime, memory, OpenSpec, prompts, skills, and handoffs
+- `operator-ui/server/index.ts` - HTTP API and static-server entrypoint for the operator console
+- `operator-ui/server/lib.ts` - runtime state, session parsing, timeline generation, and `pi-mono` execution bridge
+- `operator-ui/src/main.ts` - Lit frontend that drives the operator console
+- `run-operator-ui.ps1` and `launch-aies-run.ps1` - local entrypoints for running the system
 
 ## System Shape
 
@@ -45,7 +45,7 @@ If you need to understand the repo quickly, start here:
 
 ## Important Boundaries
 
-- `aies/config.json` is the repo’s canonical runtime configuration, and `aies/extensions/shared/config.ts` / `aies/extensions/shared/paths.ts` turn that into code-facing paths and names. Keep path or root changes aligned across those files.
+- `aies/config.json` is the repo's canonical runtime configuration, and `aies/extensions/shared/config.ts` / `aies/extensions/shared/paths.ts` turn that into code-facing paths and names. Keep path or root changes aligned across those files.
 - `aies/contracts/` is intended for stable internal contracts only. Keep serialization-friendly shapes there and avoid embedding runtime policy logic.
 - `operator-ui/` is an observer-controller surface, not the execution core. It reads sessions and memory, mutates local control files, and shells out to `pi-mono` when it needs actual execution.
 - `operator-ui/server/lib.ts` is the main bridge between UI actions and persisted run state. It owns `.aies-runtime/operator-ui`, session discovery under `.aies-runtime/sessions`, and process invocation of the upstream CLI.
@@ -56,7 +56,7 @@ If you need to understand the repo quickly, start here:
 ## Runtime Flow
 
 1. A launcher script starts the local surfaces.
-2. Shared path/config helpers resolve the run’s filesystem roots.
+2. Shared path/config helpers resolve the run's filesystem roots.
 3. AIES extensions register commands and state hooks into the upstream agent runtime.
 4. The operator UI backend reads `.aies-runtime/sessions`, `memory/`, and `openspec/changes` to build operator state.
 5. The Lit frontend fetches `/api/state` and related endpoints, then posts control mutations back to the backend.
@@ -81,7 +81,10 @@ If you need to understand the repo quickly, start here:
 
 ## Source Docs
 
-- `openspec/README.md` explains why this repo’s `openspec/` tree is canonical for AIES changes.
+- `openspec/README.md` explains why this repo's `openspec/` tree is canonical for AIES changes.
 - `memory/README.md` describes the durable memory layout.
 - `aies/contracts/README.md`, `aies/prompts/README.md`, and `aies/skills/README.md` document the intended role of those local extension surfaces.
 - `docs/foundations/AI-Human-Stack-Component-Reference-Map.md` and `docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md` provide broader conceptual context.
+
+
+
