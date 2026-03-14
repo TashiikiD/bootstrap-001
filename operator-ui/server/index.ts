@@ -26,7 +26,7 @@ import {
   type ControlState,
   type ParsedSession,
   type PiExecutionResult,
-} from "./lib.ts";
+} from "./lib";
 
 const port = Number.parseInt(process.env.AIES_OPERATOR_UI_PORT ?? "4320", 10);
 const distRoot = resolve(operatorUiRoot, "dist");

@@ -7,7 +7,7 @@ import type {
   PanelState,
   ThoughtStreamItem,
   TranscriptMessage,
-} from "./types.ts";
+} from "./types";
 import "./app.css";
 
 type ViewTab = "live" | "history";
