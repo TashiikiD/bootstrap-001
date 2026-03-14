@@ -1,5 +1,5 @@
 param(
-  [ValidateSet("dev", "frontend", "backend", "build", "install")]
+  [ValidateSet("dev", "frontend", "backend", "build", "install", "serve")]
   [string]$Mode = "dev"
 )
 
@@ -61,6 +61,20 @@ try {
       npm run dev
       if ($LASTEXITCODE -ne 0) {
         throw "npm run dev failed"
+      }
+    }
+    "serve" {
+      Write-Host "Building operator-ui static bundle..."
+      npm run build
+      if ($LASTEXITCODE -ne 0) {
+        throw "npm run build failed"
+      }
+
+      Write-Host "Starting backend with built frontend on http://127.0.0.1:4320 ..."
+      $env:AIES_PI_MONO_ROOT = $piMonoRoot
+      npm run backend
+      if ($LASTEXITCODE -ne 0) {
+        throw "npm run backend failed"
       }
     }
   }

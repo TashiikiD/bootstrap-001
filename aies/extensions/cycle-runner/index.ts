@@ -324,17 +324,21 @@ function renderLiveStatusSection(
   const currentSession = getSessionId(ctx);
   const currentSessionLabel = currentSession === "ephemeral" ? currentSession : basename(currentSession);
   const controlSessionLabel = controls?.activeSessionPath ? basename(controls.activeSessionPath) : "none";
-  const sessionMismatch = controls?.activeSessionPath
+  const hasSessionMismatch = Boolean(
+    controls?.activeSessionPath
     && currentSession !== "ephemeral"
-    && resolve(controls.activeSessionPath) !== resolve(currentSession)
-      ? ` [mismatch: current session is ${currentSessionLabel}]`
-      : "";
+    && resolve(controls.activeSessionPath) !== resolve(currentSession),
+  );
+  const sessionMismatch = hasSessionMismatch ? ` [mismatch: current session is ${currentSessionLabel}]` : "";
   const controlModeLabel = controls?.verificationMode
     ? `${controls.verificationMode}${controls?.verificationSource ? ` (${controls.verificationSource})` : ""}`
     : "none";
   const recordedModeLabel = modeEntry ? `${modeEntry.mode} (${modeEntry.source})` : "none";
   const verificationLabel = verification ? `${verification.record.mode}/${verification.record.result}` : "none";
   const recoveryLabel = recovery ? `${recovery.status}/${recovery.reasonType}/${recovery.severity}` : "none";
+  const interpretationLabel = hasSessionMismatch
+    ? "Operator controls target another session; treat control-derived verification mode as advisory context only for this turn."
+    : "Operator controls align with the current session.";
 
   return [
     "Live status surfaces:",
@@ -344,6 +348,7 @@ function renderLiveStatusSection(
     `- Session verification mode entry: ${recordedModeLabel}`,
     `- Session verification record: ${verificationLabel}`,
     `- Session recovery record: ${recoveryLabel}`,
+    `- Live status interpretation: ${interpretationLabel}`,
   ];
 }
 

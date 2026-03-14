@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 const serverDir = dirname(fileURLToPath(import.meta.url));
 export const operatorUiRoot = resolve(serverDir, "..");
 export const projectRoot = resolve(operatorUiRoot, "..");
@@ -117,6 +117,13 @@ export interface PiExecutionResult {
   signal: NodeJS.Signals | null;
   timedOut: boolean;
   durationMs: number;
+  args: string[];
+  errorMessage: string | null;
+}
+
+export interface PiDetachedLaunchResult {
+  ok: boolean;
+  pid: number | null;
   args: string[];
   errorMessage: string | null;
 }
@@ -762,4 +769,47 @@ export async function runPi(args: string[], options: RunPiOptions = {}): Promise
       },
     );
   });
+}
+
+export function runPiDetached(args: string[]): PiDetachedLaunchResult {
+  const missingRuntimePaths: string[] = [];
+  if (!existsSync(tsxCli)) missingRuntimePaths.push(`tsx runtime not found at ${tsxCli}`);
+  if (!existsSync(piCli)) missingRuntimePaths.push(`pi CLI not found at ${piCli}`);
+  if (!existsSync(tsconfigPath)) missingRuntimePaths.push(`TypeScript config not found at ${tsconfigPath}`);
+
+  if (missingRuntimePaths.length > 0) {
+    return {
+      ok: false,
+      pid: null,
+      args,
+      errorMessage: `Unable to launch Pi runtime. ${missingRuntimePaths.join("; ")}. Set AIES_PI_MONO_ROOT to a valid pi-mono checkout.`,
+    };
+  }
+
+  try {
+    const child = spawn(
+      "node",
+      [tsxCli, "--tsconfig", tsconfigPath, piCli, ...args],
+      {
+        cwd: projectRoot,
+        windowsHide: true,
+        detached: true,
+        stdio: "ignore",
+      },
+    );
+    child.unref();
+    return {
+      ok: true,
+      pid: child.pid ?? null,
+      args,
+      errorMessage: null,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      pid: null,
+      args,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    };
+  }
 }

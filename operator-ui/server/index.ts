@@ -24,6 +24,7 @@ import {
   parseTranscript,
   readMarkdownSummary,
   runPi,
+  runPiDetached,
   saveControls,
   updateAction,
   updateOperatorRequest,
@@ -271,7 +272,7 @@ function persistHeartbeatTriggerCommand(snapshot: ReturnType<typeof getHeartbeat
 async function executeCycleTrigger(
   kind: "manual" | "cadence" | "continuous",
   options: { suppressIfBusy?: boolean; suppressIfActiveCycle?: boolean } = {},
-): Promise<{ ok: boolean; skipped?: boolean; result?: PiExecutionResult; error?: string }> {
+): Promise<{ ok: boolean; skipped?: boolean; result?: PiExecutionResult; launchPid?: number | null; error?: string }> {
   const snapshot = getHeartbeatSnapshot();
   persistHeartbeatTriggerCommand(snapshot);
 
@@ -294,21 +295,21 @@ async function executeCycleTrigger(
   }
   args.push(HEARTBEAT_TRIGGER_COMMAND);
 
-  const result = await runPiSerialized(`heartbeat-${kind}`, args, PROMPT_TIMEOUT_MS);
+  const launch = runPiDetached(args);
   schedulerState.lastTriggerAt = new Date().toISOString();
   schedulerState.lastTriggerKind = kind;
-  if (!result.ok) {
+  if (!launch.ok) {
     setLastSkipped(null);
     if (kind !== "manual") {
       appendOperatorAction({
         category: "cycle-runner",
         summary: kind === "cadence" ? "Heartbeat cadence trigger failed" : "Continuous restart trigger failed",
         status: "open",
-        note: buildSyncFailureNote("Cycle run", HEARTBEAT_TRIGGER_COMMAND, result),
+        note: launch.errorMessage,
         snapshot,
       });
     }
-    return { ok: false, result, error: buildSyncFailureNote("Cycle run", HEARTBEAT_TRIGGER_COMMAND, result) };
+    return { ok: false, error: launch.errorMessage ?? "Failed to launch cycle run" };
   }
 
   setLastSkipped(null);
@@ -317,11 +318,11 @@ async function executeCycleTrigger(
       category: "cycle-runner",
       summary: kind === "cadence" ? "Heartbeat cadence started cycle run" : "Continuous mode started next cycle",
       status: "logged",
-      note: summarizePiResult(result),
+      note: `Launched detached Pi process ${launch.pid ?? "unknown"}`,
       snapshot,
     });
   }
-  return { ok: true, result };
+  return { ok: true, launchPid: launch.pid };
 }
 
 async function reconcileHeartbeatAutomation(): Promise<void> {
@@ -821,24 +822,24 @@ async function handleMutation(req: any, res: any, path: string) {
       }
       appendSyncAction({
         category: "cycle-runner",
-        summary: triggerResult.result?.timedOut ? "Cycle run command timed out" : "Cycle run command failed",
+        summary: "Cycle run command failed",
         status: "open",
         note: triggerResult.error ?? null,
       });
       return json(
         res,
         { error: triggerResult.error ?? "Cycle run failed", state: buildState() },
-        triggerResult.result?.timedOut ? 504 : 502,
+        502,
       );
     }
     appendSyncAction({
       category: "cycle-runner",
-      summary: "Cycle run command executed",
+      summary: "Cycle run command launched",
       status: "logged",
-      note: summarizePiResult(triggerResult.result!),
+      note: `Launched detached Pi process ${triggerResult.launchPid ?? "unknown"}`,
     });
     await reconcileHeartbeatAutomation();
-    return json(res, { ok: true, output: triggerResult.result!.stdout.trim(), state: buildState() });
+    return json(res, { ok: true, output: `Launched detached Pi process ${triggerResult.launchPid ?? "unknown"}`, state: buildState() });
   }
 
   if (path === "/api/controls/heartbeat") {
