@@ -33,6 +33,7 @@ This run exists to advance `AIES v2` as a Pi-based self-evolution harness.
 - Keep rationale explicit and operator-visible.
 - Align final summaries with actual verification/recovery state.
 - If a slice is docs-only or explanation-only, say that plainly.
+- Try and keep files small - under 1k lines or 40k characters ; prefer creating barrel files or helper files rather than increasing file lengths (to avoid future refactor costs)
 
 ## Repo Map
 
