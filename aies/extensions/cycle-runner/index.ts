@@ -354,7 +354,7 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     recoveryFirst
       ? "Recovery rule: unresolved recovery debt exists for the current work; prefer addressing it if it materially affects trust in the change."
       : "Recovery rule: keep recovery debt visible and advisory, not coercive.",
-    "Theory reference rule: use the AIES theory assets below as the canonical conceptual frame for coherence, intent, evaluation, harness design, and audit posture when they are relevant to the cycle.",
+    "Theory reference rule: use the AIES theory assets below as the canonical conceptual frame for evolution-direction, coherence, intent, evaluation, harness design, and audit posture when they are relevant to the cycle.",
     "",
     "Theory assets:",
     "- docs/foundations/AI-Human-Stack-Component-Reference-Map.md",
@@ -390,6 +390,9 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     "- If there is no active change, choose the best self-maintenance/evolution action from current evidence.",
     "- Do not start a second cycle or outline a long queue of future cycles.",
     "- Leave verification and recovery state visible; do not invent hidden completion criteria.",
+    "- Before creating a new user request, first run `/user-requests` and, if needed, `/user-request-status <requestId>` to review prior approvals and denials.",
+    "- If you still need operator help, create exactly one explicit request with `/user-request <category> | <summary> | <details>` and avoid repeating previously denied asks unless you have materially new justification.",
+    "- If a similar request was previously denied, reference that denial explicitly in the new `/user-request` details and explain what changed before asking again.",
     "- Before writing your final operator-facing summary, check the live verification and recovery state and align your summary with that recorded state.",
     "- If you describe verification or recovery status, prefer the actual AIES status surfaces and recorded state over your own optimistic narrative.",
     "- If the slice is docs-only or explanation-only, say that plainly instead of implying code/runtime verification happened.",
