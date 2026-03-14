@@ -1,5 +1,5 @@
 ---
-change_id: CHG-aies-v2-bootstrap
+change_id: chg-aies-v2-bootstrap
 title: AIES v2 Pi integration bootstrap
 status: active
 current_task_id: task-active-cycle-runner
