@@ -123,6 +123,21 @@ export interface ControlState {
   };
 }
 
+export interface TriggerAudit {
+  pending: boolean;
+  status: "idle" | "launching" | "launched" | "skipped" | "failed";
+  message: string | null;
+  targetSessionPath: string | null;
+  requestedAt: string | null;
+  lastTriggerAt: string | null;
+  lastTriggerKind: "manual" | "cadence" | "continuous" | null;
+  lastLaunchPid: number | null;
+  lastSkippedAt: string | null;
+  lastSkippedReason: string | null;
+  activeCycleId: string | null;
+  activeCyclePhase: string | null;
+}
+
 export interface ObservatoryData {
   recentCycles: Array<Record<string, unknown>>;
   evaluationTrends: Array<{ dimension: string; observations: number; averageScore: number | null }>;
@@ -140,6 +155,7 @@ export interface OperatorStateResponse {
   activeSessionPath: string | null;
   sessions: SessionSummary[];
   controls: ControlState;
+  triggerAudit: TriggerAudit;
   transcript: TranscriptMessage[];
   thoughtStream: ThoughtStreamItem[];
   panels: Record<string, PanelState>;

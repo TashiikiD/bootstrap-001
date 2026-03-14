@@ -51,6 +51,11 @@ const schedulerState: {
   lastCompletedAtSeen: string | null;
   lastTriggerAt: string | null;
   lastTriggerKind: "manual" | "cadence" | "continuous" | null;
+  lastLaunchPid: number | null;
+  lastTriggerStatus: "idle" | "launching" | "launched" | "skipped" | "failed";
+  lastTriggerMessage: string | null;
+  lastTriggerTargetSessionPath: string | null;
+  lastTriggerRequestAt: string | null;
   lastSkippedAt: string | null;
   lastSkippedReason: string | null;
 } = {
@@ -59,6 +64,11 @@ const schedulerState: {
   lastCompletedAtSeen: null,
   lastTriggerAt: null,
   lastTriggerKind: null,
+  lastLaunchPid: null,
+  lastTriggerStatus: "idle",
+  lastTriggerMessage: null,
+  lastTriggerTargetSessionPath: null,
+  lastTriggerRequestAt: null,
   lastSkippedAt: null,
   lastSkippedReason: null,
 };
@@ -178,9 +188,6 @@ function getHeartbeatSnapshot() {
   const openspec = activeSession ? findLatestCustom(entries, "aies-openspec")?.data ?? null : null;
   const currentCycle = heartbeat?.currentCycle ?? null;
   const lastCycle = heartbeat?.lastCycle ?? null;
-  const openspec = activeSession ? findLatestCustom(entries, "aies-openspec")?.data ?? null : null;
-  const currentCycle = heartbeat?.currentCycle ?? null;
-  const lastCycle = heartbeat?.lastCycle ?? null;
   return {
     controls,
     activeSessionPath,
@@ -282,17 +289,29 @@ async function executeCycleTrigger(
 ): Promise<{ ok: boolean; skipped?: boolean; result?: PiExecutionResult; launchPid?: number | null; error?: string }> {
   const snapshot = getHeartbeatSnapshot();
   persistHeartbeatTriggerCommand(snapshot);
+  schedulerState.lastTriggerRequestAt = new Date().toISOString();
+  schedulerState.lastTriggerKind = kind;
+  schedulerState.lastTriggerTargetSessionPath = snapshot.activeSessionPath ?? null;
+  schedulerState.lastLaunchPid = null;
+  schedulerState.lastTriggerStatus = "launching";
+  schedulerState.lastTriggerMessage = `Attempting ${HEARTBEAT_TRIGGER_COMMAND}`;
 
   if (options.suppressIfActiveCycle && isHeartbeatCycleActive(snapshot)) {
     setLastSkipped("cycle-active");
+    schedulerState.lastTriggerStatus = "skipped";
+    schedulerState.lastTriggerMessage = "Skipped because a cycle is already active.";
     return { ok: false, skipped: true };
   }
 
   if (hasActiveMutation()) {
     if (options.suppressIfBusy) {
       setLastSkipped(`pi-busy:${activePiMutationLabel ?? "mutation"}`);
+      schedulerState.lastTriggerStatus = "skipped";
+      schedulerState.lastTriggerMessage = `Skipped because Pi is busy: ${activePiMutationLabel ?? "mutation"}`;
       return { ok: false, skipped: true };
     }
+    schedulerState.lastTriggerStatus = "failed";
+    schedulerState.lastTriggerMessage = `Pi mutation already in progress: ${activePiMutationLabel}`;
     return { ok: false, error: `Pi mutation already in progress: ${activePiMutationLabel}` };
   }
 
@@ -304,9 +323,10 @@ async function executeCycleTrigger(
 
   const launch = runPiDetached(args);
   schedulerState.lastTriggerAt = new Date().toISOString();
-  schedulerState.lastTriggerKind = kind;
   if (!launch.ok) {
     setLastSkipped(null);
+    schedulerState.lastTriggerStatus = "failed";
+    schedulerState.lastTriggerMessage = launch.errorMessage ?? "Failed to launch cycle run";
     if (kind !== "manual") {
       appendOperatorAction({
         category: "cycle-runner",
@@ -320,6 +340,9 @@ async function executeCycleTrigger(
   }
 
   setLastSkipped(null);
+  schedulerState.lastLaunchPid = launch.pid ?? null;
+  schedulerState.lastTriggerStatus = "launched";
+  schedulerState.lastTriggerMessage = `Launched ${HEARTBEAT_TRIGGER_COMMAND} in Pi process ${launch.pid ?? "unknown"}`;
   if (kind !== "manual") {
     appendOperatorAction({
       category: "cycle-runner",
@@ -716,6 +739,20 @@ function buildState() {
       messageCount: session.entries.filter((entry) => entry.type === "message").length,
     })),
     controls: loadControls(),
+    triggerAudit: {
+      pending: schedulerState.lastTriggerStatus === "launching",
+      status: schedulerState.lastTriggerStatus,
+      message: schedulerState.lastTriggerMessage,
+      targetSessionPath: schedulerState.lastTriggerTargetSessionPath,
+      requestedAt: schedulerState.lastTriggerRequestAt,
+      lastTriggerAt: schedulerState.lastTriggerAt,
+      lastTriggerKind: schedulerState.lastTriggerKind,
+      lastLaunchPid: schedulerState.lastLaunchPid,
+      lastSkippedAt: schedulerState.lastSkippedAt,
+      lastSkippedReason: schedulerState.lastSkippedReason,
+      activeCycleId: currentCycle?.cycleId ?? null,
+      activeCyclePhase: currentCycle?.currentPhase ?? null,
+    },
     transcript,
     thoughtStream,
     panels,

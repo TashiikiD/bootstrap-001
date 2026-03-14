@@ -8,6 +8,7 @@ import type {
   PanelState,
   ThoughtStreamItem,
   TranscriptMessage,
+  TriggerAudit,
 } from "./types";
 import "./app.css";
 
@@ -66,6 +67,8 @@ class AiesOperatorApp extends LitElement {
     verificationCommandDraft: { state: true },
     verificationFailureDraft: { state: true },
     requestCommentDrafts: { state: true },
+    triggerPending: { state: true },
+    triggerMessage: { state: true },
   };
 
   declare state: OperatorStateResponse | null;
@@ -81,6 +84,8 @@ class AiesOperatorApp extends LitElement {
   declare verificationCommandDraft: string;
   declare verificationFailureDraft: string;
   declare requestCommentDrafts: Record<string, string>;
+  declare triggerPending: boolean;
+  declare triggerMessage: string | null;
   private refreshTimer: number | null = null;
 
   constructor() {
@@ -98,6 +103,8 @@ class AiesOperatorApp extends LitElement {
     this.verificationCommandDraft = "";
     this.verificationFailureDraft = "";
     this.requestCommentDrafts = {};
+    this.triggerPending = false;
+    this.triggerMessage = null;
   }
 
   createRenderRoot(): this {
@@ -175,7 +182,18 @@ class AiesOperatorApp extends LitElement {
   }
 
   private async triggerCycle(): Promise<void> {
-    await this.post("/api/controls/trigger", {});
+    const targetSession = this.state?.activeSessionPath ?? this.state?.sessions[0]?.path ?? null;
+    this.triggerPending = true;
+    this.triggerMessage = `Starting /cycle-run for ${sessionPathLabel(targetSession)}...`;
+    try {
+      await this.post("/api/controls/trigger", {});
+      this.triggerMessage = this.state?.triggerAudit.message ?? "Cycle trigger launched.";
+      window.setTimeout(() => void this.refreshState(), 1000);
+      window.setTimeout(() => void this.refreshState(), 3000);
+      window.setTimeout(() => void this.refreshState(), 7000);
+    } finally {
+      this.triggerPending = false;
+    }
   }
 
   private async updateHeartbeat(field: Partial<ControlState["heartbeat"]>): Promise<void> {
@@ -430,6 +448,8 @@ class AiesOperatorApp extends LitElement {
     const providerOptions = ["codex-lb", "kimi-lb"];
     const modelOptions = ["gpt-5.2", "gpt-5.3-codex", "gpt-5.4", "gpt-5.1-codex-mini", "k2p5"];
     const latestSession = state.sessions[0] ?? null;
+    const triggerAudit = state.triggerAudit as TriggerAudit;
+    const triggerMessage = this.triggerMessage ?? triggerAudit.message;
     const pinnedOlderSession = Boolean(
       controls.activeSessionPath
       && latestSession
@@ -442,8 +462,17 @@ class AiesOperatorApp extends LitElement {
           <h2>Operator Controls</h2>
           <div class="button-row">
             <button class="button secondary" @click=${() => void this.refreshState()}>Refresh</button>
-            <button class="button" @click=${() => void this.triggerCycle()}>Run Cycle</button>
+            <button class="button" ?disabled=${this.triggerPending} @click=${() => void this.triggerCycle()}>
+              ${this.triggerPending ? "Starting..." : "Run Cycle"}
+            </button>
           </div>
+        <div class="callout small">
+          ${triggerMessage ?? "No recent cycle trigger from the operator UI."}
+          <br />
+          ${`Target session: ${sessionPathLabel(triggerAudit.targetSessionPath ?? state.activeSessionPath ?? latestSession?.path ?? null)} · Status: ${triggerAudit.status}${triggerAudit.lastLaunchPid ? ` · PID ${triggerAudit.lastLaunchPid}` : ""}${triggerAudit.lastTriggerAt ? ` · launched ${formatTimestamp(triggerAudit.lastTriggerAt)}` : ""}`}
+          <br />
+          ${`Active cycle: ${triggerAudit.activeCycleId ?? "none"} · Phase: ${triggerAudit.activeCyclePhase ?? "idle"}`}
+        </div>
         </div>
         ${pinnedOlderSession
           ? html`
