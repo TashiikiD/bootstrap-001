@@ -32,6 +32,26 @@ function Invoke-Git {
   }
 }
 
+function New-ShortcutFile {
+  param(
+    [string]$ShortcutPath,
+    [string]$TargetPath,
+    [string]$Arguments,
+    [string]$WorkingDirectory,
+    [string]$IconLocation
+  )
+
+  $shell = New-Object -ComObject WScript.Shell
+  $shortcut = $shell.CreateShortcut($ShortcutPath)
+  $shortcut.TargetPath = $TargetPath
+  $shortcut.Arguments = $Arguments
+  $shortcut.WorkingDirectory = $WorkingDirectory
+  if ($IconLocation -and (Test-Path $IconLocation)) {
+    $shortcut.IconLocation = "$IconLocation,0"
+  }
+  $shortcut.Save()
+}
+
 $projectRoot = [System.IO.Path]::GetFullPath($PSScriptRoot)
 $piMonoLocal = Join-Path $projectRoot "pi-mono"
 $resolvedRunsRoot = [System.IO.Path]::GetFullPath($RunsRoot)
@@ -117,13 +137,119 @@ $launchContent = @(
 ) -join [Environment]::NewLine
 Set-Content -Path $launchFile -Value $launchContent -Encoding UTF8
 
+$iconSource = Join-Path $projectRoot "launcher-assets\aies-run-launcher.ico"
+$iconPngSource = Join-Path $projectRoot "launcher-assets\aies-run-launcher.png"
+$iconTarget = Join-Path $worktreePath "aies-run-launcher.ico"
+$iconPngTarget = Join-Path $worktreePath "aies-run-launcher.png"
+if (Test-Path $iconSource) {
+  Copy-Item $iconSource $iconTarget -Force
+}
+if (Test-Path $iconPngSource) {
+  Copy-Item $iconPngSource $iconPngTarget -Force
+}
+
+$wtLauncherPath = Join-Path $worktreePath "launch-aies-run.ps1"
+$wtLauncherCmdPath = Join-Path $worktreePath "launch-aies-run.cmd"
+$wtLauncherContent = @"
+param(
+  [switch]`$DryRun
+)
+
+`$ErrorActionPreference = 'Stop'
+`$runRoot = Split-Path -Parent `$MyInvocation.MyCommand.Path
+`$runEnv = Join-Path `$runRoot 'run-env.ps1'
+`$piScript = Join-Path `$runRoot 'run-aies-on-pi.ps1'
+`$uiScript = Join-Path `$runRoot 'run-operator-ui.ps1'
+`$uiUrl = 'http://127.0.0.1:4321'
+`$wtCommand = Get-Command wt -ErrorAction SilentlyContinue
+
+if (-not `$wtCommand) {
+  throw 'Windows Terminal (wt) was not found on PATH.'
+}
+
+`$tuiCommand = "& '`$runEnv'; & '`$piScript'"
+`$cliCommand = "& '`$runEnv'; Write-Host 'AIES CLI shell ready.'; Write-Host 'Useful commands: /cycle-run, /cycle-status, /verification-plan, /recovery-status';"
+`$webUiCommand = "& '`$runEnv'; & '`$uiScript' -Mode dev"
+
+if (`$DryRun) {
+  Write-Host 'Dry run only. Planned actions:'
+  Write-Host "  Web UI process: powershell -NoExit -ExecutionPolicy Bypass -Command `$webUiCommand"
+  Write-Host "  Browser URL: `$uiUrl"
+  Write-Host "  WT tab 1 (TUI): `$tuiCommand"
+  Write-Host "  WT tab 2 (CLI): `$cliCommand"
+  return
+}
+
+Start-Process -FilePath 'powershell.exe' -ArgumentList @(
+  '-NoExit',
+  '-ExecutionPolicy',
+  'Bypass',
+  '-Command',
+  `$webUiCommand
+) | Out-Null
+
+Start-Process -FilePath 'powershell.exe' -WindowStyle Hidden -ArgumentList @(
+  '-ExecutionPolicy',
+  'Bypass',
+  '-Command',
+  "Start-Sleep -Seconds 4; Start-Process '`$uiUrl'"
+) | Out-Null
+
+Start-Process -FilePath `$wtCommand.Source -ArgumentList @(
+  'new-tab',
+  '--title',
+  'AIES TUI - $runName',
+  'powershell',
+  '-NoExit',
+  '-ExecutionPolicy',
+  'Bypass',
+  '-Command',
+  `$tuiCommand,
+  ';',
+  'new-tab',
+  '--title',
+  'AIES CLI - $runName',
+  'powershell',
+  '-NoExit',
+  '-ExecutionPolicy',
+  'Bypass',
+  '-Command',
+  `$cliCommand
+) | Out-Null
+"@
+Set-Content -Path $wtLauncherPath -Value $wtLauncherContent -Encoding UTF8
+
+$wtLauncherCmdContent = @(
+  '@echo off',
+  'powershell.exe -ExecutionPolicy Bypass -File "%~dp0launch-aies-run.ps1" %*'
+) -join [Environment]::NewLine
+Set-Content -Path $wtLauncherCmdPath -Value $wtLauncherCmdContent -Encoding ASCII
+
+$powershellExe = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+$shortcutName = "AIES $runName.lnk"
+$runShortcutPath = Join-Path $worktreePath $shortcutName
+$desktopPath = [Environment]::GetFolderPath('Desktop')
+$desktopShortcutPath = if ($desktopPath) { Join-Path $desktopPath $shortcutName } else { $null }
+$shortcutArguments = "-ExecutionPolicy Bypass -File `"$wtLauncherPath`""
+
+New-ShortcutFile -ShortcutPath $runShortcutPath -TargetPath $powershellExe -Arguments $shortcutArguments -WorkingDirectory $worktreePath -IconLocation $iconTarget
+if ($desktopShortcutPath) {
+  New-ShortcutFile -ShortcutPath $desktopShortcutPath -TargetPath $powershellExe -Arguments $shortcutArguments -WorkingDirectory $worktreePath -IconLocation $iconTarget
+}
+
 Write-Host ""
 Write-Host "Run worktree ready."
 Write-Host "Worktree: $worktreePath"
 Write-Host "Branch:   $branchName"
 Write-Host "Pi-Mono:  $piRootForEnv"
+Write-Host "Launcher: $wtLauncherPath"
+Write-Host "Shortcut: $runShortcutPath"
+if ($desktopShortcutPath) {
+  Write-Host "Desktop:  $desktopShortcutPath"
+}
 Write-Host ""
 Write-Host "Next commands:"
 Write-Host "  powershell -NoExit -ExecutionPolicy Bypass -File '$launchFile'"
+Write-Host "  .\launch-aies-run.ps1"
 Write-Host "  .\run-aies-on-pi.ps1 --help"
 Write-Host "  .\run-operator-ui.ps1 -Mode dev"

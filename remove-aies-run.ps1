@@ -19,6 +19,9 @@ function Invoke-Git {
 $projectRoot = [System.IO.Path]::GetFullPath($PSScriptRoot)
 $resolvedRunPath = [System.IO.Path]::GetFullPath($RunPath)
 $normalizedRunPath = $resolvedRunPath.Replace('\', '/')
+$runName = Split-Path $resolvedRunPath -Leaf
+$desktopPath = [Environment]::GetFolderPath('Desktop')
+$desktopShortcutPath = if ($desktopPath) { Join-Path $desktopPath ("AIES $runName.lnk") } else { $null }
 
 if (-not (Test-Path $resolvedRunPath)) {
   throw "Run path does not exist: $resolvedRunPath"
@@ -65,6 +68,11 @@ if ($RemoveBranch -and $branchName) {
   } else {
     Invoke-Git -Arguments @("branch", "-d", $branchName)
   }
+}
+
+if ($desktopShortcutPath -and (Test-Path $desktopShortcutPath)) {
+  Remove-Item $desktopShortcutPath -Force
+  Write-Host "Removed desktop shortcut: $desktopShortcutPath"
 }
 
 Write-Host "Removed run worktree: $resolvedRunPath"

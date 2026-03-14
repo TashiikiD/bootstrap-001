@@ -21,6 +21,9 @@ This creates:
 - isolated `.aies-runtime\`
 - `run-env.ps1` helper inside the run
 - a cloned `pi-mono` inside the run by default
+- `launch-aies-run.ps1` and `launch-aies-run.cmd` inside the run
+- a local `.lnk` launcher in the run root
+- a desktop shortcut with the generated AIES icon
 
 The default path requires the main repo to be clean so the run is created from an intentional committed state.
 
@@ -54,6 +57,18 @@ Then run:
 .\run-aies-on-pi.ps1
 .\run-operator-ui.ps1 -Mode dev
 ```
+
+Or just double-click the generated shortcut / launcher:
+
+- `AIES <run-name>.lnk`
+- `launch-aies-run.cmd`
+
+That launcher:
+
+- opens Windows Terminal
+- starts one `AIES TUI` tab running Pi interactively
+- starts one `AIES CLI` tab in the run shell
+- launches the web UI and opens the browser
 
 ## Remove a run
 
