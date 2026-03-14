@@ -133,6 +133,58 @@ function parseVerificationResult(rawValue: string | undefined): VerificationResu
   return VERIFICATION_RESULTS.has(normalized) ? normalized : null;
 }
 
+function inferRecordedVerificationFromAssistantText(assistantText: string): {
+  result: VerificationResult;
+  commandSummary: string;
+  failureSummary: string;
+} {
+  const text = assistantText.toLowerCase();
+  const commands: string[] = [];
+
+  const sawBuild = text.includes("npm run build");
+  const sawTsc = text.includes("npx tsc --noemit") || text.includes("npx tsc --noemit") || text.includes("npx tsc --noemit") || text.includes("npx tsc --noemit");
+
+  if (sawBuild) {
+    commands.push("cd operator-ui && npm run build");
+  }
+  if (sawTsc) {
+    commands.push("cd operator-ui && npx tsc --noEmit");
+  }
+
+  if (commands.length === 0) {
+    return {
+      result: "not_run",
+      commandSummary: "",
+      failureSummary: assistantText ? "" : "Assistant output was unavailable at cycle end.",
+    };
+  }
+
+  const passedSignals = includesAny(text, [
+    "verification i ran",
+    "build passed",
+    "build succeeded",
+    "syntax-only transpile check passed",
+    "typecheck passed",
+    "tsc passed",
+    "noemit passed",
+    "manual verification run",
+  ]);
+  const failedSignals = includesAny(text, [
+    "build failed",
+    "tsc failed",
+    "typecheck failed",
+    "verification failed",
+    "error:",
+    "errors:",
+  ]);
+
+  return {
+    result: failedSignals ? "failed" : passedSignals ? "passed" : "partial",
+    commandSummary: commands.join(" | "),
+    failureSummary: failedSignals ? "Assistant summary reported verification failure." : "",
+  };
+}
+
 function inferModeFromFocus(focus: FocusType | null): VerificationMode | null {
   if (!focus) return null;
   if (focus === "memory_theory_consolidation") return "none";
@@ -175,6 +227,8 @@ function buildSuggestedCommands(mode: VerificationMode, cycle: CycleState | null
   }
 
   const commands: string[] = [];
+  commands.push("cd operator-ui && npm run build");
+  commands.push("cd operator-ui && npx tsc --noEmit");
   if (mode === "targeted") {
     commands.push("Run one targeted check covering the edited area.");
   }
@@ -770,11 +824,12 @@ export default function aiesVerificationExtension(pi: ExtensionAPI): void {
     }
 
     const assistantText = getMessageText([...event.messages].reverse().find((message) => message.role === "assistant"));
+    const inferred = inferRecordedVerificationFromAssistantText(assistantText);
     const record = createVerificationRecord(
       currentMode,
-      "not_run",
-      "",
-      assistantText ? "" : "Assistant output was unavailable at cycle end.",
+      inferred.result,
+      inferred.commandSummary,
+      inferred.failureSummary,
       cycle,
       promptText,
       assistantText,

@@ -403,6 +403,7 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     "- Before writing your final operator-facing summary, check the live verification and recovery state and align your summary with that recorded state.",
     "- If you describe verification or recovery status, prefer the actual AIES status surfaces and recorded state over your own optimistic narrative.",
     "- If the slice is docs-only or explanation-only, say that plainly instead of implying code/runtime verification happened.",
+    "- If you changed any non-document files, run `cd operator-ui && npm run build` and `cd operator-ui && npx tsc --noEmit` before finalizing, unless the environment clearly prevents it; if they do not run, say so plainly.",
   ];
 
   return {
