@@ -469,7 +469,7 @@ class AiesOperatorApp extends LitElement {
         <div class="callout small">
           ${triggerMessage ?? "No recent cycle trigger from the operator UI."}
           <br />
-          ${`Target session: ${sessionPathLabel(triggerAudit.targetSessionPath ?? state.activeSessionPath ?? latestSession?.path ?? null)} · Status: ${triggerAudit.status}${triggerAudit.lastLaunchPid ? ` · PID ${triggerAudit.lastLaunchPid}` : ""}${triggerAudit.lastTriggerAt ? ` · launched ${formatTimestamp(triggerAudit.lastTriggerAt)}` : ""}`}
+          ${`Target session: ${sessionPathLabel(triggerAudit.targetSessionPath ?? state.activeSessionPath ?? latestSession?.path ?? null)} · Status: ${triggerAudit.status}${triggerAudit.lastLaunchPid ? ` · Pi PID ${triggerAudit.lastLaunchPid}` : ""}${triggerAudit.lastWatchWindowPid ? ` · TUI PID ${triggerAudit.lastWatchWindowPid}` : ""}${triggerAudit.lastTriggerAt ? ` · launched ${formatTimestamp(triggerAudit.lastTriggerAt)}` : ""}`}
           <br />
           ${`Active cycle: ${triggerAudit.activeCycleId ?? "none"} · Phase: ${triggerAudit.activeCyclePhase ?? "idle"}`}
         </div>

@@ -132,6 +132,7 @@ export interface TriggerAudit {
   lastTriggerAt: string | null;
   lastTriggerKind: "manual" | "cadence" | "continuous" | null;
   lastLaunchPid: number | null;
+  lastWatchWindowPid: number | null;
   lastSkippedAt: string | null;
   lastSkippedReason: string | null;
   activeCycleId: string | null;

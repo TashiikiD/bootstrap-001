@@ -25,6 +25,7 @@ import {
   readMarkdownSummary,
   runPi,
   runPiDetached,
+  launchTuiWindow,
   saveControls,
   updateAction,
   updateOperatorRequest,
@@ -52,6 +53,7 @@ const schedulerState: {
   lastTriggerAt: string | null;
   lastTriggerKind: "manual" | "cadence" | "continuous" | null;
   lastLaunchPid: number | null;
+  lastWatchWindowPid: number | null;
   lastTriggerStatus: "idle" | "launching" | "launched" | "skipped" | "failed";
   lastTriggerMessage: string | null;
   lastTriggerTargetSessionPath: string | null;
@@ -65,6 +67,7 @@ const schedulerState: {
   lastTriggerAt: null,
   lastTriggerKind: null,
   lastLaunchPid: null,
+  lastWatchWindowPid: null,
   lastTriggerStatus: "idle",
   lastTriggerMessage: null,
   lastTriggerTargetSessionPath: null,
@@ -285,7 +288,7 @@ function persistHeartbeatTriggerCommand(snapshot: ReturnType<typeof getHeartbeat
 
 async function executeCycleTrigger(
   kind: "manual" | "cadence" | "continuous",
-  options: { suppressIfBusy?: boolean; suppressIfActiveCycle?: boolean } = {},
+  options: { suppressIfBusy?: boolean; suppressIfActiveCycle?: boolean; openWatchWindow?: boolean } = {},
 ): Promise<{ ok: boolean; skipped?: boolean; result?: PiExecutionResult; launchPid?: number | null; error?: string }> {
   const snapshot = getHeartbeatSnapshot();
   persistHeartbeatTriggerCommand(snapshot);
@@ -293,6 +296,7 @@ async function executeCycleTrigger(
   schedulerState.lastTriggerKind = kind;
   schedulerState.lastTriggerTargetSessionPath = snapshot.activeSessionPath ?? null;
   schedulerState.lastLaunchPid = null;
+  schedulerState.lastWatchWindowPid = null;
   schedulerState.lastTriggerStatus = "launching";
   schedulerState.lastTriggerMessage = `Attempting ${HEARTBEAT_TRIGGER_COMMAND}`;
 
@@ -321,6 +325,20 @@ async function executeCycleTrigger(
   }
   args.push(HEARTBEAT_TRIGGER_COMMAND);
 
+  if (kind === "manual" && options.openWatchWindow) {
+    const watchArgs = ["-p"];
+    if (snapshot.activeSessionPath) {
+      watchArgs.push("--session", String(snapshot.activeSessionPath));
+    }
+    const watchWindow = launchTuiWindow(watchArgs);
+    if (watchWindow.ok) {
+      schedulerState.lastWatchWindowPid = watchWindow.pid ?? null;
+      schedulerState.lastTriggerMessage = `Opened TUI watch window ${watchWindow.pid ?? "unknown"}; launching ${HEARTBEAT_TRIGGER_COMMAND}`;
+    } else {
+      schedulerState.lastTriggerMessage = `Launching ${HEARTBEAT_TRIGGER_COMMAND} without TUI watch window: ${watchWindow.errorMessage ?? "watch launch failed"}`;
+    }
+  }
+
   const launch = runPiDetached(args);
   schedulerState.lastTriggerAt = new Date().toISOString();
   if (!launch.ok) {
@@ -342,7 +360,9 @@ async function executeCycleTrigger(
   setLastSkipped(null);
   schedulerState.lastLaunchPid = launch.pid ?? null;
   schedulerState.lastTriggerStatus = "launched";
-  schedulerState.lastTriggerMessage = `Launched ${HEARTBEAT_TRIGGER_COMMAND} in Pi process ${launch.pid ?? "unknown"}`;
+  schedulerState.lastTriggerMessage = schedulerState.lastWatchWindowPid
+    ? `Opened TUI watch window ${schedulerState.lastWatchWindowPid} and launched ${HEARTBEAT_TRIGGER_COMMAND} in Pi process ${launch.pid ?? "unknown"}`
+    : `Launched ${HEARTBEAT_TRIGGER_COMMAND} in Pi process ${launch.pid ?? "unknown"}`;
   if (kind !== "manual") {
     appendOperatorAction({
       category: "cycle-runner",
@@ -748,6 +768,7 @@ function buildState() {
       lastTriggerAt: schedulerState.lastTriggerAt,
       lastTriggerKind: schedulerState.lastTriggerKind,
       lastLaunchPid: schedulerState.lastLaunchPid,
+      lastWatchWindowPid: schedulerState.lastWatchWindowPid,
       lastSkippedAt: schedulerState.lastSkippedAt,
       lastSkippedReason: schedulerState.lastSkippedReason,
       activeCycleId: currentCycle?.cycleId ?? null,
@@ -863,7 +884,7 @@ async function handleMutation(req: any, res: any, path: string) {
   }
 
   if (path === "/api/controls/trigger") {
-    const triggerResult = await executeCycleTrigger("manual");
+    const triggerResult = await executeCycleTrigger("manual", { openWatchWindow: true });
     if (!triggerResult.ok) {
       if (triggerResult.skipped) {
         return json(res, { error: schedulerState.lastSkippedReason ?? "Cycle run skipped", state: buildState() }, 409);

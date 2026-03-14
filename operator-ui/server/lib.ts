@@ -8,6 +8,8 @@ export const projectRoot = resolve(operatorUiRoot, "..");
 export const runtimeStateRoot = resolve(projectRoot, ".aies-runtime", "operator-ui");
 export const actionsFile = resolve(runtimeStateRoot, "actions.json");
 export const controlsFile = resolve(runtimeStateRoot, "controls.json");
+export const launchAiesTuiScript = resolve(projectRoot, "launch-aies-tui.ps1");
+export const powershellExe = resolve(process.env.WINDIR ?? "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
 const configuredPiMonoRoot = process.env.AIES_PI_MONO_ROOT?.trim();
 export const piMonoRoot = configuredPiMonoRoot ? resolve(configuredPiMonoRoot) : resolve(projectRoot, "pi-mono");
 export const tsxCli = resolve(piMonoRoot, "node_modules", "tsx", "dist", "cli.mjs");
@@ -123,6 +125,13 @@ export interface PiExecutionResult {
 }
 
 export interface PiDetachedLaunchResult {
+  ok: boolean;
+  pid: number | null;
+  args: string[];
+  errorMessage: string | null;
+}
+
+export interface WindowLaunchResult {
   ok: boolean;
   pid: number | null;
   args: string[];
@@ -812,6 +821,48 @@ export function runPiDetached(args: string[]): PiDetachedLaunchResult {
       ok: false,
       pid: null,
       args,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+export function launchTuiWindow(piArgs: string[]): WindowLaunchResult {
+  const missingPaths: string[] = [];
+  if (!existsSync(launchAiesTuiScript)) missingPaths.push(`TUI launcher not found at ${launchAiesTuiScript}`);
+  if (!existsSync(powershellExe)) missingPaths.push(`powershell.exe not found at ${powershellExe}`);
+
+  if (missingPaths.length > 0) {
+    return {
+      ok: false,
+      pid: null,
+      args: piArgs,
+      errorMessage: missingPaths.join("; "),
+    };
+  }
+
+  try {
+    const child = spawn(
+      powershellExe,
+      ["-NoExit", "-ExecutionPolicy", "Bypass", "-File", launchAiesTuiScript, ...piArgs],
+      {
+        cwd: projectRoot,
+        windowsHide: false,
+        detached: true,
+        stdio: "ignore",
+      },
+    );
+    child.unref();
+    return {
+      ok: true,
+      pid: child.pid ?? null,
+      args: piArgs,
+      errorMessage: null,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      pid: null,
+      args: piArgs,
       errorMessage: error instanceof Error ? error.message : String(error),
     };
   }
