@@ -150,7 +150,12 @@ function advancePhase(state: HeartbeatEntry, phase: CycleState["currentPhase"]):
 function updateFocus(state: HeartbeatEntry, assistantText: string): HeartbeatEntry {
   if (!state.currentCycle) return state;
   const decidedAt = nowIso();
-  const focusDecision = inferFocusDecision(state.lastPromptText ?? "", assistantText, decidedAt);
+  const focusDecision = inferFocusDecision(
+    state.lastPromptText ?? "",
+    assistantText,
+    decidedAt,
+    state.currentCycle.activeChangeId ?? null,
+  );
 
   return {
     ...state,
