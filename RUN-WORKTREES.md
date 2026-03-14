@@ -65,10 +65,33 @@ Or just double-click the generated shortcut / launcher:
 
 That launcher:
 
-- opens Windows Terminal
-- starts one `AIES TUI` tab running Pi interactively
-- starts one `AIES CLI` tab in the run shell
+- opens a PowerShell window for the web UI
+- opens a PowerShell window for the `AIES TUI` running Pi interactively
+- opens a PowerShell window for the `AIES CLI` run shell
 - launches the web UI and opens the browser
+
+## Clean scratch artifacts before commit
+
+Cycle runs may leave diagnostic scratch files in the run root during exploratory tool use.
+
+Before committing a run branch, clean the known scratch litter with:
+
+```powershell
+.\clean-aies-run-scratch.ps1
+```
+
+Or explicitly target a run:
+
+```powershell
+.\clean-aies-run-scratch.ps1 -RunRoot E:\Coding\AIES-runs\bootstrap-001
+```
+
+This removes only known hidden diagnostic text artifacts such as:
+
+- `.*_out.txt`
+- `.*_files.txt`
+- `.grep_*.txt`
+- `.rg_*.txt`
 
 ## Remove a run
 

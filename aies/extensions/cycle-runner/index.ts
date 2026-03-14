@@ -290,6 +290,8 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
 
   const lines = [
     "Run one AIES self-evolution cycle in this current session.",
+    "This prompt is the canonical synthesized cycle request. Treat it as the real user message for this cycle.",
+    "Do not search for a queue file, hidden trigger message, or alternate upstream prompt unless the current turn provides concrete evidence that one exists.",
     "This is a single-cycle run. Do one concrete turn, use normal Pi tools if needed, and stop when this turn is complete.",
     `Policy mode: ${policyMode}`,
     openSpecFirst
@@ -298,6 +300,21 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     recoveryFirst
       ? "Recovery rule: unresolved recovery debt exists for the current work; prefer addressing it if it materially affects trust in the change."
       : "Recovery rule: keep recovery debt visible and advisory, not coercive.",
+    "Theory reference rule: use the AIES theory assets below as the canonical conceptual frame for coherence, intent, evaluation, harness design, and audit posture when they are relevant to the cycle.",
+    "",
+    "Theory assets:",
+    "- docs/foundations/AI-Human-Stack-Component-Reference-Map.md",
+    "- docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md",
+    "- memory/knowledge/coherence-charter.yaml",
+    "- memory/knowledge/intent-hierarchy.yaml",
+    "- memory/theory-fork/index.md",
+    "- memory/theory-fork/layers/prompt.md",
+    "- memory/theory-fork/layers/context.md",
+    "- memory/theory-fork/layers/intent.md",
+    "- memory/theory-fork/layers/judgment.md",
+    "- memory/theory-fork/layers/coherence.md",
+    "- memory/theory-fork/meta/evaluation.md",
+    "- memory/theory-fork/meta/harness.md",
     "",
     ...renderOpenSpecSection(openSpec),
     "",
@@ -319,6 +336,9 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     "- If there is no active change, choose the best self-maintenance/evolution action from current evidence.",
     "- Do not start a second cycle or outline a long queue of future cycles.",
     "- Leave verification and recovery state visible; do not invent hidden completion criteria.",
+    "- Before writing your final operator-facing summary, check the live verification and recovery state and align your summary with that recorded state.",
+    "- If you describe verification or recovery status, prefer the actual AIES status surfaces and recorded state over your own optimistic narrative.",
+    "- If the slice is docs-only or explanation-only, say that plainly instead of implying code/runtime verification happened.",
   ];
 
   return {
@@ -457,14 +477,6 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
 
       try {
         pi.sendUserMessage(synthesized.prompt);
-        pi.sendMessage(
-          {
-            customType: "aies-cycle-run-trigger",
-            content: "Execute the queued AIES cycle-run user message now.",
-            display: false,
-          },
-          { triggerTurn: true },
-        );
         await ctx.waitForIdle();
         activeRun = restoreCycleRunEntry(ctx);
         updateUi(activeRun, ctx);

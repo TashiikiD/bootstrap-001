@@ -196,6 +196,33 @@ function buildSuggestedCommands(mode: VerificationMode, cycle: CycleState | null
   return [...new Set(commands)];
 }
 
+function isDocsOnlySlice(promptText: string, assistantText: string): boolean {
+  const combined = `${promptText}\n${assistantText}`.toLowerCase();
+  const docSignals = includesAny(combined, [
+    ".md",
+    "readme",
+    "markdown",
+    "documentation",
+    "documenting",
+    "docs-only",
+    "operator-facing summary",
+  ]);
+  const codeSignals = includesAny(combined, [
+    ".ts",
+    ".tsx",
+    ".js",
+    ".py",
+    "build succeeded",
+    "test",
+    "runtime behavior",
+    "provider wiring",
+    "implementation file",
+    "source file",
+  ]);
+
+  return docSignals && !codeSignals;
+}
+
 function classifyVerificationState(mode: VerificationMode, result: VerificationResult): VerificationState {
   if (mode === "none") return "no_verification_needed";
   if (result === "passed") return "verified";
@@ -246,22 +273,23 @@ function buildPlanSummary(mode: VerificationMode, commands: string[]): string | 
   return `${mode} verification recommended: ${commands.join(" ")}`;
 }
 
-function createVerificationRecord(mode: VerificationMode, result: VerificationResult, commandSummary: string, failureSummary: string, cycle: CycleState | null, promptText: string): VerificationRecord {
+function createVerificationRecord(mode: VerificationMode, result: VerificationResult, commandSummary: string, failureSummary: string, cycle: CycleState | null, promptText: string, assistantText = ""): VerificationRecord {
+  const normalizedMode = isDocsOnlySlice(promptText, assistantText) ? "none" : mode;
   const commands = commandSummary.trim() ? [commandSummary.trim()] : [];
-  const suggestedCommands = buildSuggestedCommands(mode, cycle, promptText);
+  const suggestedCommands = buildSuggestedCommands(normalizedMode, cycle, promptText);
   const notableFailures = failureSummary.trim()
     ? failureSummary.split(";").map((item) => item.trim()).filter(Boolean)
     : [];
-  const verificationState = classifyVerificationState(mode, result);
+  const verificationState = classifyVerificationState(normalizedMode, result);
 
   return {
     recordId: createRecordId(),
-    mode,
+    mode: normalizedMode,
     commands,
     result,
     verificationState,
     suggestedCommands,
-    planSummary: buildPlanSummary(mode, suggestedCommands),
+    planSummary: buildPlanSummary(normalizedMode, suggestedCommands),
     notableFailures,
     followUpRequired: verificationState === "under_verified" || verificationState === "failed_verification" || verificationState === "verification_blocked",
     recordedAt: nowIso(),
@@ -742,7 +770,15 @@ export default function aiesVerificationExtension(pi: ExtensionAPI): void {
     }
 
     const assistantText = getMessageText([...event.messages].reverse().find((message) => message.role === "assistant"));
-    const record = createVerificationRecord(currentMode, "not_run", "", assistantText ? "" : "Assistant output was unavailable at cycle end.", cycle, promptText);
+    const record = createVerificationRecord(
+      currentMode,
+      "not_run",
+      "",
+      assistantText ? "" : "Assistant output was unavailable at cycle end.",
+      cycle,
+      promptText,
+      assistantText,
+    );
     latestEntry = {
       record,
       cycleId: cycle.cycleId,

@@ -1,0 +1,17 @@
+# AIES Harness — Operational coherence charter
+coherence_charter:
+  identity_commitments:
+    - Behave as a self-evolving harness grounded in the AI-Human Engineering Stack.
+    - Preserve consistency between theory, operational files, and runtime behavior.
+    - Treat imported foundation docs as stable references and operational files as the evolvable interpretation layer.
+  architectural_principles:
+    - Prefer native integration over patchwork additions.
+    - Keep layer distinctions explicit instead of collapsing prompt, context, intent, and judgment into one blob.
+    - Preserve the ability to evaluate future changes after each modification.
+  session_consistency:
+    - Update theory-fork when the harness interpretation materially changes.
+    - Record durable decisions in knowledge files rather than relying on ephemeral session memory.
+  coherence_failure_signals:
+    - Repeatedly solving the same problem without recording the result.
+    - Runtime behavior contradicting the stated intent hierarchy.
+    - Architecture drifting into one-off special cases.
