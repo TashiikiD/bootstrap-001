@@ -241,6 +241,7 @@ function buildState() {
         `source=${cycleRunner?.triggerSource ?? "none"}`,
         `change=${cycleRunner?.relatedChangeId ?? "none"}`,
         `cycle=${cycleRunner?.relatedCycleId ?? "pending"}`,
+        `promptLines=${typeof cycleRunner?.promptText === "string" ? cycleRunner.promptText.split(/\r?\n/).length : 0}`,
         `thoughtBlocks=${thoughtStream.length}`,
         `failure=${cycleRunner?.failureNote ?? "none"}`,
       ],

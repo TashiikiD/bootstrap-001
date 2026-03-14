@@ -11,6 +11,7 @@ export interface CycleRunEntry {
   relatedCycleId: string | null;
   relatedChangeId: string | null;
   promptSummary: string;
+  promptText: string;
   startedAt: string;
   finishedAt: string | null;
   failureNote: string | null;
@@ -35,13 +36,33 @@ export interface CycleThoughtEntry {
 export const CYCLE_RUN_ENTRY_TYPE = "aies-cycle-run";
 export const CYCLE_THOUGHT_ENTRY_TYPE = "aies-cycle-thoughts";
 
+function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): CycleRunEntry | null {
+  if (!entry?.runId || !entry.status || !entry.triggerSource || !entry.sessionId || !entry.startedAt) {
+    return null;
+  }
+
+  return {
+    runId: entry.runId,
+    status: entry.status,
+    triggerSource: entry.triggerSource,
+    sessionId: entry.sessionId,
+    relatedCycleId: entry.relatedCycleId ?? null,
+    relatedChangeId: entry.relatedChangeId ?? null,
+    promptSummary: entry.promptSummary ?? "No prompt summary recorded.",
+    promptText: entry.promptText ?? entry.promptSummary ?? "No synthesized prompt recorded.",
+    startedAt: entry.startedAt,
+    finishedAt: entry.finishedAt ?? null,
+    failureNote: entry.failureNote ?? null,
+  };
+}
+
 export function restoreCycleRunEntry(ctx: ExtensionContext): CycleRunEntry | null {
   const entries = ctx.sessionManager.getEntries();
   const runEntry = entries
     .filter((entry: { type: string; customType?: string }) => entry.type === "custom" && entry.customType === CYCLE_RUN_ENTRY_TYPE)
-    .pop() as { data?: CycleRunEntry } | undefined;
+    .pop() as { data?: Partial<CycleRunEntry> } | undefined;
 
-  return runEntry?.data ?? null;
+  return normalizeCycleRunEntry(runEntry?.data);
 }
 
 export function restoreCycleThoughtEntry(ctx: ExtensionContext): CycleThoughtEntry | null {

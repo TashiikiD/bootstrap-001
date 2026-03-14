@@ -273,6 +273,14 @@ class AiesOperatorApp extends LitElement {
             <div>Change: ${panel.provenance.relatedChangeId ?? "none"}</div>
             <div>Stale: ${panel.provenance.stale ? "yes" : "no"}</div>
           </div>
+          ${panel.title === "Cycle Runner" && safeString((panel.detail as any)?.cycleRunner?.promptText)
+            ? html`
+                <details class="details-block">
+                  <summary>Synthesized cycle prompt</summary>
+                  <pre>${safeString((panel.detail as any).cycleRunner.promptText)}</pre>
+                </details>
+              `
+            : nothing}
           <details class="details-block">
             <summary>Drill-down / raw detail</summary>
             <pre>${toJson(panel.detail)}</pre>
