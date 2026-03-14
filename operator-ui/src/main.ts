@@ -175,6 +175,15 @@ class AiesOperatorApp extends LitElement {
     await this.post("/api/controls/heartbeat", field);
   }
 
+  private async submitHeartbeatControls(event: Event): Promise<void> {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    await this.updateHeartbeat({
+      intervalMs: Number(formData.get("intervalMs") ?? this.state?.controls.heartbeat.intervalMs ?? 300000),
+    });
+  }
+
   private async setPolicyMode(mode: ControlState["policy"]["mode"]): Promise<void> {
     await this.post("/api/controls/policy", { mode });
   }
@@ -486,19 +495,23 @@ class AiesOperatorApp extends LitElement {
           </div>
         </form>
         <div class="split">
-          <form class="stack" @submit=${(event: Event) => { event.preventDefault(); }}>
-            <h3>Heartbeat cadence (deferred)</h3>
+          <form class="stack" @submit=${(event: Event) => void this.submitHeartbeatControls(event)}>
+            <h3>Heartbeat cadence</h3>
             <div class="callout small">
-              Continuous cadence and timer scheduling are not active in Phase 7. Single-cycle manual execution is the only live runner mode.
+              Cadence triggers /cycle-run on the configured interval. Active cycles suppress new automated triggers silently.
             </div>
             <div class="button-row">
-              <button class=${controls.heartbeat.enabled ? "button warning" : "button success"} type="submit" disabled>
+              <button
+                class=${controls.heartbeat.enabled ? "button warning" : "button success"}
+                type="button"
+                @click=${() => void this.updateHeartbeat({ enabled: !controls.heartbeat.enabled })}
+              >
                 ${controls.heartbeat.enabled ? "Stop" : "Start"}
               </button>
               <button
                 class=${controls.heartbeat.continuousMode ? "button" : "button secondary"}
                 type="button"
-                disabled
+                @click=${() => void this.updateHeartbeat({ continuousMode: !controls.heartbeat.continuousMode })}
               >
                 Continuous: ${controls.heartbeat.continuousMode ? "on" : "off"}
               </button>
@@ -506,10 +519,23 @@ class AiesOperatorApp extends LitElement {
             <div class="field">
               <label>Interval (ms)</label>
               <input
+                name="intervalMs"
                 type="number"
-                disabled
+                min="1000"
                 .value=${String(controls.heartbeat.intervalMs)}
               />
+            </div>
+            <div class="button-row">
+              <button class="button secondary" type="submit">Apply cadence</button>
+            </div>
+            <div class="callout small">
+              ${(() => {
+                const scheduler = (state.panels.heartbeat.detail as any)?.scheduler ?? {};
+                const nextHeartbeat = scheduler.nextHeartbeatAt ? formatTimestamp(scheduler.nextHeartbeatAt) : "none";
+                const nextContinuous = scheduler.nextContinuousRestartAt ? formatTimestamp(scheduler.nextContinuousRestartAt) : "none";
+                const lastSkipped = scheduler.lastSkippedReason ?? "none";
+                return `Next cadence: ${nextHeartbeat} · Next continuous: ${nextContinuous} · Last skipped: ${lastSkipped}`;
+              })()}
             </div>
           </form>
           <div class="stack">

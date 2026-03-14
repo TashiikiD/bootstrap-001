@@ -10,6 +10,7 @@ import { getAssistantText, inferFocusDecision, isAssistantMessage } from "./infe
 
 type HeartbeatEntry = {
   currentCycle: CycleState | null;
+  lastCycle: CycleState | null;
   completedCycles: number;
   lastPromptText: string | null;
   lastAssistantText: string | null;
@@ -62,10 +63,14 @@ function summarizeFocus(focus: FocusDecision | null): string {
 
 function buildWidgetLines(state: HeartbeatEntry): string[] {
   if (!state.currentCycle) {
+    const lastCycle = state.lastCycle;
     return [
       "Heartbeat active",
       `runtime=${getAiesPaths().runtimeRoot}`,
       "phase=idle",
+      `lastCycle=${lastCycle?.cycleId ?? "none"}`,
+      `lastFocus=${summarizeFocus(lastCycle?.selectedFocus ?? null)}`,
+      `lastCompleted=${state.lastCompletedAt ?? "never"}`,
       `completed=${state.completedCycles}`,
     ];
   }
@@ -101,6 +106,7 @@ function persistState(pi: ExtensionAPI, state: HeartbeatEntry): void {
 function restoreState(ctx: ExtensionContext): HeartbeatEntry {
   const fallback: HeartbeatEntry = {
     currentCycle: null,
+    lastCycle: null,
     completedCycles: 0,
     lastPromptText: null,
     lastAssistantText: null,
@@ -112,7 +118,23 @@ function restoreState(ctx: ExtensionContext): HeartbeatEntry {
     .filter((entry: { type: string; customType?: string }) => entry.type === "custom" && entry.customType === HEARTBEAT_ENTRY_TYPE)
     .pop() as { data?: HeartbeatEntry } | undefined;
 
-  return heartbeatEntry?.data ?? fallback;
+  const restored = heartbeatEntry?.data;
+  if (!restored) {
+    return fallback;
+  }
+
+  const normalizedCurrentCycle = restored.currentCycle?.currentPhase === "publish_state" ? null : restored.currentCycle ?? null;
+  const normalizedLastCycle = restored.lastCycle
+    ?? (restored.currentCycle?.currentPhase === "publish_state" ? restored.currentCycle : null);
+
+  return {
+    currentCycle: normalizedCurrentCycle,
+    lastCycle: normalizedLastCycle,
+    completedCycles: restored.completedCycles ?? 0,
+    lastPromptText: restored.lastPromptText ?? null,
+    lastAssistantText: restored.lastAssistantText ?? null,
+    lastCompletedAt: restored.lastCompletedAt ?? normalizedLastCycle?.updatedAt ?? null,
+  };
 }
 
 function beginCycle(state: HeartbeatEntry, promptText: string, sessionId: string, activeChangeId: string | null): HeartbeatEntry {
@@ -131,6 +153,7 @@ function beginCycle(state: HeartbeatEntry, promptText: string, sessionId: string
       startedAt,
       updatedAt: startedAt,
     },
+    lastCycle: state.lastCycle,
     lastPromptText: promptText.trim() || null,
   };
 }
@@ -189,22 +212,31 @@ function maybeNameSession(pi: ExtensionAPI, state: HeartbeatEntry): void {
 
 function finalizeCycle(state: HeartbeatEntry): HeartbeatEntry {
   if (!state.currentCycle) return state;
+  const completedAt = nowIso();
+  const completedCycle: CycleState = {
+    ...state.currentCycle,
+    currentPhase: "publish_state",
+    updatedAt: completedAt,
+  };
+
   return {
     ...state,
-    currentCycle: {
-      ...state.currentCycle,
-      currentPhase: "publish_state",
-      updatedAt: nowIso(),
-    },
+    currentCycle: null,
+    lastCycle: completedCycle,
     completedCycles: state.completedCycles + 1,
-    lastCompletedAt: nowIso(),
+    lastCompletedAt: completedAt,
   };
 }
 
 function formatStatusLines(state: HeartbeatEntry): string[] {
   if (!state.currentCycle) {
+    const lastCycle = state.lastCycle;
     return [
       "Heartbeat state: idle",
+      `Last cycle: ${lastCycle?.cycleId ?? "none"}`,
+      `Last focus: ${summarizeFocus(lastCycle?.selectedFocus ?? null)}`,
+      `Last change: ${lastCycle?.activeChangeId ?? "none"}`,
+      `Last completed: ${state.lastCompletedAt ?? "never"}`,
       `Completed cycles: ${state.completedCycles}`,
       `Runtime root: ${getAiesPaths().runtimeRoot}`,
     ];
@@ -230,6 +262,7 @@ function latestAssistantMessage(messages: AgentMessage[]): AssistantMessage | un
 export default function aiesHeartbeatExtension(pi: ExtensionAPI): void {
   let state: HeartbeatEntry = {
     currentCycle: null,
+    lastCycle: null,
     completedCycles: 0,
     lastPromptText: null,
     lastAssistantText: null,

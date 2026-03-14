@@ -16,6 +16,7 @@ import {
   loadActions,
   loadControls,
   memoryRoot,
+  normalizeHeartbeatIntervalMs,
   openSpecChangesRoot,
   operatorUiRoot,
   parseSession,
@@ -35,7 +36,31 @@ const port = Number.parseInt(process.env.AIES_OPERATOR_UI_PORT ?? "4320", 10);
 const distRoot = resolve(operatorUiRoot, "dist");
 const SESSION_MUTATION_TIMEOUT_MS = 8000;
 const PROMPT_TIMEOUT_MS = 180000;
+const CONTINUOUS_RESTART_DELAY_MS = 5000;
+const HEARTBEAT_RECONCILE_INTERVAL_MS = 1000;
+const HEARTBEAT_TRIGGER_COMMAND = "/cycle-run --source operator_ui";
 let activePiMutationLabel: string | null = null;
+let cadenceTimer: NodeJS.Timeout | null = null;
+let cadenceKey: string | null = null;
+let continuousTimer: NodeJS.Timeout | null = null;
+
+const schedulerState: {
+  nextHeartbeatAt: string | null;
+  nextContinuousRestartAt: string | null;
+  lastCompletedAtSeen: string | null;
+  lastTriggerAt: string | null;
+  lastTriggerKind: "manual" | "cadence" | "continuous" | null;
+  lastSkippedAt: string | null;
+  lastSkippedReason: string | null;
+} = {
+  nextHeartbeatAt: null,
+  nextContinuousRestartAt: null,
+  lastCompletedAtSeen: null,
+  lastTriggerAt: null,
+  lastTriggerKind: null,
+  lastSkippedAt: null,
+  lastSkippedReason: null,
+};
 
 function json(res: any, payload: unknown, status = 200): void {
   res.writeHead(status, {
@@ -138,6 +163,206 @@ async function runPiSerialized(label: string, args: string[], timeoutMs: number)
   }
 }
 
+function getHeartbeatSnapshot() {
+  const sessions = getSessions();
+  const controls = loadControls();
+  const activeSessionPath = chooseActiveSessionPath(controls, sessions);
+  const activeSession = activeSessionPath ? sessions.find((session) => session.path === activeSessionPath) ?? null : null;
+  const entries = activeSession?.entries ?? [];
+  const heartbeat = activeSession ? findLatestCustom(entries, "aies-heartbeat")?.data ?? null : null;
+  const openspec = activeSession ? findLatestCustom(entries, "aies-openspec")?.data ?? null : null;
+  const currentCycle = heartbeat?.currentCycle ?? null;
+  const lastCycle = heartbeat?.lastCycle ?? null;
+  return {
+    controls,
+    activeSessionPath,
+    activeSession,
+    heartbeat,
+    openspec,
+    currentCycle,
+    relatedChangeId: currentCycle?.activeChangeId ?? openspec?.context?.activeChangeId ?? null,
+  };
+}
+
+function isHeartbeatCycleActive(snapshot: ReturnType<typeof getHeartbeatSnapshot>): boolean {
+  return Boolean(snapshot.currentCycle);
+}
+
+function appendOperatorAction(input: {
+  category: string;
+  summary: string;
+  status: "open" | "resolved" | "logged";
+  note: string | null;
+  snapshot?: ReturnType<typeof getHeartbeatSnapshot>;
+}): void {
+  const snapshot = input.snapshot ?? getHeartbeatSnapshot();
+  appendAction(createAction({
+    category: input.category,
+    summary: input.summary,
+    status: input.status,
+    origin: "operator",
+    relatedCycleId: snapshot.currentCycle?.cycleId ?? null,
+    relatedChangeId: snapshot.relatedChangeId,
+    resolutionNote: null,
+    note: input.note,
+  }));
+}
+
+function setLastSkipped(reason: string | null): void {
+  schedulerState.lastSkippedAt = reason ? new Date().toISOString() : null;
+  schedulerState.lastSkippedReason = reason;
+}
+
+function clearCadenceTimer(): void {
+  if (cadenceTimer) {
+    clearTimeout(cadenceTimer);
+    cadenceTimer = null;
+  }
+  cadenceKey = null;
+  schedulerState.nextHeartbeatAt = null;
+}
+
+function clearContinuousTimer(): void {
+  if (continuousTimer) {
+    clearTimeout(continuousTimer);
+    continuousTimer = null;
+  }
+  schedulerState.nextContinuousRestartAt = null;
+}
+
+function armCadenceTimer(intervalMs: number): void {
+  clearCadenceTimer();
+  schedulerState.nextHeartbeatAt = new Date(Date.now() + intervalMs).toISOString();
+  cadenceTimer = setTimeout(() => {
+    cadenceTimer = null;
+    cadenceKey = null;
+    schedulerState.nextHeartbeatAt = null;
+    void executeCycleTrigger("cadence", { suppressIfBusy: true, suppressIfActiveCycle: true }).finally(() => {
+      void reconcileHeartbeatAutomation();
+    });
+  }, intervalMs);
+}
+
+function armContinuousTimer(delayMs: number): void {
+  clearContinuousTimer();
+  schedulerState.nextContinuousRestartAt = new Date(Date.now() + delayMs).toISOString();
+  continuousTimer = setTimeout(() => {
+    continuousTimer = null;
+    schedulerState.nextContinuousRestartAt = null;
+    void executeCycleTrigger("continuous", { suppressIfBusy: true, suppressIfActiveCycle: true }).finally(() => {
+      void reconcileHeartbeatAutomation();
+    });
+  }, delayMs);
+}
+
+function persistHeartbeatTriggerCommand(snapshot: ReturnType<typeof getHeartbeatSnapshot>): void {
+  if (snapshot.controls.heartbeat.lastTriggerPrompt === HEARTBEAT_TRIGGER_COMMAND) {
+    return;
+  }
+  saveControls({
+    ...snapshot.controls,
+    heartbeat: {
+      ...snapshot.controls.heartbeat,
+      lastTriggerPrompt: HEARTBEAT_TRIGGER_COMMAND,
+    },
+  });
+}
+
+async function executeCycleTrigger(
+  kind: "manual" | "cadence" | "continuous",
+  options: { suppressIfBusy?: boolean; suppressIfActiveCycle?: boolean } = {},
+): Promise<{ ok: boolean; skipped?: boolean; result?: PiExecutionResult; error?: string }> {
+  const snapshot = getHeartbeatSnapshot();
+  persistHeartbeatTriggerCommand(snapshot);
+
+  if (options.suppressIfActiveCycle && isHeartbeatCycleActive(snapshot)) {
+    setLastSkipped("cycle-active");
+    return { ok: false, skipped: true };
+  }
+
+  if (hasActiveMutation()) {
+    if (options.suppressIfBusy) {
+      setLastSkipped(`pi-busy:${activePiMutationLabel ?? "mutation"}`);
+      return { ok: false, skipped: true };
+    }
+    return { ok: false, error: `Pi mutation already in progress: ${activePiMutationLabel}` };
+  }
+
+  const args = ["-p"];
+  if (snapshot.activeSessionPath) {
+    args.push("--session", String(snapshot.activeSessionPath));
+  }
+  args.push(HEARTBEAT_TRIGGER_COMMAND);
+
+  const result = await runPiSerialized(`heartbeat-${kind}`, args, PROMPT_TIMEOUT_MS);
+  schedulerState.lastTriggerAt = new Date().toISOString();
+  schedulerState.lastTriggerKind = kind;
+  if (!result.ok) {
+    setLastSkipped(null);
+    if (kind !== "manual") {
+      appendOperatorAction({
+        category: "cycle-runner",
+        summary: kind === "cadence" ? "Heartbeat cadence trigger failed" : "Continuous restart trigger failed",
+        status: "open",
+        note: buildSyncFailureNote("Cycle run", HEARTBEAT_TRIGGER_COMMAND, result),
+        snapshot,
+      });
+    }
+    return { ok: false, result, error: buildSyncFailureNote("Cycle run", HEARTBEAT_TRIGGER_COMMAND, result) };
+  }
+
+  setLastSkipped(null);
+  if (kind !== "manual") {
+    appendOperatorAction({
+      category: "cycle-runner",
+      summary: kind === "cadence" ? "Heartbeat cadence started cycle run" : "Continuous mode started next cycle",
+      status: "logged",
+      note: summarizePiResult(result),
+      snapshot,
+    });
+  }
+  return { ok: true, result };
+}
+
+async function reconcileHeartbeatAutomation(): Promise<void> {
+  const snapshot = getHeartbeatSnapshot();
+  const heartbeatControls = snapshot.controls.heartbeat;
+
+  if (!heartbeatControls.enabled) {
+    clearCadenceTimer();
+    clearContinuousTimer();
+    schedulerState.lastCompletedAtSeen = snapshot.heartbeat?.lastCompletedAt ?? schedulerState.lastCompletedAtSeen;
+    return;
+  }
+
+  const cadenceConfig = `${snapshot.activeSessionPath ?? "none"}:${heartbeatControls.intervalMs}`;
+  if (cadenceKey !== cadenceConfig || !cadenceTimer) {
+    cadenceKey = cadenceConfig;
+    armCadenceTimer(heartbeatControls.intervalMs);
+  }
+
+  const completedAt = snapshot.heartbeat?.lastCompletedAt ?? null;
+  if (schedulerState.lastCompletedAtSeen === null) {
+    schedulerState.lastCompletedAtSeen = completedAt;
+  }
+
+  if (isHeartbeatCycleActive(snapshot)) {
+    clearContinuousTimer();
+    return;
+  }
+
+  if (!heartbeatControls.continuousMode) {
+    clearContinuousTimer();
+    schedulerState.lastCompletedAtSeen = completedAt;
+    return;
+  }
+
+  if (completedAt && completedAt !== schedulerState.lastCompletedAtSeen) {
+    schedulerState.lastCompletedAtSeen = completedAt;
+    armContinuousTimer(CONTINUOUS_RESTART_DELAY_MS);
+  }
+}
+
 function buildState() {
   ensureRuntimeState();
   const sessions = getSessions();
@@ -236,6 +461,7 @@ function buildState() {
   });
 
   const currentCycle = heartbeat?.currentCycle ?? null;
+  const lastCycle = heartbeat?.lastCycle ?? null;
   const currentPolicyMode = controls.policy.mode;
   const verificationMode = verification?.record?.mode ?? controls.verification.mode ?? "none";
   const verificationResult = verification?.record?.result ?? "not_run";
@@ -265,24 +491,33 @@ function buildState() {
     ),
     heartbeat: panel(
       "Heartbeat",
-      currentCycle ? `Phase ${currentCycle.currentPhase} · ${currentCycle.rationale ?? "no rationale"}` : "No active cycle",
+      currentCycle
+        ? `Phase ${currentCycle.currentPhase} · ${currentCycle.rationale ?? "no rationale"}`
+        : lastCycle
+          ? `Idle · last cycle ${lastCycle.cycleId}`
+          : "No active cycle",
       [
         `phase=${currentCycle?.currentPhase ?? "idle"}`,
         `cycle=${currentCycle?.cycleId ?? "none"}`,
         `completed=${heartbeat?.completedCycles ?? 0}`,
+        `lastCycle=${lastCycle?.cycleId ?? "none"}`,
         `continuous=${controls.heartbeat.continuousMode}`,
         `intervalMs=${controls.heartbeat.intervalMs}`,
+        `nextHeartbeat=${schedulerState.nextHeartbeatAt ?? "none"}`,
+        `nextContinuous=${schedulerState.nextContinuousRestartAt ?? "none"}`,
+        `lastSkipped=${schedulerState.lastSkippedReason ?? "none"}`,
       ],
       {
         heartbeat,
         controls: controls.heartbeat,
+        scheduler: schedulerState,
       },
       {
         sourceType: "recorded",
         sourceLabel: "session-entry:aies-heartbeat",
-        sourceTimestamp: currentCycle?.updatedAt ?? null,
-        relatedCycleId: currentCycle?.cycleId ?? null,
-        relatedChangeId: currentCycle?.activeChangeId ?? null,
+        sourceTimestamp: currentCycle?.updatedAt ?? lastCycle?.updatedAt ?? heartbeat?.lastCompletedAt ?? null,
+        relatedCycleId: currentCycle?.cycleId ?? lastCycle?.cycleId ?? null,
+        relatedChangeId: currentCycle?.activeChangeId ?? lastCycle?.activeChangeId ?? null,
         stale: false,
       },
     ),
@@ -543,6 +778,7 @@ async function handleMutation(req: any, res: any, path: string) {
 
   if (path === "/api/session/select") {
     saveControls({ ...controls, activeSessionPath: body.sessionPath ?? null });
+    await reconcileHeartbeatAutomation();
     return json(res, buildState());
   }
 
@@ -578,46 +814,31 @@ async function handleMutation(req: any, res: any, path: string) {
   }
 
   if (path === "/api/controls/trigger") {
-    const triggerCommand = "/cycle-run --source operator_ui";
-    const nextControls = {
-      ...controls,
-      heartbeat: {
-        ...controls.heartbeat,
-        lastTriggerPrompt: triggerCommand,
-      },
-    };
-    saveControls(nextControls);
-    if (hasActiveMutation()) {
+    const triggerResult = await executeCycleTrigger("manual");
+    if (!triggerResult.ok) {
+      if (triggerResult.skipped) {
+        return json(res, { error: schedulerState.lastSkippedReason ?? "Cycle run skipped", state: buildState() }, 409);
+      }
       appendSyncAction({
         category: "cycle-runner",
-        summary: "Cycle run deferred because another Pi mutation is running",
+        summary: triggerResult.result?.timedOut ? "Cycle run command timed out" : "Cycle run command failed",
         status: "open",
-        note: triggerCommand,
+        note: triggerResult.error ?? null,
       });
-      return json(res, { error: `Pi mutation already in progress: ${activePiMutationLabel}`, state: buildState() }, 409);
-    }
-    const args = ["-p"];
-    if (activeSessionPath) {
-      args.push("--session", String(activeSessionPath));
-    }
-    args.push(triggerCommand);
-    const result = await runPiSerialized("heartbeat-trigger", args, PROMPT_TIMEOUT_MS);
-    if (!result.ok) {
-      appendSyncAction({
-        category: "cycle-runner",
-        summary: result.timedOut ? "Cycle run command timed out" : "Cycle run command failed",
-        status: "open",
-        note: buildSyncFailureNote("Cycle run", triggerCommand, result),
-      });
-      return json(res, { error: buildSyncFailureNote("Cycle run", triggerCommand, result), state: buildState() }, result.timedOut ? 504 : 502);
+      return json(
+        res,
+        { error: triggerResult.error ?? "Cycle run failed", state: buildState() },
+        triggerResult.result?.timedOut ? 504 : 502,
+      );
     }
     appendSyncAction({
       category: "cycle-runner",
       summary: "Cycle run command executed",
       status: "logged",
-      note: summarizePiResult(result),
+      note: summarizePiResult(triggerResult.result!),
     });
-    return json(res, { ok: true, output: result.stdout.trim(), state: buildState() });
+    await reconcileHeartbeatAutomation();
+    return json(res, { ok: true, output: triggerResult.result!.stdout.trim(), state: buildState() });
   }
 
   if (path === "/api/controls/heartbeat") {
@@ -627,10 +848,11 @@ async function handleMutation(req: any, res: any, path: string) {
         ...controls.heartbeat,
         enabled: body.enabled ?? controls.heartbeat.enabled,
         continuousMode: body.continuousMode ?? controls.heartbeat.continuousMode,
-        intervalMs: body.intervalMs ?? controls.heartbeat.intervalMs,
+        intervalMs: normalizeHeartbeatIntervalMs(body.intervalMs, controls.heartbeat.intervalMs),
       },
     };
     saveControls(nextControls);
+    await reconcileHeartbeatAutomation();
     appendAction(
       createAction({
         category: "heartbeat-control",
@@ -947,6 +1169,10 @@ function serveStatic(res: any, pathName: string): void {
 }
 
 ensureRuntimeState();
+void reconcileHeartbeatAutomation();
+setInterval(() => {
+  void reconcileHeartbeatAutomation();
+}, HEARTBEAT_RECONCILE_INTERVAL_MS);
 
 createServer(async (req, res) => {
   try {

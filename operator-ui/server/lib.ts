@@ -8,7 +8,8 @@ export const projectRoot = resolve(operatorUiRoot, "..");
 export const runtimeStateRoot = resolve(projectRoot, ".aies-runtime", "operator-ui");
 export const actionsFile = resolve(runtimeStateRoot, "actions.json");
 export const controlsFile = resolve(runtimeStateRoot, "controls.json");
-export const piMonoRoot = resolve(projectRoot, "pi-mono");
+const configuredPiMonoRoot = process.env.AIES_PI_MONO_ROOT?.trim();
+export const piMonoRoot = configuredPiMonoRoot ? resolve(configuredPiMonoRoot) : resolve(projectRoot, "pi-mono");
 export const tsxCli = resolve(piMonoRoot, "node_modules", "tsx", "dist", "cli.mjs");
 export const piCli = resolve(piMonoRoot, "packages", "coding-agent", "src", "cli.ts");
 export const tsconfigPath = resolve(piMonoRoot, "tsconfig.json");
@@ -162,6 +163,14 @@ function defaultControls(): ControlState {
   };
 }
 
+export function normalizeHeartbeatIntervalMs(value: unknown, fallback = defaultControls().heartbeat.intervalMs): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+  return Math.max(1000, Math.trunc(parsed));
+}
+
 function normalizeText(text: string): string {
   return text.trim().replace(/\s+/g, " ");
 }
@@ -195,6 +204,9 @@ export function loadControls(): ControlState {
     heartbeat: {
       ...defaults.heartbeat,
       ...(parsed.heartbeat ?? {}),
+      enabled: parsed.heartbeat?.enabled ?? defaults.heartbeat.enabled,
+      continuousMode: parsed.heartbeat?.continuousMode ?? defaults.heartbeat.continuousMode,
+      intervalMs: normalizeHeartbeatIntervalMs(parsed.heartbeat?.intervalMs, defaults.heartbeat.intervalMs),
     },
     provider: {
       ...defaults.provider,
@@ -682,6 +694,25 @@ export function buildTimeline(parsedSession: ParsedSession | null, actions: Oper
 export async function runPi(args: string[], options: RunPiOptions = {}): Promise<PiExecutionResult> {
   const startedAt = Date.now();
   const timeoutMs = options.timeoutMs ?? 20000;
+
+  const missingRuntimePaths: string[] = [];
+  if (!existsSync(tsxCli)) missingRuntimePaths.push(`tsx runtime not found at ${tsxCli}`);
+  if (!existsSync(piCli)) missingRuntimePaths.push(`pi CLI not found at ${piCli}`);
+  if (!existsSync(tsconfigPath)) missingRuntimePaths.push(`TypeScript config not found at ${tsconfigPath}`);
+
+  if (missingRuntimePaths.length > 0) {
+    return {
+      ok: false,
+      stdout: "",
+      stderr: "",
+      exitCode: null,
+      signal: null,
+      timedOut: false,
+      durationMs: Date.now() - startedAt,
+      args,
+      errorMessage: `Unable to launch Pi runtime. ${missingRuntimePaths.join("; ")}. Set AIES_PI_MONO_ROOT to a valid pi-mono checkout.`,
+    };
+  }
 
   return await new Promise((resolveResult) => {
     execFile(
