@@ -1,0 +1,23 @@
+{
+    "extensions":  [
+                       "../aies/extensions/shared/index.ts",
+                       "../aies/extensions/openspec/index.ts",
+                       "../aies/extensions/heartbeat/index.ts",
+                       "../aies/extensions/evaluation/index.ts",
+                       "../aies/extensions/verification/index.ts",
+                       "../aies/extensions/memory/index.ts",
+                       "../aies/extensions/policy/index.ts",
+                       "../aies/extensions/cycle-runner/index.ts",
+                       "../aies/extensions/provider/aies-local-providers.ts",
+                       "../aies/extensions/provider/aies-provider-payload-policy.ts",
+                       "../aies/extensions/provider/aies-provider-operational-defaults.ts",
+                       "../aies/extensions/operator-ui/index.ts"
+                   ],
+    "skills":  [
+                   "../aies/skills"
+               ],
+    "prompts":  [
+                    "../aies/prompts"
+                ],
+    "enableSkillCommands":  true
+}

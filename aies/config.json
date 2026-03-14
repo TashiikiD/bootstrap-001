@@ -1,0 +1,11 @@
+{
+  "projectName": "AIES v2",
+  "runtimeDirName": ".aies-runtime",
+  "sessionDirName": "sessions",
+  "memoryRoot": "memory",
+  "openSpecRoot": "openspec",
+  "handoffRoot": "handoffs",
+  "canonicalExecutionCore": "pi-mono",
+  "controlStyle": "guided-autonomy"
+}
+

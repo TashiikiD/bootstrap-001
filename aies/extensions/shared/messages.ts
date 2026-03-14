@@ -1,0 +1,48 @@
+export const AIES_STATUS_KEYS = {
+  bootstrap: "aies-bootstrap",
+  policy: "aies-policy",
+  heartbeat: "aies-heartbeat",
+  cycleRunner: "aies-cycle-runner",
+  memory: "aies-memory",
+  openspec: "aies-openspec",
+  evaluation: "aies-evaluation",
+  verification: "aies-verification",
+  recovery: "aies-recovery",
+} as const;
+
+export const AIES_WIDGET_KEYS = {
+  bootstrap: "aies-bootstrap-widget",
+  heartbeat: "aies-heartbeat-widget",
+  cycleRunner: "aies-cycle-runner-widget",
+  openspec: "aies-openspec-widget",
+  evaluation: "aies-evaluation-widget",
+  verification: "aies-verification-widget",
+  recovery: "aies-recovery-widget",
+} as const;
+
+export const AIES_COMMANDS = {
+  paths: "aies-paths",
+  status: "aies-status",
+  policy: "aies-policy",
+  heartbeatStatus: "heartbeat-status",
+  cycleRun: "cycle-run",
+  cycleStatus: "cycle-status",
+  cycleAbort: "cycle-abort",
+  memoryStatus: "memory-status",
+  memoryLast: "memory-last",
+  openSpecStatus: "openspec-status",
+  openSpecList: "openspec-list",
+  openSpecCurrent: "openspec-current",
+  evaluationStatus: "evaluation-status",
+  evaluationLast: "evaluation-last",
+  evaluationReview: "evaluation-review",
+  evaluationHistory: "evaluation-history",
+  verificationStatus: "verification-status",
+  verificationMode: "verification-mode",
+  verificationRecord: "verification-record",
+  verificationPlan: "verification-plan",
+  verificationFollowup: "verification-followup",
+  recoveryStatus: "recovery-status",
+  recoveryResolve: "recovery-resolve",
+  recoveryDefer: "recovery-defer",
+} as const;
