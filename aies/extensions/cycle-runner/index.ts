@@ -16,7 +16,16 @@ import {
   type VerificationEntry,
   type VerificationModeEntry,
 } from "../verification/state.ts";
-import { CYCLE_RUN_ENTRY_TYPE, restoreCycleRunEntry, type CycleRunEntry, type CycleRunStatus, type CycleRunTriggerSource } from "./state.ts";
+import {
+  CYCLE_RUN_ENTRY_TYPE,
+  CYCLE_THOUGHT_ENTRY_TYPE,
+  restoreCycleRunEntry,
+  type CycleRunEntry,
+  type CycleRunStatus,
+  type CycleRunTriggerSource,
+  type CycleThoughtBlock,
+  type CycleThoughtEntry,
+} from "./state.ts";
 
 type HeartbeatEntry = {
   currentCycle: CycleState | null;
@@ -89,6 +98,51 @@ function restoreHeartbeat(ctx: ExtensionContext): HeartbeatEntry | null {
 
 function persistRun(pi: ExtensionAPI, entry: CycleRunEntry): void {
   pi.appendEntry(CYCLE_RUN_ENTRY_TYPE, entry);
+}
+
+function persistThoughts(pi: ExtensionAPI, entry: CycleThoughtEntry): void {
+  pi.appendEntry(CYCLE_THOUGHT_ENTRY_TYPE, entry);
+}
+
+function parseThinkingSummary(raw: unknown): string[] {
+  if (typeof raw !== "string" || !raw.trim()) return [];
+
+  try {
+    const parsed = JSON.parse(raw) as { summary?: Array<{ type?: string; text?: string }> };
+    if (!Array.isArray(parsed.summary)) return [];
+    return parsed.summary
+      .map((item) => (typeof item?.text === "string" ? item.text.trim() : ""))
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function extractThoughtBlocks(messages: AgentMessage[]): CycleThoughtBlock[] {
+  const blocks: CycleThoughtBlock[] = [];
+
+  for (const message of messages) {
+    if (message.role !== "assistant" || !Array.isArray(message.content)) continue;
+
+    for (const item of message.content) {
+      if (item.type !== "thinking") continue;
+      const summarized = parseThinkingSummary((item as { thinkingSignature?: unknown }).thinkingSignature);
+      const fallback = typeof (item as { thinking?: unknown }).thinking === "string"
+        ? (item as { thinking?: string }).thinking?.trim() ?? ""
+        : "";
+      const texts = summarized.length > 0 ? summarized : fallback ? [fallback] : [];
+
+      for (const text of texts) {
+        blocks.push({
+          index: blocks.length + 1,
+          label: `Thought ${blocks.length + 1}`,
+          text,
+        });
+      }
+    }
+  }
+
+  return blocks;
 }
 
 function updateUi(entry: CycleRunEntry | null, ctx: ExtensionContext): void {
@@ -557,20 +611,33 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
 
     const heartbeat = restoreHeartbeat(ctx);
     const assistantText = latestAssistantText(event.messages);
+    const finishedAt = nowIso();
+    const relatedChangeId = activeRun.relatedChangeId ?? heartbeat?.currentCycle?.activeChangeId ?? null;
+    const relatedCycleId = heartbeat?.currentCycle?.cycleId ?? null;
     const completed = buildRunEntry(
       activeRun.runId,
       assistantText ? "completed" : "failed",
       activeRun.triggerSource,
       getSessionId(ctx),
       activeRun.promptSummary,
-      activeRun.relatedChangeId ?? heartbeat?.currentCycle?.activeChangeId ?? null,
+      relatedChangeId,
       assistantText ? null : "Cycle run ended without assistant output.",
       activeRun.startedAt,
-      nowIso(),
-      heartbeat?.currentCycle?.cycleId ?? null,
+      finishedAt,
+      relatedCycleId,
     );
+    const thoughtEntry: CycleThoughtEntry = {
+      runId: activeRun.runId,
+      sessionId: getSessionId(ctx),
+      relatedCycleId,
+      relatedChangeId,
+      startedAt: activeRun.startedAt,
+      finishedAt,
+      blocks: extractThoughtBlocks(event.messages),
+    };
     activeRun = completed;
     persistRun(pi, completed);
+    persistThoughts(pi, thoughtEntry);
     updateUi(activeRun, ctx);
   });
 }

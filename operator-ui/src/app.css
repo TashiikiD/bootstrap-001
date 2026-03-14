@@ -327,6 +327,7 @@ code {
 .bullet-list,
 .timeline-list,
 .transcript-list,
+.thought-list,
 .artifact-list,
 .action-list {
   list-style: none;
@@ -341,6 +342,7 @@ code {
 }
 
 .transcript-item,
+.thought-item,
 .timeline-item,
 .action-item,
 .artifact-item {
@@ -356,6 +358,16 @@ code {
 
 .transcript-item.assistant {
   border-left: 3px solid var(--success);
+}
+
+.thought-item.live-message {
+  border-left: 3px solid var(--accent);
+  background: rgba(120, 183, 255, 0.06);
+}
+
+.thought-item.cycle-archive {
+  border-left: 3px solid var(--success);
+  background: rgba(96, 211, 148, 0.06);
 }
 
 .timeline-item.warning,

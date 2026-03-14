@@ -25,6 +25,17 @@ export interface TranscriptMessage {
   model?: string | null;
 }
 
+export interface ThoughtStreamItem {
+  id: string;
+  runId: string | null;
+  cycleId: string | null;
+  relatedChangeId: string | null;
+  label: string;
+  text: string;
+  timestamp: string;
+  source: "live-message" | "cycle-archive";
+}
+
 export interface SessionSummary {
   path: string;
   id: string;
@@ -96,6 +107,7 @@ export interface ObservatoryData {
   memoryHighlights: Array<{ path: string; title: string; kind: string; createdAt: string }>;
   openspecChanges: Array<{ changeId: string; title: string; status: string; updatedAt: string | null }>;
   providerUsage: Array<{ provider: string; model: string; count: number }>;
+  cycleThoughtArchives: Array<{ runId: string | null; cycleId: string | null; relatedChangeId: string | null; startedAt: string | null; finishedAt: string | null; blockCount: number; preview: string | null }>;
 }
 
 export interface OperatorStateResponse {
@@ -104,6 +116,7 @@ export interface OperatorStateResponse {
   sessions: SessionSummary[];
   controls: ControlState;
   transcript: TranscriptMessage[];
+  thoughtStream: ThoughtStreamItem[];
   panels: Record<string, PanelState>;
   timeline: OperatorTimelineEvent[];
   actionQueue: OperatorActionItem[];

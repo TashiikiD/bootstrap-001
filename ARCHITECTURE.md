@@ -2,14 +2,14 @@
 
 ## Purpose
 
-This repository is a self-contained AIES v2 bootstrap run. It combines:
+This repository is a self-contained AIES v2 project run. It combines:
 
 - A project-local AIES configuration and extension layer under `aies/`
 - A lightweight operator console under `operator-ui/`
 - Durable run artifacts and working state under `memory/`, `openspec/`, `handoffs/`, and `.aies-runtime/`
 - PowerShell launchers that start the local run surfaces together
 
-The bootstrap is designed to sit on top of a `pi-mono` execution core rather than replace it. The local code in this repo configures, observes, and steers that core for this run shape.
+The project  is designed to sit on top of a `pi-mono` execution core rather than replace it. The local code in this repo configures, observes, and steers that core for this run shape.
 
 ## Open First
 
@@ -71,7 +71,7 @@ If you need to understand the repo quickly, start here:
 - Change verification or recovery behavior: start in `aies/extensions/verification/`, then update the operator UI endpoints and frontend controls only if the operator surface must expose the new behavior.
 - Change heartbeat, cycle, memory, or OpenSpec summaries shown to operators: adjust the relevant extension state producers first, then update `operator-ui/server/lib.ts` timeline/state shaping if the UI model must change.
 
-## Entrypoints
+## USER Entrypoints
 
 - `launch-aies-run.ps1` opens the combined local run experience: web UI, browser, TUI, and CLI.
 - `run-operator-ui.ps1` is the main operator-console launcher for install, build, frontend, backend, or combined dev modes.

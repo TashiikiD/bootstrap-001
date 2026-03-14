@@ -17,6 +17,7 @@ import {
   openSpecChangesRoot,
   operatorUiRoot,
   parseSession,
+  parseThoughtStream,
   parseTranscript,
   readMarkdownSummary,
   runPi,
@@ -152,6 +153,7 @@ function buildState() {
   const recovery = activeSession ? findLatestCustom(entries, "aies-recovery")?.data ?? null : null;
   const latestModel = [...entries].reverse().find((entry) => entry.type === "model_change") ?? null;
   const transcript = parseTranscript(entries);
+  const thoughtStream = parseThoughtStream(entries, cycleRunner);
   const manualActions = loadActions();
   const generatedActions = buildGeneratedActions(activeSession);
   const actionQueue = [...generatedActions, ...manualActions].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
@@ -180,6 +182,7 @@ function buildState() {
   const evaluationSnapshots = allSessionEntries.filter((entry) => entry.type === "custom" && entry.customType === "aies-evaluation").map((entry) => entry.data);
   const verificationEntries = allSessionEntries.filter((entry) => entry.type === "custom" && entry.customType === "aies-verification").map((entry) => entry.data);
   const recoveryEntries = allSessionEntries.filter((entry) => entry.type === "custom" && entry.customType === "aies-recovery").map((entry) => entry.data);
+  const cycleThoughtEntries = allSessionEntries.filter((entry) => entry.type === "custom" && entry.customType === "aies-cycle-thoughts").map((entry) => entry.data);
   const modelChanges = allSessionEntries.filter((entry) => entry.type === "model_change");
 
   const dimensionNames = ["prompt", "context", "intent", "judgment", "coherence", "evaluation", "harness"];
@@ -238,9 +241,10 @@ function buildState() {
         `source=${cycleRunner?.triggerSource ?? "none"}`,
         `change=${cycleRunner?.relatedChangeId ?? "none"}`,
         `cycle=${cycleRunner?.relatedCycleId ?? "pending"}`,
+        `thoughtBlocks=${thoughtStream.length}`,
         `failure=${cycleRunner?.failureNote ?? "none"}`,
       ],
-      { cycleRunner, activePiMutationLabel },
+      { cycleRunner, activePiMutationLabel, thoughtStream: thoughtStream.slice(0, 6) },
       {
         sourceType: "recorded",
         sourceLabel: "session-entry:aies-cycle-run",
@@ -442,6 +446,7 @@ function buildState() {
     })),
     controls: loadControls(),
     transcript,
+    thoughtStream,
     panels,
     timeline,
     actionQueue,
@@ -464,6 +469,19 @@ function buildState() {
       memoryHighlights,
       openspecChanges: openSpecFiles,
       providerUsage,
+      cycleThoughtArchives: cycleThoughtEntries
+        .slice()
+        .sort((left, right) => String(right.finishedAt ?? right.startedAt ?? "").localeCompare(String(left.finishedAt ?? left.startedAt ?? "")))
+        .slice(0, 12)
+        .map((entry) => ({
+          runId: entry.runId ?? null,
+          cycleId: entry.relatedCycleId ?? null,
+          relatedChangeId: entry.relatedChangeId ?? null,
+          startedAt: entry.startedAt ?? null,
+          finishedAt: entry.finishedAt ?? null,
+          blockCount: Array.isArray(entry.blocks) ? entry.blocks.length : 0,
+          preview: Array.isArray(entry.blocks) && entry.blocks[0]?.text ? String(entry.blocks[0].text) : null,
+        })),
     },
   };
 }
@@ -486,8 +504,8 @@ async function handleMutation(req: any, res: any, path: string) {
         summary: input.summary,
         status: input.status,
         origin: "operator",
-        relatedCycleId: stateBefore.panels.heartbeat.detail?.heartbeat?.currentCycle?.cycleId as string | null ?? null,
-        relatedChangeId: stateBefore.panels.openspec.detail?.openspec?.context?.activeChangeId as string | null ?? null,
+        relatedCycleId: ((stateBefore.panels.heartbeat.detail as any)?.heartbeat?.currentCycle?.cycleId as string | null | undefined) ?? null,
+        relatedChangeId: ((stateBefore.panels.openspec.detail as any)?.openspec?.context?.activeChangeId as string | null | undefined) ?? null,
         resolutionNote: null,
         note: input.note,
       }),

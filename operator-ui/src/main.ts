@@ -5,6 +5,7 @@ import type {
   OperatorStateResponse,
   OperatorTimelineEvent,
   PanelState,
+  ThoughtStreamItem,
   TranscriptMessage,
 } from "./types.ts";
 import "./app.css";
@@ -201,13 +202,13 @@ class AiesOperatorApp extends LitElement {
   }
 
   private async resolveRecovery(): Promise<void> {
-    const recoveryId = safeString(this.state?.panels.recovery?.detail?.recovery?.recoveryId);
+    const recoveryId = safeString((this.state?.panels.recovery?.detail as any)?.recovery?.recoveryId);
     if (!recoveryId) return;
     await this.post("/api/controls/recovery/resolve", { recoveryId, note: "Resolved from operator app" });
   }
 
   private async deferRecovery(): Promise<void> {
-    const recoveryId = safeString(this.state?.panels.recovery?.detail?.recovery?.recoveryId);
+    const recoveryId = safeString((this.state?.panels.recovery?.detail as any)?.recovery?.recoveryId);
     if (!recoveryId) return;
     await this.post("/api/controls/recovery/defer", { recoveryId, note: "Deferred from operator app" });
   }
@@ -291,6 +292,25 @@ class AiesOperatorApp extends LitElement {
         <div class="summary">${message.text || "(empty message)"}</div>
         <div class="timeline-meta">
           ${message.provider ?? "no-provider"} / ${message.model ?? "no-model"}
+        </div>
+      </li>
+    `;
+  }
+
+  private renderThoughtItem(item: ThoughtStreamItem): TemplateResult {
+    return html`
+      <li class="thought-item ${item.source}">
+        <div class="row wrap">
+          <div class="pill-summary">
+            <span class=${badgeClassForSeverity(item.source === "live-message" ? "info" : "success")}>${item.source}</span>
+            <span class="chip">${item.label}</span>
+            ${item.relatedChangeId ? html`<span class="chip">${item.relatedChangeId}</span>` : nothing}
+          </div>
+          <div class="timeline-meta">${formatTimestamp(item.timestamp)}</div>
+        </div>
+        <div class="summary">${item.text}</div>
+        <div class="timeline-meta">
+          run=${item.runId ?? "none"} · cycle=${item.cycleId ?? "none"}
         </div>
       </li>
     `;
@@ -490,6 +510,23 @@ class AiesOperatorApp extends LitElement {
     `;
   }
 
+  private renderThoughtStream(items: ThoughtStreamItem[]): TemplateResult {
+    return html`
+      <section class="card stack">
+        <div class="row wrap">
+          <h2>Cycle Thought Stream</h2>
+          <div class="timeline-meta">${items.length} blocks</div>
+        </div>
+        <div class="callout small">
+          During an active cycle run, these blocks update as assistant reasoning messages land in the session. Completed runs are archived as <code>aies-cycle-thoughts</code> entries.
+        </div>
+        ${items.length === 0
+          ? html`<div class="empty">No thought blocks captured for the selected session yet.</div>`
+          : html`<ul class="thought-list">${items.map((item) => this.renderThoughtItem(item))}</ul>`}
+      </section>
+    `;
+  }
+
   private renderTimeline(events: OperatorTimelineEvent[]): TemplateResult {
     const items = this.timelineItems(events);
     const subsystems = Array.from(new Set(events.map((event) => event.subsystem))).sort();
@@ -529,13 +566,14 @@ class AiesOperatorApp extends LitElement {
         <div class="live-layout">
           <div class="center-column">
             ${this.renderControls(state)}
+            ${this.renderThoughtStream(state.thoughtStream)}
             <section class="card stack">
               <div class="row wrap">
-                <h2>Transcript</h2>
+                <h2>Messages</h2>
                 <div class="timeline-meta">${state.transcript.length} messages</div>
               </div>
               ${state.transcript.length === 0
-                ? html`<div class="empty">No transcript messages in the selected session yet.</div>`
+                ? html`<div class="empty">No user/assistant messages in the selected session yet.</div>`
                 : html`<ul class="transcript-list">${state.transcript.slice().reverse().map((message) => this.renderTranscriptItem(message))}</ul>`}
             </section>
             ${this.renderTimeline(state.timeline)}
@@ -597,6 +635,10 @@ class AiesOperatorApp extends LitElement {
           <div class="metric-card">
             <div class="metric-label">Memory Highlights</div>
             <div class="metric-value">${observatory.memoryHighlights.length}</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Thought Archives</div>
+            <div class="metric-value">${observatory.cycleThoughtArchives.length}</div>
           </div>
         </div>
         <div class="history-grid">
@@ -668,6 +710,23 @@ class AiesOperatorApp extends LitElement {
                   </div>
                   <div class="artifact-meta">${formatTimestamp(item.createdAt)}</div>
                   <div class="artifact-meta">${item.path}</div>
+                </div>
+              `)}
+            </div>
+          </section>
+          <section class="card stack">
+            <h2>Archived Cycle Thoughts</h2>
+            <div class="history-list">
+              ${observatory.cycleThoughtArchives.map((item) => html`
+                <div class="artifact-item">
+                  <div class="row wrap">
+                    <strong>${item.runId ?? item.cycleId ?? "cycle-run"}</strong>
+                    <span class="chip">${item.blockCount} blocks</span>
+                  </div>
+                  <div>${item.preview ?? "No thought preview captured."}</div>
+                  <div class="artifact-meta">
+                    cycle=${item.cycleId ?? "none"} · change=${item.relatedChangeId ?? "none"} · finished=${formatTimestamp(item.finishedAt ?? item.startedAt)}
+                  </div>
                 </div>
               `)}
             </div>

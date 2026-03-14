@@ -16,7 +16,24 @@ export interface CycleRunEntry {
   failureNote: string | null;
 }
 
+export interface CycleThoughtBlock {
+  index: number;
+  label: string;
+  text: string;
+}
+
+export interface CycleThoughtEntry {
+  runId: string;
+  sessionId: string;
+  relatedCycleId: string | null;
+  relatedChangeId: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+  blocks: CycleThoughtBlock[];
+}
+
 export const CYCLE_RUN_ENTRY_TYPE = "aies-cycle-run";
+export const CYCLE_THOUGHT_ENTRY_TYPE = "aies-cycle-thoughts";
 
 export function restoreCycleRunEntry(ctx: ExtensionContext): CycleRunEntry | null {
   const entries = ctx.sessionManager.getEntries();
@@ -25,4 +42,13 @@ export function restoreCycleRunEntry(ctx: ExtensionContext): CycleRunEntry | nul
     .pop() as { data?: CycleRunEntry } | undefined;
 
   return runEntry?.data ?? null;
+}
+
+export function restoreCycleThoughtEntry(ctx: ExtensionContext): CycleThoughtEntry | null {
+  const entries = ctx.sessionManager.getEntries();
+  const thoughtEntry = entries
+    .filter((entry: { type: string; customType?: string }) => entry.type === "custom" && entry.customType === CYCLE_THOUGHT_ENTRY_TYPE)
+    .pop() as { data?: CycleThoughtEntry } | undefined;
+
+  return thoughtEntry?.data ?? null;
 }

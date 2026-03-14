@@ -43,6 +43,17 @@ export interface OperatorActionItem {
   note: string | null;
 }
 
+export interface ThoughtStreamItem {
+  id: string;
+  runId: string | null;
+  cycleId: string | null;
+  relatedChangeId: string | null;
+  label: string;
+  text: string;
+  timestamp: string;
+  source: "live-message" | "cycle-archive";
+}
+
 export interface ControlState {
   activeSessionPath: string | null;
   heartbeat: {
@@ -242,6 +253,74 @@ function extractTextContent(message: any): string {
   return "";
 }
 
+function parseThinkingSignature(raw: unknown): string[] {
+  if (typeof raw !== "string" || !raw.trim()) return [];
+  try {
+    const parsed = JSON.parse(raw) as { summary?: Array<{ text?: string }> };
+    if (!Array.isArray(parsed.summary)) return [];
+    return parsed.summary
+      .map((item) => String(item?.text ?? "").trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+export function parseThoughtStream(entries: any[], activeRun: any | null): ThoughtStreamItem[] {
+  const archived = entries
+    .filter((entry) => entry.type === "custom" && entry.customType === "aies-cycle-thoughts")
+    .flatMap((entry) => {
+      const data = entry.data ?? {};
+      const blocks = Array.isArray(data.blocks) ? data.blocks : [];
+      return blocks.map((block: any, index: number) => ({
+        id: `${entry.id}-block-${index + 1}`,
+        runId: data.runId ?? null,
+        cycleId: data.relatedCycleId ?? null,
+        relatedChangeId: data.relatedChangeId ?? null,
+        label: String(block?.label ?? `Thought ${index + 1}`),
+        text: String(block?.text ?? "").trim(),
+        timestamp: data.finishedAt ?? entry.timestamp ?? "",
+        source: "cycle-archive" as const,
+      }));
+    })
+    .filter((item) => item.text);
+
+  if (!activeRun || activeRun.status !== "running") {
+    return archived.sort((left, right) => right.timestamp.localeCompare(left.timestamp));
+  }
+
+  const liveBlocks = entries
+    .filter((entry) => entry.type === "message")
+    .filter((entry) => {
+      const timestamp = String(entry.timestamp ?? entry.message?.timestamp ?? "");
+      return timestamp >= String(activeRun.startedAt ?? "");
+    })
+    .flatMap((entry) => {
+      if (entry.message?.role !== "assistant" || !Array.isArray(entry.message?.content)) return [];
+      return entry.message.content
+        .filter((item: any) => item?.type === "thinking")
+        .flatMap((item: any, itemIndex: number) => {
+          const summarized = parseThinkingSignature(item.thinkingSignature);
+          const fallback = String(item.thinking ?? "").trim();
+          const texts = summarized.length > 0 ? summarized : fallback ? [fallback] : [];
+          return texts.map((text, textIndex) => ({
+            id: `${entry.id}-thinking-${itemIndex + 1}-${textIndex + 1}`,
+            runId: activeRun.runId ?? null,
+            cycleId: activeRun.relatedCycleId ?? null,
+            relatedChangeId: activeRun.relatedChangeId ?? null,
+            label: `Thought ${itemIndex + textIndex + 1}`,
+            text,
+            timestamp: String(entry.timestamp ?? entry.message?.timestamp ?? ""),
+            source: "live-message" as const,
+          }));
+        });
+    });
+
+  return [...liveBlocks, ...archived]
+    .sort((left, right) => right.timestamp.localeCompare(left.timestamp))
+    .filter((item, index, collection) => collection.findIndex((candidate) => candidate.id === item.id) === index);
+}
+
 function parseTitle(entries: any[]): string {
   const currentCycle = findLatestCustom(entries, "aies-heartbeat")?.data?.currentCycle;
   if (currentCycle?.selectedFocus?.focusType && currentCycle?.rationale) {
@@ -342,6 +421,7 @@ export function readMarkdownSummary(filePath: string): { frontmatter: Record<str
 export function parseTranscript(entries: any[]) {
   return entries
     .filter((entry) => entry.type === "message")
+    .filter((entry) => ["user", "assistant"].includes(entry.message?.role ?? ""))
     .map((entry) => ({
       id: entry.id,
       role: entry.message?.role ?? "unknown",
@@ -349,7 +429,8 @@ export function parseTranscript(entries: any[]) {
       timestamp: entry.timestamp ?? entry.message?.timestamp ?? "",
       provider: entry.message?.provider ?? null,
       model: entry.message?.model ?? null,
-    }));
+    }))
+    .filter((entry) => entry.text || entry.role === "assistant");
 }
 
 export function buildGeneratedActions(parsedSession: ParsedSession | null): OperatorActionItem[] {
@@ -451,6 +532,8 @@ export function buildTimeline(parsedSession: ParsedSession | null, actions: Oper
           severity = data.status === "open" && data.severity === "high" ? "error" : data.status === "open" ? "warning" : "info";
         } else if (entry.customType === "aies-openspec") {
           summary = `OpenSpec ${data.context?.activeChangeId ?? "none"} · ${data.summary ?? "no summary"}`;
+        } else if (entry.customType === "aies-cycle-thoughts") {
+          summary = `Cycle thoughts ${Array.isArray(data.blocks) ? data.blocks.length : 0} blocks · ${data.runId ?? "no run id"}`;
         }
         events.push({
           id: entry.id,
@@ -492,7 +575,7 @@ export function buildTimeline(parsedSession: ParsedSession | null, actions: Oper
       cycleId: action.relatedCycleId,
       relatedChangeId: action.relatedChangeId,
       summary: action.summary,
-      detail: action,
+      detail: action as unknown as Record<string, unknown>,
       origin: action.origin,
       severity: action.status === "open" ? "warning" : "info",
     });
