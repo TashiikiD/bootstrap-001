@@ -8,6 +8,7 @@ export const AIES_STATUS_KEYS = {
   evaluation: "aies-evaluation",
   verification: "aies-verification",
   recovery: "aies-recovery",
+  userRequests: "aies-user-requests",
 } as const;
 
 export const AIES_WIDGET_KEYS = {
@@ -18,6 +19,7 @@ export const AIES_WIDGET_KEYS = {
   evaluation: "aies-evaluation-widget",
   verification: "aies-verification-widget",
   recovery: "aies-recovery-widget",
+  userRequests: "aies-user-requests-widget",
 } as const;
 
 export const AIES_COMMANDS = {
@@ -45,4 +47,10 @@ export const AIES_COMMANDS = {
   recoveryStatus: "recovery-status",
   recoveryResolve: "recovery-resolve",
   recoveryDefer: "recovery-defer",
+  userRequest: "user-request",
+  userRequests: "user-requests",
+  userRequestStatus: "user-request-status",
+  userRequestApprove: "user-request-approve",
+  userRequestDeny: "user-request-deny",
+  userRequestDone: "user-request-done",
 } as const;

@@ -5,6 +5,7 @@
                        "../aies/extensions/heartbeat/index.ts",
                        "../aies/extensions/evaluation/index.ts",
                        "../aies/extensions/verification/index.ts",
+                       "../aies/extensions/user-requests/index.ts",
                        "../aies/extensions/memory/index.ts",
                        "../aies/extensions/policy/index.ts",
                        "../aies/extensions/cycle-runner/index.ts",

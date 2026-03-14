@@ -3,6 +3,7 @@ import { readFileSync, statSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
 import {
   appendAction,
+  applyRequestDecision,
   buildGeneratedActions,
   buildTimeline,
   controlsFile,
@@ -10,6 +11,7 @@ import {
   ensureRuntimeState,
   findLatestCustom,
   listMarkdownFiles,
+  loadOperatorRequests,
   listSessionPaths,
   loadActions,
   loadControls,
@@ -23,6 +25,7 @@ import {
   runPi,
   saveControls,
   updateAction,
+  updateOperatorRequest,
   type ControlState,
   type ParsedSession,
   type PiExecutionResult,
@@ -154,10 +157,11 @@ function buildState() {
   const latestModel = [...entries].reverse().find((entry) => entry.type === "model_change") ?? null;
   const transcript = parseTranscript(entries);
   const thoughtStream = parseThoughtStream(entries, cycleRunner);
+  const requests = loadOperatorRequests();
   const manualActions = loadActions();
   const generatedActions = buildGeneratedActions(activeSession);
   const actionQueue = [...generatedActions, ...manualActions].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-  const timeline = buildTimeline(activeSession, actionQueue);
+  const timeline = buildTimeline(activeSession, actionQueue, requests);
 
   const devlogs = listMarkdownFiles(resolve(memoryRoot, "devlog"));
   const knowledge = listMarkdownFiles(resolve(memoryRoot, "knowledge"));
@@ -205,6 +209,10 @@ function buildState() {
   const recoveryStats = ["open", "resolved", "deferred"].map((status) => ({
     status,
     count: recoveryEntries.filter((entry) => entry.status === status).length,
+  }));
+  const requestStats = ["open", "approved", "denied", "done"].map((status) => ({
+    status,
+    count: requests.filter((request) => request.status === status).length,
   }));
 
   const memoryHighlights = [...knowledge, ...theoryFork].slice(0, 10).map((filePath) => {
@@ -431,6 +439,25 @@ function buildState() {
         stale: false,
       },
     ),
+    requests: panel(
+      "Requests",
+      requests[0]?.summary ?? "No agent-to-user requests",
+      [
+        `open=${requests.filter((request) => request.status === "open" || request.status === "approved").length}`,
+        `latest=${requests[0]?.requestId ?? "none"}`,
+        `status=${requests[0]?.status ?? "none"}`,
+        `category=${requests[0]?.category ?? "none"}`,
+      ],
+      { requests },
+      {
+        sourceType: requests.length > 0 ? "recorded" : "inferred",
+        sourceLabel: requests.length > 0 ? "runtime-ledger:requests.json" : "no recorded requests",
+        sourceTimestamp: requests[0]?.updatedAt ?? null,
+        relatedCycleId: requests[0]?.relatedCycleId ?? null,
+        relatedChangeId: requests[0]?.relatedChangeId ?? null,
+        stale: false,
+      },
+    ),
   };
 
   return {
@@ -451,6 +478,7 @@ function buildState() {
     panels,
     timeline,
     actionQueue,
+    requests,
     observatory: {
       recentCycles: devlogs.slice(0, 8).map((filePath) => {
         const { frontmatter, summary } = readMarkdownSummary(filePath);
@@ -809,6 +837,55 @@ async function handleMutation(req: any, res: any, path: string) {
     return json(res, buildState());
   }
 
+  const requestMatch = path.match(/^\/api\/requests\/([^/]+)\/status$/);
+  if (requestMatch) {
+    const requestId = decodeURIComponent(requestMatch[1]);
+    const status = typeof body.status === "string" ? body.status : "";
+    const comment = typeof body.comment === "string" ? body.comment : null;
+    if (!["approved", "denied", "done"].includes(status)) {
+      return json(res, { error: "status must be approved, denied, or done" }, 400);
+    }
+    if (activeSessionPath) {
+      const command = status === "approved"
+        ? `/user-request-approve ${requestId}${comment ? ` ${comment}` : ""}`
+        : status === "denied"
+          ? `/user-request-deny ${requestId}${comment ? ` ${comment}` : ""}`
+          : `/user-request-done ${requestId}${comment ? ` ${comment}` : ""}`;
+      const syncResult = await runPiSerialized(`request-${status}-sync`, ["-p", "--session", String(activeSessionPath), command], SESSION_MUTATION_TIMEOUT_MS);
+      if (!syncResult.ok) {
+        const updated = updateOperatorRequest(requestId, (request) => applyRequestDecision(request, status as "approved" | "denied" | "done", comment));
+        if (!updated) return json(res, { error: "request not found" }, 404);
+        appendSyncAction({
+          category: "request-sync",
+          summary: syncResult.timedOut ? `Request decision saved locally; session sync timed out for ${requestId}` : `Request decision saved locally; session sync failed for ${requestId}` ,
+          status: "open",
+          note: buildSyncFailureNote("Request decision", command, syncResult),
+        });
+        return json(res, { ok: true, warning: buildSyncFailureNote("Request decision", command, syncResult), state: buildState() });
+      }
+      appendSyncAction({
+        category: "request-sync",
+        summary: `Request ${requestId} updated to ${status}`,
+        status: "logged",
+        note: summarizePiResult(syncResult),
+      });
+      return json(res, buildState());
+    }
+    const updated = updateOperatorRequest(requestId, (request) => applyRequestDecision(request, status as "approved" | "denied" | "done", comment));
+    if (!updated) return json(res, { error: "request not found" }, 404);
+    appendAction(createAction({
+      category: "request-sync",
+      summary: `Request ${requestId} updated to ${status} locally`,
+      status: "logged",
+      origin: "operator",
+      relatedCycleId: updated.relatedCycleId ?? null,
+      relatedChangeId: updated.relatedChangeId ?? null,
+      resolutionNote: null,
+      note: comment,
+    }));
+    return json(res, buildState());
+  }
+
   if (path === "/api/actions") {
     const item = createAction({
       category: String(body.category ?? "manual-note"),
@@ -887,6 +964,10 @@ createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/api/health") {
       return json(res, { ok: true, now: new Date().toISOString(), controlsFile });
     }
+    if (req.method === "GET" && url.pathname === "/api/requests") {
+      return json(res, buildState().requests);
+    }
+
     if (req.method === "GET" && url.pathname === "/api/state") {
       return json(res, buildState());
     }

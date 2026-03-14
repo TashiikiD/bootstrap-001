@@ -160,7 +160,7 @@ param(
 `$runEnv = Join-Path `$runRoot 'run-env.ps1'
 `$piScript = Join-Path `$runRoot 'run-aies-on-pi.ps1'
 `$uiScript = Join-Path `$runRoot 'run-operator-ui.ps1'
-`$uiUrl = 'http://127.0.0.1:4321'
+`$uiUrl = 'http://127.0.0.1:4322'
 `$wtCommand = Get-Command wt -ErrorAction SilentlyContinue
 
 if (-not `$wtCommand) {

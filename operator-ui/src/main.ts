@@ -2,6 +2,7 @@ import { LitElement, html, nothing, type TemplateResult } from "lit";
 import type {
   ControlState,
   OperatorActionItem,
+  OperatorRequestItem,
   OperatorStateResponse,
   OperatorTimelineEvent,
   PanelState,
@@ -57,6 +58,7 @@ class AiesOperatorApp extends LitElement {
     actionNoteDraft: { state: true },
     verificationCommandDraft: { state: true },
     verificationFailureDraft: { state: true },
+    requestCommentDrafts: { state: true },
   };
 
   declare state: OperatorStateResponse | null;
@@ -71,6 +73,7 @@ class AiesOperatorApp extends LitElement {
   declare actionNoteDraft: string;
   declare verificationCommandDraft: string;
   declare verificationFailureDraft: string;
+  declare requestCommentDrafts: Record<string, string>;
   private refreshTimer: number | null = null;
 
   constructor() {
@@ -87,6 +90,7 @@ class AiesOperatorApp extends LitElement {
     this.actionNoteDraft = "";
     this.verificationCommandDraft = "";
     this.verificationFailureDraft = "";
+    this.requestCommentDrafts = {};
   }
 
   createRenderRoot(): this {
@@ -196,6 +200,7 @@ class AiesOperatorApp extends LitElement {
       failureSummary: this.verificationFailureDraft,
     });
     this.verificationFailureDraft = "";
+    this.requestCommentDrafts = {};
     if (result === "passed") {
       this.verificationCommandDraft = "";
     }
@@ -228,6 +233,20 @@ class AiesOperatorApp extends LitElement {
   private async resolveAction(actionId: string): Promise<void> {
     await this.post(`/api/actions/${actionId}/resolve`, {
       resolutionNote: "Resolved from operator app",
+    });
+  }
+
+  private setRequestComment(requestId: string, comment: string): void {
+    this.requestCommentDrafts = {
+      ...this.requestCommentDrafts,
+      [requestId]: comment,
+    };
+  }
+
+  private async respondToRequest(requestId: string, status: "approved" | "denied" | "done"): Promise<void> {
+    await this.post(`/api/requests/${requestId}/status`, {
+      status,
+      comment: this.requestCommentDrafts[requestId] ?? "",
     });
   }
 
@@ -363,6 +382,29 @@ class AiesOperatorApp extends LitElement {
         ${item.status === "open" && item.origin !== "system"
           ? html`<div class="button-row"><button class="button secondary" @click=${() => void this.resolveAction(item.id)}>Resolve</button></div>`
           : nothing}
+      </li>
+    `;
+  }
+
+  private renderRequestItem(item: OperatorRequestItem): TemplateResult {
+    const comment = this.requestCommentDrafts[item.requestId] ?? "";
+    return html`
+      <li class="action-item ${item.status}">
+        <div class="row wrap">
+          <div class="pill-summary">
+            <span class=${badgeClassForSeverity(item.status === "denied" ? "warning" : item.status === "done" ? "success" : "info")}>${item.category}</span>
+            <span class="chip">agent</span>
+            <span class="chip">${item.status}</span>
+            ${item.relatedChangeId ? html`<span class="chip">${item.relatedChangeId}</span>` : nothing}
+          </div>
+          <div class="timeline-meta">${formatTimestamp(item.updatedAt)}</div>
+        </div>
+        <div class="summary">${item.summary}</div>
+        <div class="timeline-meta">${item.requestId}</div>
+        <div class="timeline-meta">${item.details}</div>
+        ${item.responseComment ? html`<div class="timeline-meta">Response: ${item.responseComment}</div>` : nothing}
+        ${item.resolutionComment ? html`<div class="timeline-meta">Resolution: ${item.resolutionComment}</div>` : nothing}
+        ${item.status !== "done" ? html`<div class="field"><label>Operator comment</label><textarea .value=${comment} @input=${(event: Event) => this.setRequestComment(item.requestId, (event.target as HTMLTextAreaElement).value)}></textarea></div><div class="button-row"><button class="button" @click=${() => void this.respondToRequest(item.requestId, "approved")}>Approve</button><button class="button secondary" @click=${() => void this.respondToRequest(item.requestId, "denied")}>Deny</button><button class="button secondary" @click=${() => void this.respondToRequest(item.requestId, "done")}>Mark Done</button></div>` : nothing}
       </li>
     `;
   }
@@ -511,6 +553,7 @@ class AiesOperatorApp extends LitElement {
               <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/verification-plan"; }}>Verification Plan</button>
               <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/recovery-status"; }}>Recovery Status</button>
               <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/memory-status"; }}>Memory Status</button>
+              <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/user-requests"; }}>User Requests</button>
             </div>
           </form>
         </div>
@@ -587,7 +630,14 @@ class AiesOperatorApp extends LitElement {
             ${this.renderTimeline(state.timeline)}
           </div>
           <div class="rail-column">
-            ${Object.values(state.panels).map((panel) => this.renderPanel(panel))}
+            ${Object.values(state.panels).filter((panel) => panel.id !== "requests").map((panel) => this.renderPanel(panel))}
+            <section class="card stack">
+              <div class="row wrap">
+                <h2>Requests</h2>
+                <div class="timeline-meta">${state.requests.filter((item) => item.status === "open" || item.status === "approved").length} open/pending</div>
+              </div>
+              ${state.requests.length === 0 ? html`<div class="empty">No agent-to-user requests recorded.</div>` : html`<ul class="action-list">${state.requests.map((item) => this.renderRequestItem(item))}</ul>`}
+            </section>
             <section class="card stack">
               <div class="row wrap">
                 <h2>Operator Actions</h2>
@@ -621,6 +671,7 @@ class AiesOperatorApp extends LitElement {
     const openActions = state.actionQueue.filter((item) => item.status === "open").length;
     const verificationDebt = observatory.verificationStats.find((item) => item.result === "not_run")?.count ?? 0;
     const recoveryDebt = observatory.recoveryStats.find((item) => item.status === "open")?.count ?? 0;
+    const openRequests = observatory.requestStats.find((item) => item.status === "open")?.count ?? 0;
     return html`
       <div class="content stack">
         <div class="metric-grid">
@@ -639,6 +690,10 @@ class AiesOperatorApp extends LitElement {
           <div class="metric-card">
             <div class="metric-label">Recovery Debt</div>
             <div class="metric-value">${recoveryDebt}</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Open Requests</div>
+            <div class="metric-value">${openRequests}</div>
           </div>
           <div class="metric-card">
             <div class="metric-label">Memory Highlights</div>
@@ -750,6 +805,19 @@ class AiesOperatorApp extends LitElement {
                   </div>
                   <div>${item.title}</div>
                   <div class="artifact-meta">${formatTimestamp(item.updatedAt)}</div>
+                </div>
+              `)}
+            </div>
+          </section>
+          <section class="card stack">
+            <h2>Request Stats</h2>
+            <div class="history-list">
+              ${observatory.requestStats.map((item) => html`
+                <div class="artifact-item">
+                  <div class="row wrap">
+                    <strong>${item.status}</strong>
+                    <div class="artifact-meta">${item.count}</div>
+                  </div>
                 </div>
               `)}
             </div>

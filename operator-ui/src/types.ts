@@ -73,6 +73,30 @@ export interface OperatorActionItem {
   note: string | null;
 }
 
+export interface OperatorRequestHistoryEntry {
+  eventId: string;
+  kind: "created" | "approved" | "denied" | "done";
+  actor: "agent" | "operator";
+  timestamp: string;
+  comment: string | null;
+}
+
+export interface OperatorRequestItem {
+  requestId: string;
+  status: "open" | "approved" | "denied" | "done";
+  category: "tooling" | "install" | "permission" | "external-agent" | "resource" | "other";
+  summary: string;
+  details: string;
+  requestedBy: "agent";
+  relatedCycleId: string | null;
+  relatedChangeId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  responseComment: string | null;
+  resolutionComment: string | null;
+  history: OperatorRequestHistoryEntry[];
+}
+
 export interface ControlState {
   activeSessionPath: string | null;
   heartbeat: {
@@ -108,6 +132,7 @@ export interface ObservatoryData {
   openspecChanges: Array<{ changeId: string; title: string; status: string; updatedAt: string | null }>;
   providerUsage: Array<{ provider: string; model: string; count: number }>;
   cycleThoughtArchives: Array<{ runId: string | null; cycleId: string | null; relatedChangeId: string | null; startedAt: string | null; finishedAt: string | null; blockCount: number; preview: string | null }>;
+  requestStats: Array<{ status: string; count: number }>;
 }
 
 export interface OperatorStateResponse {
@@ -120,5 +145,6 @@ export interface OperatorStateResponse {
   panels: Record<string, PanelState>;
   timeline: OperatorTimelineEvent[];
   actionQueue: OperatorActionItem[];
+  requests: OperatorRequestItem[];
   observatory: ObservatoryData;
 }

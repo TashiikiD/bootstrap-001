@@ -43,6 +43,30 @@ export interface OperatorActionItem {
   note: string | null;
 }
 
+export interface OperatorRequestHistoryEntry {
+  eventId: string;
+  kind: "created" | "approved" | "denied" | "done";
+  actor: "agent" | "operator";
+  timestamp: string;
+  comment: string | null;
+}
+
+export interface OperatorRequestItem {
+  requestId: string;
+  status: "open" | "approved" | "denied" | "done";
+  category: "tooling" | "install" | "permission" | "external-agent" | "resource" | "other";
+  summary: string;
+  details: string;
+  requestedBy: "agent";
+  relatedCycleId: string | null;
+  relatedChangeId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  responseComment: string | null;
+  resolutionComment: string | null;
+  history: OperatorRequestHistoryEntry[];
+}
+
 export interface ThoughtStreamItem {
   id: string;
   runId: string | null;
@@ -418,6 +442,60 @@ export function readMarkdownSummary(filePath: string): { frontmatter: Record<str
   };
 }
 
+export function loadOperatorRequests(): OperatorRequestItem[] {
+  ensureRuntimeState();
+  const filePath = resolve(runtimeStateRoot, "requests.json");
+  if (!existsSync(filePath)) {
+    writeFileSync(filePath, "[]\n", "utf8");
+  }
+  return (JSON.parse(readFileSync(filePath, "utf8")) as OperatorRequestItem[])
+    .slice()
+    .sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt));
+}
+
+export function saveOperatorRequests(requests: OperatorRequestItem[]): void {
+  ensureRuntimeState();
+  const filePath = resolve(runtimeStateRoot, "requests.json");
+  writeFileSync(filePath, `${JSON.stringify(requests, null, 2)}\n`, "utf8");
+}
+
+export function updateOperatorRequest(
+  requestId: string,
+  mutator: (request: OperatorRequestItem) => OperatorRequestItem,
+): OperatorRequestItem | null {
+  const requests = loadOperatorRequests();
+  const index = requests.findIndex((request) => request.requestId === requestId);
+  if (index < 0) return null;
+  requests[index] = mutator(requests[index]);
+  saveOperatorRequests(requests);
+  return requests[index];
+}
+
+export function applyRequestDecision(
+  request: OperatorRequestItem,
+  status: "approved" | "denied" | "done",
+  comment: string | null,
+): OperatorRequestItem {
+  const trimmed = comment?.trim() || null;
+  return {
+    ...request,
+    status,
+    updatedAt: nowIso(),
+    responseComment: status === "approved" || status === "denied" ? trimmed : request.responseComment,
+    resolutionComment: status === "done" ? trimmed : request.resolutionComment,
+    history: [
+      {
+        eventId: `request-event-${Date.now()}`,
+        kind: status,
+        actor: "operator",
+        timestamp: nowIso(),
+        comment: trimmed,
+      },
+      ...(request.history ?? []),
+    ],
+  };
+}
+
 export function parseTranscript(entries: any[]) {
   return entries
     .filter((entry) => entry.type === "message")
@@ -491,7 +569,7 @@ export function buildGeneratedActions(parsedSession: ParsedSession | null): Oper
   return generated;
 }
 
-export function buildTimeline(parsedSession: ParsedSession | null, actions: OperatorActionItem[]): OperatorTimelineEvent[] {
+export function buildTimeline(parsedSession: ParsedSession | null, actions: OperatorActionItem[], requests: OperatorRequestItem[] = []): OperatorTimelineEvent[] {
   const events: OperatorTimelineEvent[] = [];
 
   if (parsedSession) {
@@ -563,6 +641,23 @@ export function buildTimeline(parsedSession: ParsedSession | null, actions: Oper
           severity: "info",
         });
       }
+    }
+  }
+
+  for (const request of requests) {
+    for (const event of request.history ?? []) {
+      events.push({
+        id: event.eventId,
+        subsystem: "requests",
+        eventKind: event.kind,
+        timestamp: event.timestamp,
+        cycleId: request.relatedCycleId ?? null,
+        relatedChangeId: request.relatedChangeId ?? null,
+        summary: `${event.kind} request ${request.requestId}: ${request.summary}`,
+        detail: { request, event },
+        origin: event.actor === "operator" ? "operator" : "system",
+        severity: event.kind === "denied" ? "warning" : "info",
+      });
     }
   }
 

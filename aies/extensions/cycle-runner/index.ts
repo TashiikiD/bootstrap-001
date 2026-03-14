@@ -16,6 +16,7 @@ import {
   type VerificationEntry,
   type VerificationModeEntry,
 } from "../verification/state.ts";
+import { summarizeRequestsForPrompt } from "../user-requests/state.ts";
 import {
   CYCLE_RUN_ENTRY_TYPE,
   CYCLE_THOUGHT_ENTRY_TYPE,
@@ -324,6 +325,10 @@ function renderRecoverySection(entry: RecoveryEntry | null): string[] {
   ];
 }
 
+function renderUserRequestSection(): string[] {
+  return summarizeRequestsForPrompt();
+}
+
 function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: string; relatedChangeId: string | null } {
   const heartbeat = restoreHeartbeat(ctx);
   const openSpec = restoreOpenSpecEntry(ctx);
@@ -379,6 +384,8 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     ...renderVerificationSection(verification, verificationMode),
     "",
     ...renderRecoverySection(recovery),
+    "",
+    ...renderUserRequestSection(),
     "",
     `Latest devlog signal: ${memory.devlog ?? "none"}`,
     `Latest durable memory signal: ${memory.durable ?? "none"}`,
