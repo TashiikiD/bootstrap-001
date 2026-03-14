@@ -81,6 +81,7 @@ export interface ThoughtStreamItem {
 
 export interface ControlState {
   activeSessionPath: string | null;
+  sessionSelectionMode: "auto" | "manual";
   heartbeat: {
     enabled: boolean;
     continuousMode: boolean;
@@ -145,6 +146,7 @@ function nowIso(): string {
 function defaultControls(): ControlState {
   return {
     activeSessionPath: null,
+    sessionSelectionMode: "auto",
     heartbeat: {
       enabled: true,
       continuousMode: false,
@@ -208,6 +210,7 @@ export function loadControls(): ControlState {
   const defaults = defaultControls();
   const merged: ControlState = {
     activeSessionPath: parsed.activeSessionPath ?? defaults.activeSessionPath,
+    sessionSelectionMode: parsed.sessionSelectionMode === "manual" ? "manual" : defaults.sessionSelectionMode,
     heartbeat: {
       ...defaults.heartbeat,
       ...(parsed.heartbeat ?? {}),
@@ -793,7 +796,7 @@ export function runPiDetached(args: string[]): PiDetachedLaunchResult {
       {
         cwd: projectRoot,
         windowsHide: true,
-        detached: true,
+        detached: false,
         stdio: "ignore",
       },
     );

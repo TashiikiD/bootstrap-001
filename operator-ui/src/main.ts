@@ -44,6 +44,13 @@ function safeString(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
+function sessionPathLabel(value: string | null | undefined): string {
+  if (!value) return "none";
+  const normalized = String(value).replace(/\\/g, "/");
+  const parts = normalized.split("/").filter(Boolean);
+  return parts[parts.length - 1] ?? String(value);
+}
+
 class AiesOperatorApp extends LitElement {
   static properties = {
     state: { state: true },
@@ -422,6 +429,13 @@ class AiesOperatorApp extends LitElement {
     const controls = state.controls;
     const providerOptions = ["codex-lb", "kimi-lb"];
     const modelOptions = ["gpt-5.2", "gpt-5.3-codex", "gpt-5.4", "gpt-5.1-codex-mini", "k2p5"];
+    const latestSession = state.sessions[0] ?? null;
+    const pinnedOlderSession = Boolean(
+      controls.activeSessionPath
+      && latestSession
+      && state.activeSessionPath === controls.activeSessionPath
+      && state.activeSessionPath !== latestSession.path,
+    );
     return html`
       <section class="card stack">
         <div class="row wrap">
@@ -431,6 +445,13 @@ class AiesOperatorApp extends LitElement {
             <button class="button" @click=${() => void this.triggerCycle()}>Run Cycle</button>
           </div>
         </div>
+        ${pinnedOlderSession
+          ? html`
+              <div class="callout small">
+                Advisory: controls are pinned to ${sessionPathLabel(state.activeSessionPath)} while the latest session is ${sessionPathLabel(latestSession?.path)}. Run Cycle, prompt sends, and verification/recovery sync actions will keep targeting the selected session until you switch back to <strong>Latest session</strong> or choose another session.
+              </div>
+            `
+          : nothing}
         <div class="form-grid">
           <div class="field">
             <label>Active Session</label>

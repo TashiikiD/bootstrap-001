@@ -103,7 +103,11 @@ function getSessions(): ParsedSession[] {
 }
 
 function chooseActiveSessionPath(controls: ControlState, sessions: ParsedSession[]): string | null {
-  if (controls.activeSessionPath && sessions.some((session) => session.path === controls.activeSessionPath)) {
+  if (
+    controls.sessionSelectionMode === "manual" &&
+    controls.activeSessionPath &&
+    sessions.some((session) => session.path === controls.activeSessionPath)
+  ) {
     return controls.activeSessionPath;
   }
   return sessions[0]?.path ?? null;
@@ -171,6 +175,9 @@ function getHeartbeatSnapshot() {
   const activeSession = activeSessionPath ? sessions.find((session) => session.path === activeSessionPath) ?? null : null;
   const entries = activeSession?.entries ?? [];
   const heartbeat = activeSession ? findLatestCustom(entries, "aies-heartbeat")?.data ?? null : null;
+  const openspec = activeSession ? findLatestCustom(entries, "aies-openspec")?.data ?? null : null;
+  const currentCycle = heartbeat?.currentCycle ?? null;
+  const lastCycle = heartbeat?.lastCycle ?? null;
   const openspec = activeSession ? findLatestCustom(entries, "aies-openspec")?.data ?? null : null;
   const currentCycle = heartbeat?.currentCycle ?? null;
   const lastCycle = heartbeat?.lastCycle ?? null;
@@ -380,6 +387,8 @@ function buildState() {
   const evaluation = activeSession ? findLatestCustom(entries, "aies-evaluation")?.data ?? null : null;
   const verification = activeSession ? findLatestCustom(entries, "aies-verification")?.data ?? null : null;
   const recovery = activeSession ? findLatestCustom(entries, "aies-recovery")?.data ?? null : null;
+  const currentCycle = heartbeat?.currentCycle ?? null;
+  const lastCycle = heartbeat?.lastCycle ?? null;
   const latestModel = [...entries].reverse().find((entry) => entry.type === "model_change") ?? null;
   const transcript = parseTranscript(entries);
   const thoughtStream = parseThoughtStream(entries, cycleRunner);
@@ -461,8 +470,6 @@ function buildState() {
     return { provider, model, count };
   });
 
-  const currentCycle = heartbeat?.currentCycle ?? null;
-  const lastCycle = heartbeat?.lastCycle ?? null;
   const currentPolicyMode = controls.policy.mode;
   const verificationMode = verification?.record?.mode ?? controls.verification.mode ?? "none";
   const verificationResult = verification?.record?.result ?? "not_run";
@@ -778,7 +785,11 @@ async function handleMutation(req: any, res: any, path: string) {
   };
 
   if (path === "/api/session/select") {
-    saveControls({ ...controls, activeSessionPath: body.sessionPath ?? null });
+    saveControls({
+      ...controls,
+      activeSessionPath: body.sessionPath ?? null,
+      sessionSelectionMode: body.sessionPath ? "manual" : "auto",
+    });
     await reconcileHeartbeatAutomation();
     return json(res, buildState());
   }
