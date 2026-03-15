@@ -2,8 +2,8 @@
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
 status: active
-updated_at: 2026-03-15T15:26:58.985Z
-last_audit_snapshot: audit-2026-03-15T15-26-58-985Z
+updated_at: 2026-03-15T15:59:18.744Z
+last_audit_snapshot: audit-2026-03-15T15-59-18-744Z
 last_audit_reconciled_dimension: evaluation
 ---
 
@@ -36,6 +36,11 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Active-change reconciliation now appends structured audit context, avoids duplicate task injection by snapshot id, and updates OpenSpec frontmatter so repeated weak-layer findings can steer the current plan instead of only spawning more proposals.
   - The evaluation-layer audit rules now treat reconciliation as first-class evidence and move the next recommendation toward comparing which correction path actually improved later audits.
   - Validation: re-ran `/audit-radar-assess`, producing `audit-2026-03-15T15-26-58-985Z`; evaluation stayed partial, but the cited gap and recommended next step advanced from proposal-only planning to correction-path comparison.
+- [x] Compare correction-path outcomes across audit intervals.
+  - Added `aies/extensions/evaluation/audit-radar-outcomes.ts` plus `/audit-radar-outcomes`, which compares consecutive audit snapshots against observed OpenSpec reconciliation/proposal signals and session-level verification, recovery, and operator verification-mode entries.
+  - Outcome reports now persist under `memory/knowledge/audit-radar/outcomes/` so later cycles can inspect whether prior weak layers improved, regressed, or stayed stagnant after specific interventions.
+  - The evaluation-layer audit rules now treat durable outcome comparison as first-class evidence and move the next recommendation toward harness-automating the audit/verification/outcome loop.
+  - Validation: ran `/audit-radar-outcomes`, producing `audit-outcomes-2026-03-15T15-58-06-342Z`, then re-ran `/audit-radar-assess`, producing `audit-2026-03-15T15-59-18-744Z`; evaluation stayed partial but its cited gap advanced to correlational-attribution limits and the recommendation shifted to a reproducible audit+outcome+verification command chain.
 - [ ] Record the experiment back into memory.
   - Write devlog and theory-fork updates on what the audit got right, what it missed, and how the harness should evaluate itself without collapsing into shallow score-chasing.
 

@@ -185,24 +185,30 @@ function buildRules(): DimensionRule[] {
         "audit-evaluation-audit-radar-persistence",
         "audit-evaluation-audit-radar-proposal-bridge",
         "audit-evaluation-audit-radar-reconciliation-bridge",
+        "audit-evaluation-audit-radar-outcome-comparator",
+        "audit-evaluation-audit-radar-outcome-report",
       ],
-      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, historical comparison, plan reconciliation, and planning drafts tied to real findings.",
-      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, durable audit snapshots, audit-driven proposal drafting, and active-change reconciliation, but it still lacks a complete comparison loop for which correction paths actually improved outcomes.",
+      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, historical comparison, plan reconciliation, correction-path outcome reports, and planning drafts tied to real findings.",
+      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, durable audit snapshots, audit-driven proposal drafting, active-change reconciliation, and first-pass correction-path comparison, but attribution is still correlational and not yet harness-automated.",
       missingSummary: "The audit found no explicit evaluation-engineering artifacts in the curated scan roots.",
       strengthTemplates: [
         "The runtime already records structured evaluation snapshots rather than relying only on narrative self-report.",
         "Verification and recovery are tracked as explicit state surfaces that can be inspected by later cycles.",
       ],
-      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-reconciliation-bridge")
-        ? ["Audit findings can now reconcile into active OpenSpec plans, but evaluation still does not compare which correction path — reconciled change work, verification follow-up, or operator intervention — actually improved later audit outcomes."]
-        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-proposal-bridge")
-          ? ["The audit can now draft follow-on OpenSpec changes, but repeated findings still do not automatically reconcile against existing plans or task queues."]
-          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-persistence")
-            ? ["The audit can now persist and compare snapshots, but findings still do not automatically draft or update planning artifacts when a binding constraint repeats."]
-            : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
-      highestLeverageNextStep: "Compare audit-plan reconciliation outcomes against verification, recovery, and later audit snapshots so AIES learns which correction path actually reduced a weak layer.",
-      recommendationActionType: "openspec_change",
-      suggestedPaths: ["aies/extensions/evaluation/", "aies/extensions/openspec/", "openspec/changes/"],
+      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-outcome-report")
+        ? ["A correction-path comparison loop now exists, but attribution is still correlational when multiple interventions overlap and the harness does not yet run the loop automatically."]
+        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-outcome-comparator")
+          ? ["The audit can now compare correction paths in principle, but no durable outcome report has been generated yet to prove the loop is operating across real audit intervals."]
+          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-reconciliation-bridge")
+            ? ["Audit findings can now reconcile into active OpenSpec plans, but evaluation still does not compare which correction path — reconciled change work, verification follow-up, or operator intervention — actually improved later audit outcomes."]
+            : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-proposal-bridge")
+              ? ["The audit can now draft follow-on OpenSpec changes, but repeated findings still do not automatically reconcile against existing plans or task queues."]
+              : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-persistence")
+                ? ["The audit can now persist and compare snapshots, but findings still do not automatically draft or update planning artifacts when a binding constraint repeats."]
+                : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
+      highestLeverageNextStep: "Wrap audit assessment, outcome comparison, and quick verification into one reproducible harness command so correction-path learning happens every cycle.",
+      recommendationActionType: "tool",
+      suggestedPaths: ["aies/extensions/evaluation/", "run-aies-on-pi.ps1", "verify-aies-quick.ps1"],
     },
     {
       dimension: "harness",

@@ -1,0 +1,116 @@
+{
+  "reportId": "audit-outcomes-2026-03-15T15-58-06-342Z",
+  "generatedAt": "2026-03-15T15:58:06.342Z",
+  "snapshotCount": 5,
+  "comparisons": [
+    {
+      "previousSnapshotId": "audit-2026-03-15T06-02-29-939Z",
+      "previousObservedAt": "2026-03-15T06:02:29.939Z",
+      "currentSnapshotId": "audit-2026-03-15T06-03-59-146Z",
+      "currentObservedAt": "2026-03-15T06:03:59.146Z",
+      "comparedWeakDimensions": [
+        "context",
+        "judgment",
+        "coherence",
+        "evaluation",
+        "harness"
+      ],
+      "improvedDimensions": [],
+      "regressedDimensions": [],
+      "stagnantWeakDimensions": [
+        "context",
+        "judgment",
+        "coherence",
+        "evaluation",
+        "harness"
+      ],
+      "pathsObserved": [],
+      "pathEvidence": [],
+      "summary": "Between audit-2026-03-15T06-02-29-939Z and audit-2026-03-15T06-03-59-146Z, observed correction paths: none observed. Improved prior weak layers: none. Regressed prior weak layers: none. Stagnant prior weak layers: context, judgment, coherence, evaluation, harness."
+    },
+    {
+      "previousSnapshotId": "audit-2026-03-15T06-03-59-146Z",
+      "previousObservedAt": "2026-03-15T06:03:59.146Z",
+      "currentSnapshotId": "audit-2026-03-15T06-27-52-067Z",
+      "currentObservedAt": "2026-03-15T06:27:52.067Z",
+      "comparedWeakDimensions": [
+        "context",
+        "judgment",
+        "coherence",
+        "evaluation",
+        "harness"
+      ],
+      "improvedDimensions": [],
+      "regressedDimensions": [],
+      "stagnantWeakDimensions": [
+        "context",
+        "judgment",
+        "coherence",
+        "evaluation",
+        "harness"
+      ],
+      "pathsObserved": [
+        "audit_proposal"
+      ],
+      "pathEvidence": [
+        "openspec/changes/CHG-2026-03-15-audit-judgment-gate.md generated_from_audit_snapshot=audit-2026-03-15T06-03-59-146Z"
+      ],
+      "summary": "Between audit-2026-03-15T06-03-59-146Z and audit-2026-03-15T06-27-52-067Z, observed correction paths: audit proposal. Improved prior weak layers: none. Regressed prior weak layers: none. Stagnant prior weak layers: context, judgment, coherence, evaluation, harness."
+    },
+    {
+      "previousSnapshotId": "audit-2026-03-15T06-27-52-067Z",
+      "previousObservedAt": "2026-03-15T06:27:52.067Z",
+      "currentSnapshotId": "audit-2026-03-15T06-48-19-161Z",
+      "currentObservedAt": "2026-03-15T06:48:19.161Z",
+      "comparedWeakDimensions": [
+        "context",
+        "judgment",
+        "coherence",
+        "evaluation",
+        "harness"
+      ],
+      "improvedDimensions": [],
+      "regressedDimensions": [],
+      "stagnantWeakDimensions": [
+        "context",
+        "judgment",
+        "coherence",
+        "evaluation",
+        "harness"
+      ],
+      "pathsObserved": [],
+      "pathEvidence": [],
+      "summary": "Between audit-2026-03-15T06-27-52-067Z and audit-2026-03-15T06-48-19-161Z, observed correction paths: none observed. Improved prior weak layers: none. Regressed prior weak layers: none. Stagnant prior weak layers: context, judgment, coherence, evaluation, harness."
+    },
+    {
+      "previousSnapshotId": "audit-2026-03-15T06-48-19-161Z",
+      "previousObservedAt": "2026-03-15T06:48:19.161Z",
+      "currentSnapshotId": "audit-2026-03-15T15-26-58-985Z",
+      "currentObservedAt": "2026-03-15T15:26:58.985Z",
+      "comparedWeakDimensions": [
+        "context",
+        "judgment",
+        "coherence",
+        "evaluation",
+        "harness"
+      ],
+      "improvedDimensions": [],
+      "regressedDimensions": [],
+      "stagnantWeakDimensions": [
+        "context",
+        "judgment",
+        "coherence",
+        "evaluation",
+        "harness"
+      ],
+      "pathsObserved": [
+        "audit_reconciliation"
+      ],
+      "pathEvidence": [
+        "openspec/changes/CHG-2026-03-15-aies-layer-audit-radar.md reconciles audit-2026-03-15T06-48-19-161Z"
+      ],
+      "summary": "Between audit-2026-03-15T06-48-19-161Z and audit-2026-03-15T15-26-58-985Z, observed correction paths: audit reconciliation. Improved prior weak layers: none. Regressed prior weak layers: none. Stagnant prior weak layers: context, judgment, coherence, evaluation, harness."
+    }
+  ],
+  "summary": "Compared 4 audit intervals across 5 snapshots. Intervals with prior-weak-layer improvement: 0/4. Intervals with stagnant weak layers: 4/4. Most common observed correction paths: audit proposal x1, audit reconciliation x1."
+}

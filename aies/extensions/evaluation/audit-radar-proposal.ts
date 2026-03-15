@@ -47,9 +47,9 @@ const DIMENSION_PROFILES: Record<AiesDimension, ProposalProfile> = {
     summaryLead: "make repeated drift warnings shape future cycle choices instead of remaining descriptive memory",
   },
   evaluation: {
-    slug: "audit-correction-path-comparator",
-    title: "Compare audit corrections against outcomes",
-    summaryLead: "measure whether reconciled plans, verification actions, and other correction paths actually improve weak layers instead of assuming that plan updates helped",
+    slug: "audit-outcome-command-chain",
+    title: "Automate the audit outcome learning loop",
+    summaryLead: "run audit assessment, correction-path comparison, and quick verification as one repeatable learning loop instead of relying on manual command choreography",
   },
   harness: {
     slug: "audit-verification-command-chain",

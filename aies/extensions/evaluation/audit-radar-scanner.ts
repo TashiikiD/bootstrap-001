@@ -145,8 +145,22 @@ function preferredChangePath(): string | null {
   return candidates[0]?.fullPath ?? null;
 }
 
+function preferredOutcomeReportPath(): string | null {
+  const paths = getAiesPaths();
+  if (!existsSync(paths.auditRadarOutcomesRoot)) {
+    return null;
+  }
+
+  const candidates = readdirSync(paths.auditRadarOutcomesRoot)
+    .filter((name) => name.toLowerCase().endsWith(".json"))
+    .sort((left, right) => right.localeCompare(left));
+
+  return candidates.length > 0 ? join(paths.auditRadarOutcomesRoot, candidates[0]) : null;
+}
+
 function buildRules(): EvidenceRule[] {
   const latestChange = preferredChangePath();
+  const latestOutcomeReport = preferredOutcomeReportPath();
 
   return [
     {
@@ -279,6 +293,24 @@ function buildRules(): EvidenceRule[] {
       summary: "The audit radar can now reconcile repeated findings into an aligned active OpenSpec change instead of only drafting new proposal files.",
       extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditReconciliationDraft(", "persistAuditReconciliationDraft", "## Audit Radar Reconciliation"]),
     },
+    {
+      kind: "file",
+      ruleId: "evaluation-audit-radar-outcome-comparator",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/audit-radar-outcomes.ts",
+      summary: "The audit radar can now compare consecutive audit snapshots against OpenSpec reconciliation/proposal signals plus verification, recovery, and operator verification-mode activity.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditOutcomeReport(", "operator_verification_mode", "scanSessionCorrectionPaths"]),
+    },
+    ...(latestOutcomeReport
+      ? [{
+          kind: "file" as const,
+          ruleId: "evaluation-audit-radar-outcome-report",
+          dimension: "evaluation",
+          relativePath: projectRelativePath(latestOutcomeReport),
+          summary: "Durable audit outcome reports now record which correction paths appeared between audit snapshots and whether prior weak layers improved, regressed, or stayed stagnant.",
+          extractExcerpt: (content: string) => firstMatchingLine(content, ["\"summary\"", "\"pathsObserved\"", "\"stagnantWeakDimensions\""]),
+        }]
+      : []),
     {
       kind: "file",
       ruleId: "evaluation-audit-radar-runtime-surface",

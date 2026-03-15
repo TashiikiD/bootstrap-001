@@ -8,6 +8,7 @@ import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
+import { createAuditOutcomeReport, formatAuditOutcomeReport, persistAuditOutcomeReport } from "./audit-radar-outcomes.ts";
 import { createAuditReconciliationDraft, persistAuditReconciliationDraft } from "./audit-radar-reconciliation.ts";
 import { buildAuditRadarPromptBlock, buildAuditRadarWidgetLines, formatAuditRadarStatus } from "./audit-radar-runtime.ts";
 import { formatAuditEvidenceScan, scanAuditEvidence } from "./audit-radar-scanner.ts";
@@ -491,6 +492,20 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
 
       const openSpecEntry = restoreOpenSpecEntry(ctx);
       writeLine(ctx, formatAuditRadarStatus(snapshot, openSpecEntry?.context.activeChangeId ?? null));
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarOutcomes, {
+    description: "Compare consecutive audit snapshots against observed correction paths and persist a durable outcome report",
+    handler: async (_args, ctx) => {
+      const report = createAuditOutcomeReport();
+      if (!report) {
+        writeLine(ctx, "Audit outcomes need at least two durable snapshots. Run /audit-radar-assess across multiple cycles first.", "warning");
+        return;
+      }
+
+      const persistedPath = persistAuditOutcomeReport(report);
+      writeLine(ctx, `${formatAuditOutcomeReport(report)}\nPersisted: ${persistedPath}`);
     },
   });
 
