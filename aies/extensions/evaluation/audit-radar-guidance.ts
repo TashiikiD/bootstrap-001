@@ -5,6 +5,10 @@ import type { AiesDimension, FocusType, IsoTimestamp } from "../../contracts/pri
 import type { AuditLoopReport } from "./audit-radar-loop.ts";
 import { getAiesPaths } from "../shared/paths.ts";
 import { latestAuditSnapshot } from "./audit-radar-state.ts";
+import {
+  createAuditGuidanceLearningPolicy,
+  type AuditGuidanceLearningPosture,
+} from "./audit-radar-guidance-learning.ts";
 
 export interface AuditRadarGuidance {
   snapshotId: string;
@@ -23,6 +27,12 @@ export interface AuditRadarGuidance {
   latestLoopSource: string | null;
   latestLoopVerification: string;
   latestLoopReportPath: string | null;
+  learningPosture: AuditGuidanceLearningPosture;
+  learningSummary: string;
+  learningRecommendation: string;
+  learningRelevantItemCount: number;
+  learningReportGeneratedAt: IsoTimestamp | null;
+  learningReportPath: string | null;
 }
 
 function compact(text: string | null | undefined, maxLength = 220): string {
@@ -113,15 +123,28 @@ function latestLoopVerification(report: Partial<AuditLoopReport> | null): string
   return requestedMode && result ? `${requestedMode}/${result}` : "none";
 }
 
+function learningSummaryClause(posture: AuditGuidanceLearningPosture, recommendation: string): string | null {
+  if (posture === "baseline") {
+    return null;
+  }
+
+  return recommendation;
+}
+
 export function createAuditRadarGuidance(snapshot: LayerAuditSnapshot, activeChangeId: string | null): AuditRadarGuidance {
   const latestLoop = readLatestLoopReport();
   const continueActiveChange = Boolean(activeChangeId);
   const recommendedFocusType = mapActionTypeToFocus(snapshot.recommendedNextStep.actionType, activeChangeId);
   const targetDimensions = snapshot.recommendedNextStep.targetDimensions;
   const suggestedPaths = snapshot.recommendedNextStep.suggestedPaths;
-  const summary = continueActiveChange
-    ? compact(`Continue ${activeChangeId} with a ${actionLabel(snapshot.recommendedNextStep.actionType, true)} aimed at ${listOrNone(targetDimensions)}.`)
-    : compact(`Use the latest audit to choose a ${actionLabel(snapshot.recommendedNextStep.actionType, false)} aimed at ${listOrNone(targetDimensions)}.`);
+  const learningPolicy = createAuditGuidanceLearningPolicy(snapshot.bindingConstraint.dimension, targetDimensions);
+  const baseSummary = continueActiveChange
+    ? `Continue ${activeChangeId} with a ${actionLabel(snapshot.recommendedNextStep.actionType, true)} aimed at ${listOrNone(targetDimensions)}.`
+    : `Use the latest audit to choose a ${actionLabel(snapshot.recommendedNextStep.actionType, false)} aimed at ${listOrNone(targetDimensions)}.`;
+  const summary = compact([
+    baseSummary,
+    learningSummaryClause(learningPolicy.posture, learningPolicy.recommendationNote),
+  ].filter((item): item is string => Boolean(item)).join(" "));
 
   const rationaleParts = [
     `Binding constraint: ${snapshot.bindingConstraint.dimension}.`,
@@ -130,6 +153,7 @@ export function createAuditRadarGuidance(snapshot: LayerAuditSnapshot, activeCha
       ? `Binding constraint streak: ${snapshot.bindingConstraint.dimension} x${snapshot.drift.repeatedBindingConstraintCount}.`
       : null,
     compact(snapshot.recommendedNextStep.rationale),
+    `Guidance learning (${learningPolicy.posture}): ${learningPolicy.summary}`,
     latestLoop
       ? `Latest audit-loop evidence: ${latestLoop.report.orchestrationSource ?? "unknown"} with ${latestLoopVerification(latestLoop.report)} @ ${latestLoop.report.generatedAt ?? "unknown"}.`
       : null,
@@ -152,6 +176,12 @@ export function createAuditRadarGuidance(snapshot: LayerAuditSnapshot, activeCha
     latestLoopSource: typeof latestLoop?.report.orchestrationSource === "string" ? latestLoop.report.orchestrationSource : null,
     latestLoopVerification: latestLoopVerification(latestLoop?.report ?? null),
     latestLoopReportPath: latestLoop?.relativePath ?? null,
+    learningPosture: learningPolicy.posture,
+    learningSummary: learningPolicy.summary,
+    learningRecommendation: learningPolicy.recommendationNote,
+    learningRelevantItemCount: learningPolicy.relevantItemCount,
+    learningReportGeneratedAt: learningPolicy.reportGeneratedAt,
+    learningReportPath: learningPolicy.reportPath,
   };
 }
 
@@ -171,6 +201,10 @@ export function formatAuditRadarGuidance(guidance: AuditRadarGuidance): string {
     `Target dimensions: ${listOrNone(guidance.targetDimensions)}`,
     `Suggested paths: ${listOrNone(guidance.suggestedPaths)}`,
     `Drift pressure: ${guidance.driftSummary}`,
+    `Learning posture: ${guidance.learningPosture}`,
+    `Learning signal: ${guidance.learningSummary}`,
+    `Learning recommendation: ${guidance.learningRecommendation}`,
+    `Learning report: ${guidance.learningReportPath ?? "none"}`,
     `Latest loop evidence: ${guidance.latestLoopSource ?? "none"} · ${guidance.latestLoopVerification} · ${guidance.latestLoopGeneratedAt ?? "none"}`,
     `Latest loop report: ${guidance.latestLoopReportPath ?? "none"}`,
     `Rationale: ${guidance.rationale}`,
@@ -187,6 +221,9 @@ export function buildAuditRadarGuidancePromptBlock(guidance: AuditRadarGuidance)
     `Target dimensions: ${listOrNone(guidance.targetDimensions)}`,
     `Suggested paths: ${listOrNone(guidance.suggestedPaths)}`,
     `Drift pressure: ${guidance.driftSummary}`,
+    `Learning posture: ${guidance.learningPosture}`,
+    `Learning signal: ${guidance.learningSummary}`,
+    `Learning recommendation: ${guidance.learningRecommendation}`,
     `Latest loop evidence: ${guidance.latestLoopSource ?? "none"} · ${guidance.latestLoopVerification}`,
     `Why now: ${guidance.rationale}`,
     "Use this as a judgment aid for the next step. Prefer continuing the active change when justified, but explain any stronger reason to diverge.",

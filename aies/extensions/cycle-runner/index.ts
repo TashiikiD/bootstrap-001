@@ -490,6 +490,7 @@ function renderAuditGuidanceSection(guidance: AuditRadarGuidance | null): string
     `Audit guidance targets: ${guidance.targetDimensions.length > 0 ? guidance.targetDimensions.join(", ") : "none"}`,
     `Audit guidance paths: ${guidance.suggestedPaths.length > 0 ? guidance.suggestedPaths.join(", ") : "none"}`,
     `Audit guidance drift: ${guidance.driftSummary}`,
+    `Audit guidance learning: ${guidance.learningPosture} · ${guidance.learningRecommendation}`,
     `Audit guidance recent loop: ${guidance.latestLoopSource ?? "none"} · ${guidance.latestLoopVerification}`,
   ];
 }
@@ -705,6 +706,9 @@ function formatGuidanceSection(entry: CycleRunEntry): string[] {
     `Audit guidance snapshot: ${entry.auditGuidance.snapshotId}`,
     `Audit guidance focus: ${entry.auditGuidance.recommendedFocusType}`,
     `Audit guidance binding constraint: ${entry.auditGuidance.bindingConstraint}`,
+    `Audit guidance learning posture: ${entry.auditGuidance.learningPosture ?? "baseline"}`,
+    `Audit guidance learning summary: ${entry.auditGuidance.learningSummary ?? "none"}`,
+    `Audit guidance learning recommendation: ${entry.auditGuidance.learningRecommendation ?? "none"}`,
     `Audit guidance outcome report: ${entry.guidanceOutcomeReportPath ?? "none"}`,
     `Audit guidance effectiveness report: ${entry.guidanceEffectivenessReportPath ?? "none"}`,
     `Audit guidance effectiveness verdict: ${entry.guidanceEffectivenessVerdict ?? "none"}`,

@@ -38,6 +38,12 @@ export interface CycleRunGuidanceTrail {
   latestLoopSource: string | null;
   latestLoopVerification: string;
   latestLoopReportPath: string | null;
+  learningPosture: string | null;
+  learningSummary: string;
+  learningRecommendation: string;
+  learningRelevantItemCount: number;
+  learningReportGeneratedAt: IsoTimestamp | null;
+  learningReportPath: string | null;
 }
 
 export interface CycleRunEntry {

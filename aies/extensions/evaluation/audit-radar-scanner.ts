@@ -407,6 +407,14 @@ function buildRules(): EvidenceRule[] {
     },
     {
       kind: "file",
+      ruleId: "evaluation-audit-radar-guidance-learning-policy",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/audit-radar-guidance-learning.ts",
+      summary: "The audit radar now synthesizes recent guidance-effectiveness history into a bounded learning posture so future guidance can be reinforced, treated cautiously, or opened to alternative correction paths instead of repeating advice blindly.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditGuidanceLearningPolicy(", "recommendationNote", "posture: \"exploratory\""]),
+    },
+    {
+      kind: "file",
       ruleId: "evaluation-audit-radar-guidance-outcome-tracker",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/audit-radar-guidance-outcomes.ts",

@@ -32,6 +32,22 @@ That suggests a second evaluation bridge. Guidance should be compared not only a
 
 This is still correlational, not causal. But it is meaningfully better than stopping at "alignment achieved," because it lets future cycles distinguish between guidance that is being obeyed and guidance that is earning trust.
 
+## Experiment Note — Guidance Learning Should Stay Bounded
+
+Once guidance-effectiveness reports exist, a new failure mode appears: the system can overfit to a tiny amount of recent history and start swinging its recommendations too hard based on one or two cycles.
+
+That suggests a bounded learning policy rather than a free-form rewrite of guidance synthesis. Recent supportive, counter, and alternative signals should be able to temper future advice — reinforce it, treat it cautiously, or allow bounded alternatives — but only when the relevant history is repeated enough to justify that change.
+
+In practice, that means the audit should distinguish between:
+- no guidance-effectiveness history yet
+- a single anecdotal signal
+- repeated supportive signals
+- repeated counter-signals
+- repeated alternative signals
+- mixed history that should not collapse into one story
+
+The point is not to make the guidance self-confident. The point is to make it slightly more honest about what recent evidence warrants.
+
 ## Open Questions
 
 - What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?

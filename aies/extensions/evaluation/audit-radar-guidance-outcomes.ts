@@ -34,6 +34,12 @@ export interface AuditGuidanceCapturedBrief {
   latestLoopSource: string | null;
   latestLoopVerification: string;
   latestLoopReportPath: string | null;
+  learningPosture: string | null;
+  learningSummary: string;
+  learningRecommendation: string;
+  learningRelevantItemCount: number;
+  learningReportGeneratedAt: IsoTimestamp | null;
+  learningReportPath: string | null;
 }
 
 export interface AuditGuidanceOutcomeReport {
@@ -153,6 +159,12 @@ export function captureAuditGuidanceBrief(guidance: AuditRadarGuidance): AuditGu
     latestLoopSource: guidance.latestLoopSource,
     latestLoopVerification: guidance.latestLoopVerification,
     latestLoopReportPath: guidance.latestLoopReportPath,
+    learningPosture: guidance.learningPosture,
+    learningSummary: guidance.learningSummary,
+    learningRecommendation: guidance.learningRecommendation,
+    learningRelevantItemCount: guidance.learningRelevantItemCount,
+    learningReportGeneratedAt: guidance.learningReportGeneratedAt,
+    learningReportPath: guidance.learningReportPath,
   };
 }
 
@@ -300,6 +312,9 @@ export function formatAuditGuidanceOutcomeReport(report: AuditGuidanceOutcomeRep
     `Guidance focus: ${report.guidance.recommendedFocusType}`,
     `Guidance action: ${report.guidance.actionType}`,
     `Guidance targets: ${report.guidance.targetDimensions.join(", ") || "none"}`,
+    `Guidance learning posture: ${report.guidance.learningPosture ?? "baseline"}`,
+    `Guidance learning signal: ${report.guidance.learningSummary ?? "none"}`,
+    `Guidance learning recommendation: ${report.guidance.learningRecommendation ?? "none"}`,
     `Observed focus: ${report.actual.cycleFocusType ?? "none"}`,
     `Observed dimensions: ${report.actual.cycleLinkedDimensions.join(", ") || "none"}`,
     `Observed linked change: ${report.actual.cycleLinkedChangeId ?? "none"}`,
