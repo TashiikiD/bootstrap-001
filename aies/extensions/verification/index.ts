@@ -16,6 +16,7 @@ import type { VerificationRecord } from "../../contracts/verification-record.ts"
 import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { getAiesPaths } from "../shared/paths.ts";
+import { latestSessionPathByRecency } from "../shared/session-paths.ts";
 import {
   RECOVERY_ENTRY_TYPE,
   VERIFICATION_ENTRY_TYPE,
@@ -79,16 +80,21 @@ function readAlignedOperatorControlMode(ctx: ExtensionContext): VerificationMode
   try {
     const parsed = JSON.parse(readFileSync(filePath, "utf8")) as {
       activeSessionPath?: unknown;
+      sessionSelectionMode?: unknown;
       verification?: { mode?: unknown };
     };
     const activeSessionPath = typeof parsed.activeSessionPath === "string" ? parsed.activeSessionPath.trim() : "";
+    const sessionSelectionMode = parsed.sessionSelectionMode === "manual" ? "manual" : "auto";
     const mode = typeof parsed.verification?.mode === "string" ? parsed.verification.mode.trim().toLowerCase() : "";
+    const alignedSessionPath = sessionSelectionMode === "manual"
+      ? activeSessionPath || null
+      : (latestSessionPathByRecency(getAiesPaths().sessionDir) ?? (activeSessionPath || null));
 
-    if (!activeSessionPath || !VERIFICATION_MODES.has(mode as VerificationMode)) {
+    if (!alignedSessionPath || !VERIFICATION_MODES.has(mode as VerificationMode)) {
       return null;
     }
 
-    return resolvePath(activeSessionPath) === resolvePath(currentSession)
+    return resolvePath(alignedSessionPath) === resolvePath(currentSession)
       ? mode as VerificationMode
       : null;
   } catch {

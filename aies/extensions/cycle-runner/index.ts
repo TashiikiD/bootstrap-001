@@ -8,6 +8,7 @@ import { restoreOpenSpecEntry, type OpenSpecEntry } from "../openspec/state.ts";
 import { restorePolicyModeEntry } from "../policy/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { getAiesPaths } from "../shared/paths.ts";
+import { latestSessionPathByRecency } from "../shared/session-paths.ts";
 import {
   restoreRecoveryEntry,
   restoreVerificationEntry,
@@ -301,17 +302,7 @@ function toOptionalJsonString(value: unknown): string | null {
 }
 
 function latestSessionPath(): string | null {
-  const sessionDir = getAiesPaths().sessionDir;
-  if (!existsSync(sessionDir)) {
-    return null;
-  }
-
-  const candidates = readdirSync(sessionDir)
-    .filter((name) => name.endsWith(".jsonl"))
-    .map((name) => resolve(sessionDir, name))
-    .sort((left, right) => statSync(right).mtimeMs - statSync(left).mtimeMs);
-
-  return candidates[0] ?? null;
+  return latestSessionPathByRecency(getAiesPaths().sessionDir);
 }
 
 function resolveOperatorControlSessionPath(controls: OperatorControlsSummary | null): string | null {

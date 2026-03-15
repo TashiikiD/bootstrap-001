@@ -385,12 +385,43 @@ function parseTitle(entries: any[]): string {
   return shorten(extractTextContent(latestUser) || basename(String(entries[0]?.id ?? "session")));
 }
 
+const SESSION_FILE_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z_[^.]+\.jsonl$/;
+
+function sessionSortKey(sessionPath: string): string | null {
+  const name = basename(sessionPath);
+  return SESSION_FILE_PATTERN.test(name) ? name : null;
+}
+
+function compareSessionPathsByRecency(left: string, right: string): number {
+  const leftKey = sessionSortKey(left);
+  const rightKey = sessionSortKey(right);
+
+  if (leftKey && rightKey && leftKey !== rightKey) {
+    return rightKey.localeCompare(leftKey);
+  }
+
+  if (leftKey && !rightKey) {
+    return -1;
+  }
+
+  if (!leftKey && rightKey) {
+    return 1;
+  }
+
+  const mtimeDelta = statSync(right).mtimeMs - statSync(left).mtimeMs;
+  if (mtimeDelta !== 0) {
+    return mtimeDelta;
+  }
+
+  return basename(right).localeCompare(basename(left));
+}
+
 export function listSessionPaths(): string[] {
   if (!existsSync(sessionsRoot)) return [];
   return readdirSync(sessionsRoot)
     .filter((name) => name.endsWith(".jsonl"))
     .map((name) => resolve(sessionsRoot, name))
-    .sort((left, right) => statSync(right).mtimeMs - statSync(left).mtimeMs);
+    .sort(compareSessionPathsByRecency);
 }
 
 export function parseSession(sessionPath: string): ParsedSession {
