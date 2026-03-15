@@ -3,6 +3,10 @@ import { basename, resolve } from "node:path";
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import type { CycleState } from "../../contracts/cycle-state.ts";
+import {
+  createAuditGuidanceEffectivenessReport,
+  persistAuditGuidanceEffectivenessReport,
+} from "../evaluation/audit-radar-guidance-effectiveness.ts";
 import { createAuditGuidanceOutcomeReport, captureAuditGuidanceBrief, persistAuditGuidanceOutcomeReport } from "../evaluation/audit-radar-guidance-outcomes.ts";
 import { latestAuditRadarGuidance, type AuditRadarGuidance } from "../evaluation/audit-radar-guidance.ts";
 import { restoreEvaluationEntry, type EvaluationEntry } from "../evaluation/state.ts";
@@ -181,7 +185,7 @@ function updateUi(entry: CycleRunEntry | null, ctx: ExtensionContext): void {
         `audit=${entry.postRunAudit?.verificationMode && entry.postRunAudit?.verificationResult
           ? `${entry.postRunAudit.verificationMode}/${entry.postRunAudit.verificationResult}`
           : entry.postRunAudit?.status ?? "pending"}`,
-        `guide=${entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
+        `guide=${entry.guidanceEffectivenessReportPath ? `effective:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
         `scope=${entry.verificationScope?.recommendedMode ?? (entry.verificationScopeBaseline ? "capturing" : "none")}`,
         `prompt=${entry.promptSummary}`,
       ]
@@ -702,6 +706,9 @@ function formatGuidanceSection(entry: CycleRunEntry): string[] {
     `Audit guidance focus: ${entry.auditGuidance.recommendedFocusType}`,
     `Audit guidance binding constraint: ${entry.auditGuidance.bindingConstraint}`,
     `Audit guidance outcome report: ${entry.guidanceOutcomeReportPath ?? "none"}`,
+    `Audit guidance effectiveness report: ${entry.guidanceEffectivenessReportPath ?? "none"}`,
+    `Audit guidance effectiveness verdict: ${entry.guidanceEffectivenessVerdict ?? "none"}`,
+    `Audit guidance effectiveness summary: ${entry.guidanceEffectivenessSummary ?? "none"}`,
   ];
 }
 
@@ -776,6 +783,9 @@ function buildRunEntry(
   verificationScopeBaseline: VerificationScopeBaseline | null = null,
   verificationScope: VerificationScopeReport | null = null,
   guidanceOutcomeReportPath: string | null = null,
+  guidanceEffectivenessReportPath: string | null = null,
+  guidanceEffectivenessVerdict: string | null = null,
+  guidanceEffectivenessSummary: string | null = null,
   postRunAudit: CycleRunAuditTrail | null = null,
 ): CycleRunEntry {
   return {
@@ -794,6 +804,9 @@ function buildRunEntry(
     verificationScopeBaseline,
     verificationScope,
     guidanceOutcomeReportPath,
+    guidanceEffectivenessReportPath,
+    guidanceEffectivenessVerdict,
+    guidanceEffectivenessSummary,
     postRunAudit,
   };
 }
@@ -833,6 +846,9 @@ export async function runCycleCommand(
       activeRun?.verificationScopeBaseline ?? null,
       activeRun?.verificationScope ?? null,
       activeRun?.guidanceOutcomeReportPath ?? null,
+      activeRun?.guidanceEffectivenessReportPath ?? null,
+      activeRun?.guidanceEffectivenessVerdict ?? null,
+      activeRun?.guidanceEffectivenessSummary ?? null,
     );
     activeRun = blocked;
     if (activeRunRef) {
@@ -987,6 +1003,9 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
         activeRun.verificationScopeBaseline,
         activeRun.verificationScope,
         activeRun.guidanceOutcomeReportPath,
+        activeRun.guidanceEffectivenessReportPath,
+        activeRun.guidanceEffectivenessVerdict,
+        activeRun.guidanceEffectivenessSummary,
       );
       activeRun = aborted;
       persistRun(pi, aborted);
@@ -1025,8 +1044,8 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
     const postRunAudit = assistantText
       ? runPostCycleAudit(pi, ctx, { verificationScope })
       : createSkippedPostRunAudit("Post-run audit was skipped because the cycle run ended without assistant output.", failureNote);
-    const guidanceOutcomeReportPath = activeRun.auditGuidance
-      ? persistAuditGuidanceOutcomeReport(createAuditGuidanceOutcomeReport({
+    const guidanceOutcomeReport = activeRun.auditGuidance
+      ? createAuditGuidanceOutcomeReport({
           sessionId: getSessionId(ctx),
           runId: activeRun.runId,
           relatedCycleId,
@@ -1040,8 +1059,18 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
           verificationResult: postRunAudit.verificationResult,
           verificationState: postRunAudit.verificationState,
           recoveryId: postRunAudit.recoveryId,
-        }))
+        })
       : null;
+    const guidanceOutcomeReportPath = guidanceOutcomeReport
+      ? persistAuditGuidanceOutcomeReport(guidanceOutcomeReport)
+      : null;
+    const guidanceEffectivenessReport = guidanceOutcomeReport
+      ? createAuditGuidanceEffectivenessReport([guidanceOutcomeReport])
+      : null;
+    const guidanceEffectivenessReportPath = guidanceEffectivenessReport
+      ? persistAuditGuidanceEffectivenessReport(guidanceEffectivenessReport)
+      : null;
+    const guidanceEffectivenessItem = guidanceEffectivenessReport?.items[0] ?? null;
     const completed = buildRunEntry(
       activeRun.runId,
       assistantText ? "completed" : "failed",
@@ -1058,6 +1087,9 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       activeRun.verificationScopeBaseline,
       verificationScope,
       guidanceOutcomeReportPath,
+      guidanceEffectivenessReportPath,
+      guidanceEffectivenessItem?.verdict ?? null,
+      guidanceEffectivenessItem?.summary ?? null,
       postRunAudit,
     );
     const thoughtEntry: CycleThoughtEntry = {

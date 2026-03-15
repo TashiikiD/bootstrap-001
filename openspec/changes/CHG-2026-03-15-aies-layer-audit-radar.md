@@ -64,11 +64,13 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
 - [x] Compare whether followed guidance correlated with later audit movement.
   - Added `aies/extensions/evaluation/audit-radar-guidance-effectiveness.ts` plus `/audit-radar-guidance-effectiveness`, which link durable guidance-outcome reports to the same cycle's post-run audit loop, correction-path outcome comparison, and scope-aware verification floor.
   - Guidance-effectiveness reports now persist under `memory/knowledge/audit-radar/guidance-effectiveness/` so later cycles can review whether aligned guidance produced supportive, counter, alternative, mixed, or insufficient signals.
+  - Wired `aies/extensions/cycle-runner/index.ts` to emit a one-cycle guidance-effectiveness report automatically after guided `/cycle-run` completion, so the comparator no longer depends only on later manual command use.
   - Updated audit scanner and assessment rules so future audits can distinguish "guidance aligned with focus" from "guidance alignment correlated with later audit movement."
 - [x] Record the experiment back into memory.
   - Added `memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md` to capture the key observation from this stage of the change: the audit correctly identified an orchestration evidence gap, but forcing proof by launching another autonomous cycle would spend the turn on recursive harness validation.
   - Added `memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md` to record the next harness observation: prompt/focus-inferred verification is weaker than verification floored by the files a cycle actually changed.
   - Added `memory/devlog/2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge.md` to capture the next evaluation observation: guidance alignment is not yet guidance effectiveness unless it can be compared against later audit movement.
+  - Added `memory/devlog/2026-03-15T22-05-00-000Z-guidance-effectiveness-orchestration.md` to capture the follow-on harness observation: once the comparator exists, guided cycle orchestration should emit the effectiveness evidence automatically instead of depending on later manual command use.
   - Updated `memory/theory-fork/meta/evaluation.md` and `memory/theory-fork/meta/harness.md` with explicit experiment notes distinguishing passive evidence from active orchestration proof, warning against metric-farming the audit loop, and separating guidance alignment from guidance effectiveness.
 
 ## Notes

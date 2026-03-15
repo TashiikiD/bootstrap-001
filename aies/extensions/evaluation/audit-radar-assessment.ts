@@ -196,10 +196,11 @@ function buildRules(): DimensionRule[] {
         "audit-evaluation-audit-radar-guidance-outcome-cycle-bridge",
         "audit-evaluation-audit-radar-guidance-outcome-report",
         "audit-evaluation-audit-radar-guidance-effectiveness-comparator",
+        "audit-evaluation-audit-radar-guidance-effectiveness-cycle-bridge",
         "audit-evaluation-audit-radar-guidance-effectiveness-report",
       ],
-      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, scope-aware verification planning, historical comparison, plan reconciliation, correction-path outcome reports, native audit-loop execution, cycle-orchestrated evaluation, recorded verification/recovery results tied to the same run, explicit guidance-alignment evidence about whether audit advice changed later focus selection, and longitudinal guidance-effectiveness comparison against later audit movement.",
-      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, scope-aware verification planning, durable audit snapshots, audit-driven proposal drafting, active-change reconciliation, correction-path comparison, a native audit-loop command, cycle-runner orchestration, next-cycle audit guidance, guidance-alignment tracking, and a guidance-effectiveness comparator, but attribution is still coarse once multiple interventions overlap and the new comparator still needs repeated longitudinal history to tune future guidance generation confidently.",
+      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, scope-aware verification planning, historical comparison, plan reconciliation, correction-path outcome reports, native audit-loop execution, cycle-orchestrated evaluation, recorded verification/recovery results tied to the same run, explicit guidance-alignment evidence about whether audit advice changed later focus selection, cycle-emitted guidance-effectiveness evidence, and longitudinal guidance-effectiveness comparison against later audit movement.",
+      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, scope-aware verification planning, durable audit snapshots, audit-driven proposal drafting, active-change reconciliation, correction-path comparison, a native audit-loop command, cycle-runner orchestration, next-cycle audit guidance, guidance-alignment tracking, and a guidance-effectiveness comparator that can now be emitted automatically during guided cycle completion, but attribution is still coarse once multiple interventions overlap and the new comparator still needs repeated longitudinal history to tune future guidance generation confidently.",
       missingSummary: "The audit found no explicit evaluation-engineering artifacts in the curated scan roots.",
       strengthTemplates: [
         "The runtime already records structured evaluation snapshots rather than relying only on narrative self-report.",
@@ -207,8 +208,10 @@ function buildRules(): DimensionRule[] {
       ],
       protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-report")
         ? ["The audit can now compare guidance alignment against immediate post-run audit movement, correction paths, and scope-aware verification floors, but attribution is still short-horizon and the comparator still needs repeated history before it should tune guidance generation aggressively."]
-        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-comparator")
-          ? ["The audit now has a longitudinal guidance-effectiveness comparator, but it does not yet have a durable guidance-effectiveness report proving the comparator has been exercised on real guided history."]
+        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-cycle-bridge")
+          ? ["Guided cycle completion is now wired to emit guidance-effectiveness evidence automatically, but the audit does not yet have a durable guidance-effectiveness report proving that orchestration path has been exercised on real guided history."]
+          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-comparator")
+            ? ["The audit now has a longitudinal guidance-effectiveness comparator, but it does not yet have a durable guidance-effectiveness report proving the comparator has been exercised on real guided history."]
           : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-report")
             ? ["The audit now records whether guidance aligned with a real cycle's chosen focus and can floor verification by actual change surface, but it still needs longitudinal comparison against later audit drift and correction-path outcomes to know whether that alignment actually improved the system."]
             : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-tracker")
@@ -238,8 +241,10 @@ function buildRules(): DimensionRule[] {
                                   : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
       highestLeverageNextStep: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-report")
         ? "Use repeated guidance-effectiveness reports to tune how audit guidance is synthesized, especially when aligned guidance keeps producing stagnant weak layers or when divergent choices outperform it."
-        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-comparator")
-          ? "Exercise the guidance-effectiveness comparator on durable guided history so evaluation can compare aligned guidance against later audit movement instead of stopping at focus alignment."
+        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-cycle-bridge")
+          ? "Exercise guided cycle orchestration once so evaluation can inspect a real auto-emitted guidance-effectiveness report instead of relying only on the bridge code."
+          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-comparator")
+            ? "Exercise the guidance-effectiveness comparator on durable guided history so evaluation can compare aligned guidance against later audit movement instead of stopping at focus alignment."
           : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-report")
             ? "Compare guidance-alignment reports and scope-aware verification floors against later audit drift and correction-path outcomes so evaluation can tell whether following the guidance actually helped."
             : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-tracker")

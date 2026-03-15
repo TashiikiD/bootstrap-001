@@ -549,6 +549,8 @@ function buildState() {
         `auditVerification=${cycleRunnerAuditVerification}`,
         `auditLoop=${cycleRunner?.postRunAudit?.loopId ?? "none"}`,
         `auditReport=${cycleRunner?.postRunAudit?.loopReportPath ?? "none"}`,
+        `guidanceEffect=${cycleRunner?.guidanceEffectivenessVerdict ?? (cycleRunner?.guidanceOutcomeReportPath ? "tracked" : "none")}`,
+        `guidanceEffectReport=${cycleRunner?.guidanceEffectivenessReportPath ?? "none"}`,
         `promptLines=${typeof cycleRunner?.promptText === "string" ? cycleRunner.promptText.split(/\r?\n/).length : 0}`,
         `thoughtBlocks=${thoughtStream.length}`,
         `failure=${cycleRunner?.failureNote ?? "none"}`,

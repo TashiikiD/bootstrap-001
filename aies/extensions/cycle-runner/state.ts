@@ -56,6 +56,9 @@ export interface CycleRunEntry {
   verificationScopeBaseline: VerificationScopeBaseline | null;
   verificationScope: VerificationScopeReport | null;
   guidanceOutcomeReportPath: string | null;
+  guidanceEffectivenessReportPath: string | null;
+  guidanceEffectivenessVerdict: string | null;
+  guidanceEffectivenessSummary: string | null;
   postRunAudit: CycleRunAuditTrail | null;
 }
 
@@ -99,6 +102,9 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     verificationScopeBaseline: entry.verificationScopeBaseline ?? null,
     verificationScope: entry.verificationScope ?? null,
     guidanceOutcomeReportPath: entry.guidanceOutcomeReportPath ?? null,
+    guidanceEffectivenessReportPath: entry.guidanceEffectivenessReportPath ?? null,
+    guidanceEffectivenessVerdict: entry.guidanceEffectivenessVerdict ?? null,
+    guidanceEffectivenessSummary: entry.guidanceEffectivenessSummary ?? null,
     postRunAudit: entry.postRunAudit ?? null,
   };
 }

@@ -439,6 +439,14 @@ function buildRules(): EvidenceRule[] {
       summary: "The audit radar can now compare guidance-alignment reports against linked post-run audit drift, correction-path outcomes, and scope-aware verification floors instead of treating alignment as the end of evaluation.",
       extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditGuidanceEffectivenessReport(", "chooseLinkedLoop(", "Scope-floor escalations"]),
     },
+    {
+      kind: "file",
+      ruleId: "evaluation-audit-radar-guidance-effectiveness-cycle-bridge",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/cycle-runner/index.ts",
+      summary: "Guided cycle completion now emits a one-cycle guidance-effectiveness report automatically, so the comparator no longer depends only on later manual command use.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["createAuditGuidanceEffectivenessReport([guidanceOutcomeReport])", "guidanceEffectivenessReportPath", "guidanceEffectivenessVerdict"]),
+    },
     ...(latestGuidanceEffectivenessReport
       ? [{
           kind: "file" as const,
