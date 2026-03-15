@@ -22,6 +22,8 @@ Once audit state becomes durable and operator-visible, the next failure mode is 
 
 That suggests evaluation should usually terminate in a compact planning aid, not just a report. A useful evaluation artifact is one that can be injected back into runtime judgment as a bounded execution brief: what to continue, what shape the next step should take, and why now. The next evaluation question then shifts from "can the system describe itself?" to "did the guidance actually alter later focus choices and outcomes?"
 
+A practical consequence is that the harness should capture a small comparison record whenever guided work runs: what the audit recommended, what focus was actually chosen, and whether they aligned. This is still not proof of improvement, but it is a cheaper bridge between descriptive evaluation and later outcome analysis.
+
 ## Open Questions
 
 - What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?

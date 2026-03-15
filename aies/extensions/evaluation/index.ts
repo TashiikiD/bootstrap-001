@@ -7,6 +7,7 @@ import type { AiesDimension, EvaluationConfidence, FocusType } from "../../contr
 import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
+import { formatAuditGuidanceOutcomeReport, latestAuditGuidanceOutcomeReport } from "./audit-radar-guidance-outcomes.ts";
 import { createAuditRadarGuidance, buildAuditRadarGuidancePromptBlock, formatAuditRadarGuidance } from "./audit-radar-guidance.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
 import { executeAuditRadarLoop, formatAuditLoopRun } from "./audit-radar-loop.ts";
@@ -510,6 +511,20 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
       const openSpecEntry = restoreOpenSpecEntry(ctx);
       const guidance = createAuditRadarGuidance(snapshot, openSpecEntry?.context.activeChangeId ?? null);
       writeLine(ctx, formatAuditRadarGuidance(guidance));
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceReview, {
+    description: "Review the latest durable audit-guidance outcome report to see whether guidance aligned with recorded cycle focus",
+    handler: async (_args, ctx) => {
+      updateUi(restoreEvaluationEntry(ctx), ctx);
+      const report = latestAuditGuidanceOutcomeReport();
+      if (!report) {
+        writeLine(ctx, "No audit-guidance outcome report exists yet. Run a guided /cycle-run first.", "warning");
+        return;
+      }
+
+      writeLine(ctx, formatAuditGuidanceOutcomeReport(report));
     },
   });
 

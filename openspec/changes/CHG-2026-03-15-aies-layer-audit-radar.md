@@ -2,7 +2,7 @@
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
 status: active
-updated_at: 2026-03-15T19:42:14.099Z
+updated_at: 2026-03-15T20:17:12.421Z
 last_audit_snapshot: audit-2026-03-15T17-06-59-001Z
 last_audit_reconciled_dimension: evaluation
 ---
@@ -56,6 +56,10 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Added `aies/extensions/evaluation/audit-radar-guidance.ts` plus `/audit-radar-next`, which compress the latest durable audit snapshot, drift pressure, and latest audit-loop evidence into a reusable execution brief instead of leaving the audit as descriptive status text.
   - Wired the guidance brief into evaluation prompt-context injection and the synthesized `/cycle-run` prompt so future cycles receive a compact audit-backed planning hint before choosing work.
   - Updated audit scanner and assessment rules so future audits can recognize the planning-bridge capability and shift the next evaluation question toward whether guidance measurably changes focus selection over time.
+- [x] Measure whether audit guidance is actually being followed.
+  - Added `aies/extensions/evaluation/audit-radar-guidance-outcomes.ts`, which defines durable guidance-outcome reports that compare a captured audit guidance brief against the focus the harness later chose.
+  - Wired `aies/extensions/cycle-runner/index.ts` to carry the captured guidance through `/cycle-run`, persist a `guidance-outcomes/` report after completion, and expose the report path in cycle-runner status.
+  - Added `/audit-radar-guidance-review` plus scanner/assessment updates so future audits can distinguish "guidance exists" from "guidance was exercised and compared against real focus selection."
 - [x] Record the experiment back into memory.
   - Added `memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md` to capture the key observation from this stage of the change: the audit correctly identified an orchestration evidence gap, but forcing proof by launching another autonomous cycle would spend the turn on recursive harness validation.
   - Updated `memory/theory-fork/meta/evaluation.md` and `memory/theory-fork/meta/harness.md` with explicit experiment notes distinguishing passive evidence from active orchestration proof and warning against metric-farming the audit loop.

@@ -1,5 +1,6 @@
 import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
-import type { VerificationMode, VerificationResult, VerificationState } from "../../contracts/primitives.ts";
+import type { AiesAuditRecommendedActionType } from "../../contracts/layer-audit-snapshot.ts";
+import type { AiesDimension, FocusType, IsoTimestamp, VerificationMode, VerificationResult, VerificationState } from "../../contracts/primitives.ts";
 
 export type CycleRunStatus = "idle" | "requested" | "running" | "completed" | "blocked" | "aborted" | "failed";
 export type CycleRunTriggerSource = "slash_command" | "operator_ui" | "heartbeat_tui";
@@ -19,6 +20,25 @@ export interface CycleRunAuditTrail {
   failureNote: string | null;
 }
 
+export interface CycleRunGuidanceTrail {
+  snapshotId: string;
+  observedAt: IsoTimestamp;
+  activeChangeId: string | null;
+  continueActiveChange: boolean;
+  recommendedFocusType: FocusType;
+  actionType: AiesAuditRecommendedActionType;
+  bindingConstraint: AiesDimension;
+  targetDimensions: AiesDimension[];
+  suggestedPaths: string[];
+  summary: string;
+  rationale: string;
+  driftSummary: string;
+  latestLoopGeneratedAt: IsoTimestamp | null;
+  latestLoopSource: string | null;
+  latestLoopVerification: string;
+  latestLoopReportPath: string | null;
+}
+
 export interface CycleRunEntry {
   runId: string;
   status: CycleRunStatus;
@@ -31,6 +51,8 @@ export interface CycleRunEntry {
   startedAt: string;
   finishedAt: string | null;
   failureNote: string | null;
+  auditGuidance: CycleRunGuidanceTrail | null;
+  guidanceOutcomeReportPath: string | null;
   postRunAudit: CycleRunAuditTrail | null;
 }
 
@@ -70,6 +92,8 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     startedAt: entry.startedAt,
     finishedAt: entry.finishedAt ?? null,
     failureNote: entry.failureNote ?? null,
+    auditGuidance: entry.auditGuidance ?? null,
+    guidanceOutcomeReportPath: entry.guidanceOutcomeReportPath ?? null,
     postRunAudit: entry.postRunAudit ?? null,
   };
 }

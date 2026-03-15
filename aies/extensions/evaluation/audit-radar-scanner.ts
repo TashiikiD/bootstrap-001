@@ -171,10 +171,24 @@ function preferredLoopReportPath(): string | null {
   return candidates.length > 0 ? join(paths.auditRadarLoopsRoot, candidates[0]) : null;
 }
 
+function preferredGuidanceOutcomeReportPath(): string | null {
+  const paths = getAiesPaths();
+  if (!existsSync(paths.auditRadarGuidanceOutcomesRoot)) {
+    return null;
+  }
+
+  const candidates = readdirSync(paths.auditRadarGuidanceOutcomesRoot)
+    .filter((name) => name.toLowerCase().endsWith(".json"))
+    .sort((left, right) => right.localeCompare(left));
+
+  return candidates.length > 0 ? join(paths.auditRadarGuidanceOutcomesRoot, candidates[0]) : null;
+}
+
 function buildRules(): EvidenceRule[] {
   const latestChange = preferredChangePath();
   const latestOutcomeReport = preferredOutcomeReportPath();
   const latestLoopReport = preferredLoopReportPath();
+  const latestGuidanceOutcomeReport = preferredGuidanceOutcomeReportPath();
 
   return [
     {
@@ -371,11 +385,37 @@ function buildRules(): EvidenceRule[] {
     },
     {
       kind: "file",
+      ruleId: "evaluation-audit-radar-guidance-outcome-tracker",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/audit-radar-guidance-outcomes.ts",
+      summary: "The audit radar can now persist guidance-outcome reports that compare the recommended next-step brief against the focus the harness actually chose.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditGuidanceOutcomeReport(", "export function persistAuditGuidanceOutcomeReport(", "export function formatAuditGuidanceOutcomeReport("]),
+    },
+    {
+      kind: "file",
+      ruleId: "evaluation-audit-radar-guidance-outcome-cycle-bridge",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/cycle-runner/index.ts",
+      summary: "The cycle runner now carries captured audit guidance through a run and persists a guidance-outcome report after completion so evaluation can compare advice against chosen focus.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["persistAuditGuidanceOutcomeReport(", "guidanceOutcomeReportPath", "captureAuditGuidanceBrief("]),
+    },
+    ...(latestGuidanceOutcomeReport
+      ? [{
+          kind: "file" as const,
+          ruleId: "evaluation-audit-radar-guidance-outcome-report",
+          dimension: "evaluation",
+          relativePath: projectRelativePath(latestGuidanceOutcomeReport),
+          summary: "A durable guidance-outcome report now records whether a guided cycle's recorded focus aligned with the audit's recommended focus and target dimensions.",
+          extractExcerpt: (content: string) => firstMatchingLine(content, ["\"alignment\"", "\"focusTypeAligned\"", "\"matchedTargetDimensions\""]),
+        }]
+      : []),
+    {
+      kind: "file",
       ruleId: "evaluation-audit-radar-runtime-surface",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/index.ts",
-      summary: "The evaluation extension now surfaces the latest durable audit inside runtime command flow, prompt context, and next-cycle guidance so future cycles can reuse it during work selection.",
-      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "AIES_COMMANDS.auditRadarNext", "buildAuditRadarGuidancePromptBlock"]),
+      summary: "The evaluation extension now surfaces the latest durable audit inside runtime command flow, prompt context, next-cycle guidance, and guidance-outcome review so future cycles can reuse it during work selection.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "AIES_COMMANDS.auditRadarNext", "AIES_COMMANDS.auditRadarGuidanceReview", "buildAuditRadarGuidancePromptBlock"]),
     },
     {
       kind: "file",

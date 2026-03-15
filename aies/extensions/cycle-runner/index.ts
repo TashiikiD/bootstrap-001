@@ -3,6 +3,7 @@ import { basename, resolve } from "node:path";
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import type { CycleState } from "../../contracts/cycle-state.ts";
+import { createAuditGuidanceOutcomeReport, captureAuditGuidanceBrief, persistAuditGuidanceOutcomeReport } from "../evaluation/audit-radar-guidance-outcomes.ts";
 import { latestAuditRadarGuidance, type AuditRadarGuidance } from "../evaluation/audit-radar-guidance.ts";
 import { restoreEvaluationEntry, type EvaluationEntry } from "../evaluation/state.ts";
 import { restoreOpenSpecEntry, type OpenSpecEntry } from "../openspec/state.ts";
@@ -26,6 +27,7 @@ import {
   restoreCycleRunEntry,
   type CycleRunAuditTrail,
   type CycleRunEntry,
+  type CycleRunGuidanceTrail,
   type CycleRunStatus,
   type CycleRunTriggerSource,
   type CycleThoughtBlock,
@@ -173,6 +175,7 @@ function updateUi(entry: CycleRunEntry | null, ctx: ExtensionContext): void {
         `audit=${entry.postRunAudit?.verificationMode && entry.postRunAudit?.verificationResult
           ? `${entry.postRunAudit.verificationMode}/${entry.postRunAudit.verificationResult}`
           : entry.postRunAudit?.status ?? "pending"}`,
+        `guide=${entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
         `prompt=${entry.promptSummary}`,
       ]
     : [
@@ -546,7 +549,7 @@ function renderUserRequestSection(): string[] {
   return summarizeRequestsForPrompt();
 }
 
-function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: string; relatedChangeId: string | null } {
+function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: string; relatedChangeId: string | null; auditGuidance: CycleRunGuidanceTrail | null } {
   const heartbeat = restoreHeartbeat(ctx);
   const openSpec = restoreOpenSpecEntry(ctx);
   const evaluation = restoreEvaluationEntry(ctx);
@@ -656,6 +659,7 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     prompt: lines.join("\n"),
     summary,
     relatedChangeId: openSpec?.context.activeChangeId ?? resolveHeartbeatCycle(heartbeat)?.activeChangeId ?? null,
+    auditGuidance: auditGuidance ? captureAuditGuidanceBrief(auditGuidance) : null,
   };
 }
 
@@ -677,6 +681,20 @@ function formatCycleAuditSection(audit: CycleRunAuditTrail | null): string[] {
     `Post-run audit report path: ${audit.loopReportPath ?? "none"}`,
     `Post-run audit summary: ${audit.summary}`,
     `Post-run audit failure: ${audit.failureNote ?? "none"}`,
+  ];
+}
+
+function formatGuidanceSection(entry: CycleRunEntry): string[] {
+  if (!entry.auditGuidance) {
+    return ["Audit guidance used: none"];
+  }
+
+  return [
+    `Audit guidance used: ${entry.auditGuidance.summary}`,
+    `Audit guidance snapshot: ${entry.auditGuidance.snapshotId}`,
+    `Audit guidance focus: ${entry.auditGuidance.recommendedFocusType}`,
+    `Audit guidance binding constraint: ${entry.auditGuidance.bindingConstraint}`,
+    `Audit guidance outcome report: ${entry.guidanceOutcomeReportPath ?? "none"}`,
   ];
 }
 
@@ -709,6 +727,7 @@ function formatStatus(entry: CycleRunEntry | null, ctx: ExtensionContext): strin
     `Started: ${entry.startedAt}`,
     `Finished: ${entry.finishedAt ?? "in-progress"}`,
     `Failure note: ${entry.failureNote ?? "none"}`,
+    ...formatGuidanceSection(entry),
     ...formatCycleAuditSection(entry.postRunAudit),
     "",
     ...liveStatusLines,
@@ -727,6 +746,8 @@ function buildRunEntry(
   startedAt: string,
   finishedAt: string | null,
   relatedCycleId: string | null,
+  auditGuidance: CycleRunGuidanceTrail | null = null,
+  guidanceOutcomeReportPath: string | null = null,
   postRunAudit: CycleRunAuditTrail | null = null,
 ): CycleRunEntry {
   return {
@@ -741,6 +762,8 @@ function buildRunEntry(
     startedAt,
     finishedAt,
     failureNote,
+    auditGuidance,
+    guidanceOutcomeReportPath,
     postRunAudit,
   };
 }
@@ -776,6 +799,8 @@ export async function runCycleCommand(
       nowIso(),
       nowIso(),
       activeRun?.relatedCycleId ?? null,
+      activeRun?.auditGuidance ?? null,
+      activeRun?.guidanceOutcomeReportPath ?? null,
     );
     activeRun = blocked;
     if (activeRunRef) {
@@ -806,6 +831,7 @@ export async function runCycleCommand(
     startedAt,
     null,
     null,
+    synthesized.auditGuidance,
   );
   if (activeRunRef) {
     activeRunRef.current = activeRun;
@@ -824,6 +850,7 @@ export async function runCycleCommand(
     startedAt,
     null,
     null,
+    synthesized.auditGuidance,
   );
   activeRun = running;
   if (activeRunRef) {
@@ -862,6 +889,7 @@ export async function runCycleCommand(
       startedAt,
       nowIso(),
       null,
+      synthesized.auditGuidance,
     );
     activeRun = failed;
     if (activeRunRef) {
@@ -919,6 +947,8 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
         activeRun.startedAt,
         nowIso(),
         activeRun.relatedCycleId,
+        activeRun.auditGuidance,
+        activeRun.guidanceOutcomeReportPath,
       );
       activeRun = aborted;
       persistRun(pi, aborted);
@@ -954,6 +984,23 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
     const postRunAudit = assistantText
       ? runPostCycleAudit(pi, ctx)
       : createSkippedPostRunAudit("Post-run audit was skipped because the cycle run ended without assistant output.", failureNote);
+    const guidanceOutcomeReportPath = activeRun.auditGuidance
+      ? persistAuditGuidanceOutcomeReport(createAuditGuidanceOutcomeReport({
+          sessionId: getSessionId(ctx),
+          runId: activeRun.runId,
+          relatedCycleId,
+          relatedChangeId,
+          promptSummary: activeRun.promptSummary,
+          guidance: activeRun.auditGuidance,
+          cycleFocus: cycle?.selectedFocus ?? null,
+          cycleRationale: cycle?.rationale ?? null,
+          cycleActiveChangeId: cycle?.activeChangeId ?? null,
+          verificationMode: postRunAudit.verificationMode,
+          verificationResult: postRunAudit.verificationResult,
+          verificationState: postRunAudit.verificationState,
+          recoveryId: postRunAudit.recoveryId,
+        }))
+      : null;
     const completed = buildRunEntry(
       activeRun.runId,
       assistantText ? "completed" : "failed",
@@ -966,6 +1013,8 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       activeRun.startedAt,
       finishedAt,
       relatedCycleId,
+      activeRun.auditGuidance,
+      guidanceOutcomeReportPath,
       postRunAudit,
     );
     const thoughtEntry: CycleThoughtEntry = {
