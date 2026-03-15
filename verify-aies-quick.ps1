@@ -41,6 +41,7 @@ Invoke-Step -Label 'operator-ui typecheck' -Action {
 }
 
 Invoke-Step -Label 'AIES runtime slash-command smoke' -Action {
+    Write-Host 'Smoke note: this runs /cycle-status in a fresh local Pi session. The live-status lines below describe that smoke session, so any operator-control session mismatch there is advisory context, not a rewrite of the current working session.' -ForegroundColor DarkYellow
     Push-Location $projectRoot
     try {
         .\run-aies-on-pi.ps1 -PiArgs @('--offline', '-p', '/cycle-status')
