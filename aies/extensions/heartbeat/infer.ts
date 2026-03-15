@@ -33,6 +33,22 @@ function inferFocusType(text: string, activeChangeId: string | null): FocusType 
     return "weak_dimension_improvement";
   }
 
+  if (hasAny(text, ["capability", "expand", "new feature", "build", "create new", "extend", "add capability", "integrate"])) {
+    return "capability_expansion";
+  }
+
+  if (hasAny(text, ["explore", "research", "investigate", "discover", "survey", "prototype", "experiment with"])) {
+    return "proactive_exploration";
+  }
+
+  if (hasAny(text, ["tool", "script", "skill", "helper", "utility", "automation", "scaffold"])) {
+    return "tool_creation";
+  }
+
+  if (hasAny(text, ["theory experiment", "hypothesis", "test whether", "validate theory", "empirical"])) {
+    return "theory_experiment";
+  }
+
   return "other";
 }
 
@@ -66,6 +82,26 @@ function inferLinkedDimensions(focusType: FocusType, text: string): AiesDimensio
     if (text.includes("coherence")) linked.add("coherence");
     if (text.includes("evaluation")) linked.add("evaluation");
     if (text.includes("harness")) linked.add("harness");
+  }
+
+  if (focusType === "capability_expansion") {
+    linked.add("harness");
+    linked.add("intent");
+  }
+
+  if (focusType === "proactive_exploration") {
+    linked.add("context");
+    linked.add("judgment");
+  }
+
+  if (focusType === "tool_creation") {
+    linked.add("harness");
+    linked.add("prompt");
+  }
+
+  if (focusType === "theory_experiment") {
+    linked.add("coherence");
+    linked.add("evaluation");
   }
 
   return [...linked];

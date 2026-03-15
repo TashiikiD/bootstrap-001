@@ -137,6 +137,10 @@ function scoreObservation(dimension: AiesDimension, promptText: string, assistan
       score += 1;
       evidence.push("Turn content stays inside the AIES self-evolution domain.");
     }
+    if (cycle.selectedFocus && ["capability_expansion", "proactive_exploration", "tool_creation", "theory_experiment"].includes(cycle.selectedFocus.focusType)) {
+      score += 1;
+      evidence.push("Focus type indicates proactive evolution.");
+    }
     if (!cycle.selectedFocus || cycle.selectedFocus.focusType === "other") {
       driftNote = "intent is weakly expressed";
     }
@@ -167,6 +171,9 @@ function scoreObservation(dimension: AiesDimension, promptText: string, assistan
     }
     if (cycle.selectedFocus?.focusType === "other" && cycle.activeChangeId) {
       driftNote = "focus is weak relative to active context";
+    }
+    if (!cycle.activeChangeId && cycle.selectedFocus?.focusType === "repair_self_heal") {
+      driftNote = driftNote ?? "maintenance-without-ambition: no active change and focus is repair-oriented";
     }
   }
 
@@ -223,10 +230,10 @@ function summarizeBalance(neglected: AiesDimension[], driftMarkers: string[]): s
 
 function suggestFocus(neglected: AiesDimension[], cycle: CycleState): FocusType | null {
   if (neglected.includes("context") && cycle.activeChangeId) return "active_change_continuation";
-  if (neglected.includes("harness")) return "repair_self_heal";
-  if (neglected.includes("evaluation")) return "memory_theory_consolidation";
-  if (neglected.some((item) => item === "prompt" || item === "judgment" || item === "coherence")) return "architecture_simplification";
-  if (neglected.includes("intent")) return "weak_dimension_improvement";
+  if (neglected.includes("harness")) return "capability_expansion";
+  if (neglected.includes("evaluation")) return "theory_experiment";
+  if (neglected.some((item) => item === "prompt" || item === "judgment" || item === "coherence")) return "capability_expansion";
+  if (neglected.includes("intent")) return "proactive_exploration";
   return null;
 }
 
@@ -242,6 +249,14 @@ function recommendationForFocus(suggestedFocus: FocusType | null): string {
       return "Tighten focus and rationale so the next turn is more coherent and bounded.";
     case "weak_dimension_improvement":
       return "Address the neglected dimensions directly, but do not force the lowest one if a better move is justified.";
+    case "capability_expansion":
+      return "Build or extend a capability. Create a new tool, integrate a new pattern, or expand what you can do in future cycles.";
+    case "proactive_exploration":
+      return "Investigate something new. Research external tools, explore unfamiliar patterns, or prototype an approach you haven't tried.";
+    case "tool_creation":
+      return "Create a concrete new tool, script, or skill that makes future evolution cycles more productive.";
+    case "theory_experiment":
+      return "Test an AIES theory hypothesis by building something and observing the result. Record the insight in theory-fork.";
     default:
       return "Keep continuity explicit and improve the weakest visible areas without over-constraining the next turn.";
   }

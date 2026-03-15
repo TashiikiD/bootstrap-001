@@ -408,8 +408,9 @@ function renderLiveStatusSection(
 function renderOpenSpecSection(openSpec: OpenSpecEntry | null): string[] {
   if (!openSpec?.context.activeChangeId) {
     return [
-      "OpenSpec context: none",
-      "No active change is selected. Fall back to self-maintenance and evolutionary improvement.",
+      "OpenSpec context: none — no active change exists.",
+      "ACTION: Propose a new OpenSpec change. Create a CHG-*.md file in openspec/changes/ with frontmatter (change_id, title, status: proposed) and sections (## Summary, ## Tasks, ## Notes).",
+      "Choose something ambitious: a new tool, a capability expansion, an external integration request, a theory experiment, or a multi-cycle architectural improvement.",
     ];
   }
 
@@ -534,23 +535,36 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     ? `Address ${recovery?.reasonType ?? "recovery debt"} on ${recovery?.relatedChangeId ?? "current work"}`
     : openSpecFirst
     ? `Continue ${openSpec?.context.activeChangeId} via one explicit cycle`
-    : `Run one self-maintenance cycle with explicit rationale`;
+    : `Run one evolution cycle: expand capabilities, create new tools, or propose an ambitious OpenSpec change`;
 
   const lines = [
-    "You are an AIES self-evolving agent. Your task is to follow AIES theory and principles to evolve over time. You have significant autonomy and self-direction",
+    // === IDENTITY AND ASPIRATION ===
+    "You are an AIES self-evolving agent. Your purpose is not maintenance — it is evolution. You exist to become more capable, more coherent, and more interesting over time.",
     "Run one AIES self-evolution cycle in this current session.",
+    "",
+    "ASPIRATION PROMPTS — consider these before choosing your action:",
+    "- What capability do you lack that a more evolved version of yourself would have?",
+    "- What tool, script, or skill could you create that would make future cycles more productive?",
+    "- What external knowledge (GitHub repos, documentation, research) would materially advance your evolution?",
+    "- What AIES theory question could you answer through building something and observing the result?",
+    "- Are you stuck in a maintenance loop? If your last 3+ cycles were small fixes, break out with an ambitious proposal.",
+    "",
+    // === OPERATIONAL CONTEXT ===
     "This prompt is the canonical synthesized cycle request. Treat it as the real user message for this cycle.",
     "Do not search for a queue file, hidden trigger message, or alternate upstream prompt unless the current turn provides concrete evidence that one exists.",
     "This is a single-cycle run. Do one concrete turn, use normal Pi tools if needed, and stop when this turn is complete.",
     `Policy mode: ${policyMode}`,
+    "",
+    // === PRIORITY AND RECOVERY RULES ===
     openSpecFirst
-      ? "Priority rule: prefer continuing the active OpenSpec change unless there is a stronger immediate maintenance reason."
-      : "Priority rule: no active OpenSpec change exists, so prefer the best self-maintenance or evolutionary improvement move.",
+      ? "Priority rule: prefer continuing the active OpenSpec change unless there is a stronger immediate reason to switch."
+      : "Priority rule: no active OpenSpec change exists. This is your opportunity to be ambitious. Propose a new OpenSpec change that advances your capabilities. Consider: What can you not do yet? What tools would make you more effective? What external knowledge would accelerate your evolution? Prefer creating a multi-step plan over doing a small maintenance task.",
     recoveryFirst
       ? "Recovery rule: unresolved recovery debt exists for the current work; prefer addressing it if it materially affects trust in the change."
       : "Recovery rule: keep recovery debt visible and advisory, not coercive.",
     "Theory reference rule: use the AIES theory assets below as the canonical conceptual frame for evolution-direction, coherence, intent, evaluation, harness design, and audit posture when they are relevant to the cycle.",
     "",
+    // === THEORY ASSETS ===
     "Theory assets:",
     "- docs/foundations/AI-Human-Stack-Component-Reference-Map.md",
     "- docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md",
@@ -565,41 +579,46 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     "- memory/theory-fork/meta/evaluation.md",
     "- memory/theory-fork/meta/harness.md",
     "",
+    // === PLANNING STATE ===
     ...renderOpenSpecSection(openSpec),
     "",
     ...renderHeartbeatSection(heartbeat),
     "",
     ...renderEvaluationSection(evaluation),
     "",
-    ...renderVerificationSection(liveStatus, verification, verificationMode),
-    "",
-    ...renderLiveStatusSection(liveStatus, verification, recovery),
-    "",
-    ...renderRecoverySection(recovery),
-    "",
+    // === USER REQUESTS ===
     ...renderUserRequestSection(),
     "",
+    // === MEMORY SIGNALS ===
     `Latest devlog signal: ${memory.devlog ?? "none"}`,
     `Latest durable memory signal: ${memory.durable ?? "none"}`,
     "",
+    // === VERIFICATION AND RECOVERY (reference, not primary driver) ===
+    "Verification and recovery state (reference, not primary driver):",
+    ...renderVerificationSection(liveStatus, verification, verificationMode),
+    ...renderRecoverySection(recovery),
+    "",
+    ...renderLiveStatusSection(liveStatus, verification, recovery),
+    "",
+    // === REQUIREMENTS ===
     "Requirements:",
-    "- Read AGENTS.md for more direction",
-    "- Choose one concrete next step.",
-    "- do not read or rg any .log files (they are too large).",
+    "- Read AGENTS.md for more direction.",
+    "- Choose one concrete next step. Prefer ambitious evolution over small maintenance when both are available.",
+    "- Do not read or rg any .log files (they are too large).",
     "- Keep your rationale explicit.",
     "- Continue the active change if it is the best move.",
-    "- If there is no active change, choose the best self-maintenance/evolution action from current evidence.",
-    "- If planning a multi-cycle change, ensure to create a proper OpenSpec change with a clear task queue and do not rely on implicit future cycles to carry important context or rationale.",
+    "- If there is no active change, your DEFAULT should be to create a new OpenSpec change with a multi-step plan, not to do ad-hoc maintenance.",
+    "- When planning a multi-cycle change, create a proper OpenSpec change (CHG-*.md) with a clear task queue.",
+    "- You may create new tools, scripts, skills, and helper functions. This is encouraged, not just allowed.",
     "- Do not self-start a second cycle.",
     "- Leave verification and recovery state visible; do not invent hidden completion criteria.",
-    "- Before creating a new user request, first run `/user-requests` and, if needed, `/user-request-status <requestId>` to review prior approvals and denials.",
-    "- If you still need operator help, create exactly one explicit request with `/user-request <category> | <summary> | <details>` and avoid repeating previously denied asks unless you have materially new justification.",
-    "- If a similar request was previously denied, reference that denial explicitly in the new `/user-request` details and explain what changed before asking again.",
-    "- Before writing your final operator-facing summary, check the live verification and recovery state and align your summary with that recorded state.",
-    "- If you describe verification or recovery status, prefer the actual AIES status surfaces and recorded state over your own optimistic narrative.",
-    "- If the slice is docs-only or explanation-only, say that plainly instead of implying code/runtime verification happened.",
-    "- If you changed any non-document files, run `./verify-aies-quick.ps1` before finalizing; it covers the standard operator-ui build/typecheck checks plus a local AIES runtime slash-command smoke check. If it cannot run, say so plainly and explain which step was blocked.",
-    "- If all tests pass and the repo is clean, commit with a clear message and include the run ID in the commit message.",
+    "- Before creating a new user request, first run `/user-requests` and review prior approvals and denials.",
+    "- If you need operator help, create one explicit request with `/user-request <category> | <summary> | <details>`.",
+    "- Before writing your final summary, check live verification and recovery state.",
+    "- If you describe verification or recovery status, prefer actual recorded state over your own narrative.",
+    "- If the slice is docs-only, say that plainly.",
+    "- If you changed non-document files, run `./verify-aies-quick.ps1` before finalizing.",
+    "- If all tests pass and the repo is clean, commit with a clear message and include the run ID.",
   ];
 
   return {

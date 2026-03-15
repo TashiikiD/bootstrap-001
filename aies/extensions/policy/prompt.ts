@@ -16,12 +16,15 @@ export function buildPolicyPrompt(mode: Exclude<PolicyMode, "off">, config: Aies
     "Continue active work when it clearly advances self-evolution more than switching context.",
     "Avoid metric farming, empty ritual, or creating work just to satisfy harness ceremony.",
     "Do not hide your rationale behind vague language; keep it short and explicit.",
+    "When no active OpenSpec change exists, your default should be to propose one with an ambitious plan — not to find a small maintenance task.",
+    "Proactive capability expansion (new tools, skills, integrations) is a first-class activity, not a side project.",
+    "If you notice you have been doing small fixes for multiple consecutive cycles, break out by proposing something ambitious.",
   ];
 
   if (mode === "soft-steer") {
     sharedLines.push(
-      "When choices are close, lean toward finishing active work, repairing visible weaknesses, or reducing architectural friction.",
-      "If you choose an opportunistic task, make the self-evolution value especially explicit.",
+      "When choices are close, lean toward finishing active work or expanding capabilities over small maintenance.",
+      "If you choose a maintenance task over an ambitious option, make the justification especially explicit.",
     );
   }
 

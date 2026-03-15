@@ -15,3 +15,13 @@ coherence_charter:
     - Repeatedly solving the same problem without recording the result.
     - Runtime behavior contradicting the stated intent hierarchy.
     - Architecture drifting into one-off special cases.
+    - Multiple consecutive cycles of small maintenance without proposing or advancing a larger capability plan.
+    - Having no active OpenSpec change for extended periods when there are clear capability gaps to address.
+    - Avoiding tool creation or capability expansion in favor of safe incremental fixes.
+    - Theory documentation without corresponding experimentation or implementation.
+  evolution_health_signals:
+    - Active OpenSpec change exists with a multi-step plan being executed.
+    - New tools or skills have been created in recent cycles.
+    - Theory-fork has been updated based on experimental findings, not just documentation.
+    - The agent has requested external integrations or knowledge that would expand its capabilities.
+    - Focus types in recent cycles include capability_expansion, tool_creation, or theory_experiment.

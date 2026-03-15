@@ -277,6 +277,9 @@ function inferModeFromFocus(focus: FocusType | null): VerificationMode | null {
   if (focus === "memory_theory_consolidation") return "none";
   if (focus === "repair_self_heal" || focus === "architecture_simplification" || focus === "weak_dimension_improvement") return "targeted";
   if (focus === "active_change_continuation") return "fast";
+  if (focus === "capability_expansion" || focus === "tool_creation") return "targeted";
+  if (focus === "proactive_exploration") return "none";
+  if (focus === "theory_experiment") return "targeted";
   return null;
 }
 

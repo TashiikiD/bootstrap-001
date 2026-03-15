@@ -20,6 +20,10 @@ export const FOCUS_TYPES = [
   "architecture_simplification",
   "memory_theory_consolidation",
   "operator_directive",
+  "capability_expansion",
+  "proactive_exploration",
+  "tool_creation",
+  "theory_experiment",
   "other",
 ] as const;
 
