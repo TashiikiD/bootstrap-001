@@ -49,6 +49,7 @@ export const AIES_COMMANDS = {
   auditRadarPropose: "audit-radar-propose",
   auditRadarReconcile: "audit-radar-reconcile",
   auditRadarOutcomes: "audit-radar-outcomes",
+  auditRadarLoop: "audit-radar-loop",
   verificationStatus: "verification-status",
   verificationMode: "verification-mode",
   verificationRecord: "verification-record",

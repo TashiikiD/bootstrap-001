@@ -158,9 +158,23 @@ function preferredOutcomeReportPath(): string | null {
   return candidates.length > 0 ? join(paths.auditRadarOutcomesRoot, candidates[0]) : null;
 }
 
+function preferredLoopReportPath(): string | null {
+  const paths = getAiesPaths();
+  if (!existsSync(paths.auditRadarLoopsRoot)) {
+    return null;
+  }
+
+  const candidates = readdirSync(paths.auditRadarLoopsRoot)
+    .filter((name) => name.toLowerCase().endsWith(".json"))
+    .sort((left, right) => right.localeCompare(left));
+
+  return candidates.length > 0 ? join(paths.auditRadarLoopsRoot, candidates[0]) : null;
+}
+
 function buildRules(): EvidenceRule[] {
   const latestChange = preferredChangePath();
   const latestOutcomeReport = preferredOutcomeReportPath();
+  const latestLoopReport = preferredLoopReportPath();
 
   return [
     {
@@ -313,11 +327,29 @@ function buildRules(): EvidenceRule[] {
       : []),
     {
       kind: "file",
+      ruleId: "evaluation-audit-radar-loop-command",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/audit-radar-loop.ts",
+      summary: "The audit radar now has a native loop command that couples assessment, durable outcome comparison, and quick verification while recording session verification and recovery evidence from the same run.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function executeAuditRadarLoop(", "runQuickVerification(", "persistAuditLoopReport"]),
+    },
+    ...(latestLoopReport
+      ? [{
+          kind: "file" as const,
+          ruleId: "evaluation-audit-radar-loop-report",
+          dimension: "evaluation",
+          relativePath: projectRelativePath(latestLoopReport),
+          summary: "Durable audit loop reports now capture the linked snapshot, outcome report, and verification/recovery result from one reproducible harness run.",
+          extractExcerpt: (content: string) => firstMatchingLine(content, ["\"snapshotPath\"", "\"outcomeReportPath\"", "\"verification\""]),
+        }]
+      : []),
+    {
+      kind: "file",
       ruleId: "evaluation-audit-radar-runtime-surface",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/index.ts",
       summary: "The evaluation extension now surfaces the latest durable audit inside runtime command flow and prompt context so future cycles can reuse it during work selection.",
-      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "buildAuditRadarPromptBlock", "formatAuditRadarStatus"]),
+      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "AIES_COMMANDS.auditRadarLoop", "buildAuditRadarPromptBlock"]),
     },
     {
       kind: "file",
@@ -343,6 +375,24 @@ function buildRules(): EvidenceRule[] {
       summary: "The operator UI now includes a dedicated Audit Radar report sourced from durable audit snapshots.",
       extractExcerpt: (content) => firstMatchingLine(content, ["\"Audit Radar\"", "summarizeAuditRadarReport", "readLatestAuditRadarReport"]),
     },
+    {
+      kind: "file",
+      ruleId: "harness-audit-radar-loop-command",
+      dimension: "harness",
+      relativePath: "aies/extensions/evaluation/index.ts",
+      summary: "A native /audit-radar-loop command now runs audit assessment, outcome comparison, and quick verification as one reproducible harness action.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarLoop", "executeAuditRadarLoop", "Run audit assessment, outcome comparison, and quick verification"]),
+    },
+    ...(latestLoopReport
+      ? [{
+          kind: "file" as const,
+          ruleId: "harness-audit-radar-loop-report",
+          dimension: "harness",
+          relativePath: projectRelativePath(latestLoopReport),
+          summary: "The harness now persists durable audit-loop reports so operators and later cycles can inspect a single run's linked audit, outcome, and verification evidence.",
+          extractExcerpt: (content: string) => firstMatchingLine(content, ["\"loopId\"", "\"verificationRecordId\"", "\"recoveryId\""]),
+        }]
+      : []),
   ];
 }
 

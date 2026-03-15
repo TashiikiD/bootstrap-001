@@ -10,4 +10,5 @@ Why it lives under `memory/knowledge/`:
 Planned layout:
 - `snapshots/` — structured layer-audit snapshots using `aies/contracts/layer-audit-snapshot.ts`
 - `outcomes/` — durable correction-path comparison reports showing which interventions appeared between audits and whether weak layers improved
+- `loops/` — durable end-to-end loop reports tying one audit run to its linked outcome comparison plus verification/recovery result
 - optional human-readable reports can live alongside the structured snapshots later if the runtime needs them

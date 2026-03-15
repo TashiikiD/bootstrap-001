@@ -8,6 +8,7 @@ import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
+import { executeAuditRadarLoop, formatAuditLoopRun } from "./audit-radar-loop.ts";
 import { createAuditOutcomeReport, formatAuditOutcomeReport, persistAuditOutcomeReport } from "./audit-radar-outcomes.ts";
 import { createAuditReconciliationDraft, persistAuditReconciliationDraft } from "./audit-radar-reconciliation.ts";
 import { buildAuditRadarPromptBlock, buildAuditRadarWidgetLines, formatAuditRadarStatus } from "./audit-radar-runtime.ts";
@@ -506,6 +507,15 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
 
       const persistedPath = persistAuditOutcomeReport(report);
       writeLine(ctx, `${formatAuditOutcomeReport(report)}\nPersisted: ${persistedPath}`);
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarLoop, {
+    description: "Run audit assessment, outcome comparison, and quick verification as one reproducible audit-radar loop",
+    handler: async (_args, ctx) => {
+      const result = executeAuditRadarLoop(pi, ctx);
+      updateUi(restoreEvaluationEntry(ctx), ctx);
+      writeLine(ctx, formatAuditLoopRun(result));
     },
   });
 

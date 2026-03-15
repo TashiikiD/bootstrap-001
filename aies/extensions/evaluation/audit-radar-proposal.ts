@@ -47,14 +47,14 @@ const DIMENSION_PROFILES: Record<AiesDimension, ProposalProfile> = {
     summaryLead: "make repeated drift warnings shape future cycle choices instead of remaining descriptive memory",
   },
   evaluation: {
-    slug: "audit-outcome-command-chain",
-    title: "Automate the audit outcome learning loop",
-    summaryLead: "run audit assessment, correction-path comparison, and quick verification as one repeatable learning loop instead of relying on manual command choreography",
+    slug: "audit-outcome-loop-orchestration",
+    title: "Operationalize the audit outcome learning loop",
+    summaryLead: "move the new native audit loop from manual command use into consistent cycle orchestration so learning evidence accumulates every run",
   },
   harness: {
-    slug: "audit-verification-command-chain",
-    title: "Create a repeatable audit-plus-verification harness command",
-    summaryLead: "reduce friction around running self-evolution checks consistently across cycles",
+    slug: "audit-loop-harness-orchestration",
+    title: "Integrate the audit loop into harness orchestration",
+    summaryLead: "reduce reliance on manual command choreography by wiring the audit loop into repeatable operator or cycle-runner flows",
   },
 };
 

@@ -187,48 +187,58 @@ function buildRules(): DimensionRule[] {
         "audit-evaluation-audit-radar-reconciliation-bridge",
         "audit-evaluation-audit-radar-outcome-comparator",
         "audit-evaluation-audit-radar-outcome-report",
+        "audit-evaluation-audit-radar-loop-command",
+        "audit-evaluation-audit-radar-loop-report",
       ],
-      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, historical comparison, plan reconciliation, correction-path outcome reports, and planning drafts tied to real findings.",
-      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, durable audit snapshots, audit-driven proposal drafting, active-change reconciliation, and first-pass correction-path comparison, but attribution is still correlational and not yet harness-automated.",
+      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, historical comparison, plan reconciliation, correction-path outcome reports, native audit-loop execution, and recorded verification/recovery results tied to the same run.",
+      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, durable audit snapshots, audit-driven proposal drafting, active-change reconciliation, correction-path comparison, and a native audit-loop command, but attribution is still coarse and the loop still depends on explicit invocation.",
       missingSummary: "The audit found no explicit evaluation-engineering artifacts in the curated scan roots.",
       strengthTemplates: [
         "The runtime already records structured evaluation snapshots rather than relying only on narrative self-report.",
         "Verification and recovery are tracked as explicit state surfaces that can be inspected by later cycles.",
       ],
-      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-outcome-report")
-        ? ["A correction-path comparison loop now exists, but attribution is still correlational when multiple interventions overlap and the harness does not yet run the loop automatically."]
-        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-outcome-comparator")
-          ? ["The audit can now compare correction paths in principle, but no durable outcome report has been generated yet to prove the loop is operating across real audit intervals."]
-          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-reconciliation-bridge")
-            ? ["Audit findings can now reconcile into active OpenSpec plans, but evaluation still does not compare which correction path — reconciled change work, verification follow-up, or operator intervention — actually improved later audit outcomes."]
-            : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-proposal-bridge")
-              ? ["The audit can now draft follow-on OpenSpec changes, but repeated findings still do not automatically reconcile against existing plans or task queues."]
-              : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-persistence")
-                ? ["The audit can now persist and compare snapshots, but findings still do not automatically draft or update planning artifacts when a binding constraint repeats."]
-                : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
-      highestLeverageNextStep: "Wrap audit assessment, outcome comparison, and quick verification into one reproducible harness command so correction-path learning happens every cycle.",
+      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-loop-report")
+        ? ["A native audit loop now runs assessment, outcome comparison, and quick verification together, but attribution is still coarse when multiple interventions overlap and the loop still depends on explicit invocation rather than cycle-level orchestration."]
+        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-loop-command")
+          ? ["A native audit loop command exists, but the audit does not yet have a durable loop report proving it has been exercised on real sessions."]
+          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-outcome-report")
+            ? ["A correction-path comparison loop now exists, but attribution is still correlational when multiple interventions overlap and the harness does not yet run the loop automatically."]
+            : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-outcome-comparator")
+              ? ["The audit can now compare correction paths in principle, but no durable outcome report has been generated yet to prove the loop is operating across real audit intervals."]
+              : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-reconciliation-bridge")
+                ? ["Audit findings can now reconcile into active OpenSpec plans, but evaluation still does not compare which correction path — reconciled change work, verification follow-up, or operator intervention — actually improved later audit outcomes."]
+                : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-proposal-bridge")
+                  ? ["The audit can now draft follow-on OpenSpec changes, but repeated findings still do not automatically reconcile against existing plans or task queues."]
+                  : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-persistence")
+                    ? ["The audit can now persist and compare snapshots, but findings still do not automatically draft or update planning artifacts when a binding constraint repeats."]
+                    : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
+      highestLeverageNextStep: "Integrate the audit loop into cycle orchestration so audit assessment, outcome comparison, and proportionate verification happen consistently instead of only by manual command use.",
       recommendationActionType: "tool",
-      suggestedPaths: ["aies/extensions/evaluation/", "run-aies-on-pi.ps1", "verify-aies-quick.ps1"],
+      suggestedPaths: ["aies/extensions/evaluation/", "aies/extensions/cycle-runner/", "verify-aies-quick.ps1"],
     },
     {
       dimension: "harness",
       requiredEvidenceIds: [
         "audit-harness-extension-registry",
         "audit-harness-operator-ui-bridge",
+        "audit-harness-audit-radar-loop-command",
+        "audit-harness-audit-radar-loop-report",
       ],
       strongSummary: "Harness engineering is explicit, reproducible, and sufficiently automated to carry orchestration, operator transparency, and evaluation without relying on hidden local setup.",
-      partialSummary: "Harness engineering is real and reproducible, but the audit still lacks evidence of a fully automated audit/verification gate wired into a repeatable pipeline.",
+      partialSummary: "Harness engineering is real and reproducible, and now includes a repeatable audit-loop command with durable reports, but the loop is not yet wired into continuous orchestration or an always-on evaluation pipeline.",
       missingSummary: "The audit found no explicit harness-engineering artifacts in the curated scan roots.",
       strengthTemplates: [
         "Pi settings make extension, prompt, and skill registration explicit and reproducible.",
         "The operator UI backend provides a visible control and execution bridge instead of relying on hidden orchestration.",
       ],
-      protocolGapChecks: () => [
-        "No cited evidence yet of a fully automated CI-style audit and verification pipeline that enforces evaluation continuously.",
-      ],
-      highestLeverageNextStep: "Wrap audit plus quick verification into one reproducible harness command so self-evolution checks are easier to run consistently.",
+      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-harness-audit-radar-loop-report")
+        ? ["A repeatable audit-loop harness command now exists and has produced durable reports, but it still requires manual invocation instead of continuous orchestration."]
+        : evidence.some((item) => item.evidenceId === "audit-harness-audit-radar-loop-command")
+          ? ["The harness exposes a native audit-loop command, but it does not yet have a durable run report proving the full command chain has been exercised end-to-end."]
+          : ["No cited evidence yet of a repeatable audit/verification command chain wired into the harness."],
+      highestLeverageNextStep: "Wire the audit loop into cycle-runner or operator-triggered orchestration so self-evolution checks happen consistently without relying on manual choreography.",
       recommendationActionType: "tool",
-      suggestedPaths: ["run-aies-on-pi.ps1", "verify-aies-quick.ps1", "aies/extensions/evaluation/"],
+      suggestedPaths: ["aies/extensions/cycle-runner/", "aies/extensions/evaluation/", "run-aies-on-pi.ps1"],
     },
   ];
 }

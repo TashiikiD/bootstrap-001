@@ -1,0 +1,26 @@
+{
+  "loopId": "audit-loop-2026-03-15T16-27-38-789Z",
+  "generatedAt": "2026-03-15T16:27:38.789Z",
+  "sessionPath": "E:\\Coding\\AIES-runs\\bootstrap-001\\.aies-runtime\\sessions\\2026-03-15T16-27-16-622Z_06534c03-885e-487d-a828-6b354334fbd3.jsonl",
+  "relatedCycleId": null,
+  "relatedChangeId": null,
+  "snapshotId": "audit-2026-03-15T16-27-16-702Z",
+  "snapshotPath": "memory/knowledge/audit-radar/snapshots/2026-03-15T16-27-16-702Z--audit-2026-03-15T16-27-16-702Z.json",
+  "outcomeReportId": "audit-outcomes-2026-03-15T16-27-18-207Z",
+  "outcomeReportPath": "memory/knowledge/audit-radar/outcomes/2026-03-15T16-27-18-207Z--audit-outcomes-2026-03-15T16-27-18-207Z.json",
+  "verificationRecordId": "ver-2026-03-15T16-27-38-789Z",
+  "verification": {
+    "requestedMode": "fast",
+    "executedCommand": "./verify-aies-quick.ps1",
+    "exitCode": 0,
+    "durationMs": 20579,
+    "result": "passed",
+    "verificationState": "verified",
+    "stdoutExcerpt": "==> operator-ui build > aies-operator-ui@0.1.0 build > vite build \u001b[36mvite v7.3.1 \u001b[32mbuilding client environment for production...\u001b[36m\u001b[39m transforming... \u001b[32m✓\u001b[39m 10 modules transformed. rendering chunks... computing gzip size... \u001b[2mdist/\u001b[22m\u001b[32mindex.html \u001b[39m\u001b[1m\u001b[2m 0.41 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 0.28 kB\u001b[22m \u001b[2mdist/\u001b[22m\u001b[35massets/index-D4N0Cg1S.css \u001b[39m\u001b[1m\u001b[2m 5.42 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 1.85 kB\u001b[22m \u001b[2mdist/\u001b[22m\u001b[36massets/index-BcUAxyA8.js \u001b[39m\u001b[1m\u001b[2m48.35 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 12.37 kB\u001b[22m \u001b[32m✓ built in 780ms\u001b[39m ==> operator-ui typecheck ==> AIES runtime slash-command smoke Smoke note: this runs /cycle-status in a fresh local Pi session. Th…",
+    "stderrExcerpt": null,
+    "notableFailures": [],
+    "followUpRequired": false
+  },
+  "recoveryId": null,
+  "summary": "Audit snapshot audit-2026-03-15T16-27-16-702Z recorded binding constraint evaluation. Outcome report audit-outcomes-2026-03-15T16-27-18-207Z compared 6 intervals. Quick verification recorded fast/passed. No recovery entry was needed."
+}

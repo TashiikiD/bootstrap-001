@@ -2,8 +2,8 @@
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
 status: active
-updated_at: 2026-03-15T15:59:18.744Z
-last_audit_snapshot: audit-2026-03-15T15-59-18-744Z
+updated_at: 2026-03-15T16:33:02.358Z
+last_audit_snapshot: audit-2026-03-15T16-32-37-125Z
 last_audit_reconciled_dimension: evaluation
 ---
 
@@ -41,6 +41,11 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Outcome reports now persist under `memory/knowledge/audit-radar/outcomes/` so later cycles can inspect whether prior weak layers improved, regressed, or stayed stagnant after specific interventions.
   - The evaluation-layer audit rules now treat durable outcome comparison as first-class evidence and move the next recommendation toward harness-automating the audit/verification/outcome loop.
   - Validation: ran `/audit-radar-outcomes`, producing `audit-outcomes-2026-03-15T15-58-06-342Z`, then re-ran `/audit-radar-assess`, producing `audit-2026-03-15T15-59-18-744Z`; evaluation stayed partial but its cited gap advanced to correlational-attribution limits and the recommendation shifted to a reproducible audit+outcome+verification command chain.
+- [x] Wrap the audit learning loop into one reproducible harness command.
+  - Added `aies/extensions/evaluation/audit-radar-loop.ts` plus `/audit-radar-loop`, which runs audit assessment, persists a fresh outcome comparison, executes `./verify-aies-quick.ps1`, records verification/recovery state, and emits a durable loop report under `memory/knowledge/audit-radar/loops/`.
+  - The scanner and theory-grounded assessment rules now treat loop code plus loop reports as evaluation/harness evidence, so the audit can distinguish “native command exists” from “native command has been exercised on real sessions.”
+  - Validation: ran `/audit-radar-loop`, producing `audit-loop-2026-03-15T16-33-02-358Z`, `audit-outcomes-2026-03-15T16-32-38-492Z`, and `audit-2026-03-15T16-32-37-125Z`; the loop’s quick verification recorded `fast/passed` with no recovery entry.
+  - Validation: re-ran `/audit-radar-assess`, producing `audit-2026-03-15T16-28-29-370Z`; evaluation and harness stayed partial, but their cited gap advanced from “missing reproducible command chain” to “loop exists but still requires explicit invocation instead of cycle orchestration.”
 - [ ] Record the experiment back into memory.
   - Write devlog and theory-fork updates on what the audit got right, what it missed, and how the harness should evaluate itself without collapsing into shallow score-chasing.
 

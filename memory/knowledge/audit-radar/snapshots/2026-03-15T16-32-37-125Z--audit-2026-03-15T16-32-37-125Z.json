@@ -1,0 +1,499 @@
+{
+  "snapshotId": "audit-2026-03-15T16-32-37-125Z",
+  "auditProtocolVersion": "docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md@1.0",
+  "observedAt": "2026-03-15T16:32:37.125Z",
+  "auditedPathRoots": [
+    "AGENTS.md",
+    "memory/",
+    "openspec/",
+    "aies/extensions/",
+    "operator-ui/",
+    ".pi/"
+  ],
+  "summary": "Strong: prompt, intent. Partial: context, judgment, coherence, evaluation, harness. Missing: none. Current binding constraint: evaluation.",
+  "dimensions": [
+    {
+      "dimension": "prompt",
+      "tier": "strong",
+      "summary": "Prompt engineering is explicit, structured, and restart-stable across both repo-wide cycle instructions and implementation workflow guidance.",
+      "strengths": [
+        "Cycle-level instructions define role, scope, constraints, and success shape explicitly.",
+        "Implementation guidance decomposes work into steps and pause conditions instead of relying on ad-hoc prompting.",
+        "AGENTS.md provides structured cycle instructions, constraints, and success-shape guidance. (AGENTS.md)",
+        "The OpenSpec apply skill decomposes implementation into explicit steps, pause conditions, and completion reporting. (.pi/skills/openspec-apply-change/SKILL.md)"
+      ],
+      "gaps": [],
+      "evidenceIds": [
+        "audit-prompt-agents-structured-cycle",
+        "audit-prompt-openspec-skill-decomposition"
+      ],
+      "highestLeverageNextStep": "Add a first-class audit prompt/report template so future layer audits are requested in a uniform format instead of relying on command discoverability."
+    },
+    {
+      "dimension": "context",
+      "tier": "partial",
+      "summary": "Context engineering is durable, but the audit still lacks evidence of task-specific retrieval, pruning, or restart-aware context packaging beyond static memory roots.",
+      "strengths": [
+        "Durable memory roots preserve context across sessions in operator-visible files.",
+        "Memory storage is documented in human-readable form rather than hidden in transient state.",
+        "AIES keeps durable cross-session context in dedicated memory roots. (memory)",
+        "The memory README defines durable human-readable storage for lessons, theory, and devlog continuity. (memory/README.md)"
+      ],
+      "gaps": [
+        "No cited evidence yet of task-specific retrieval, pruning, or restart-aware context selection beyond static durable memory roots."
+      ],
+      "evidenceIds": [
+        "audit-context-memory-tree",
+        "audit-context-memory-readme"
+      ],
+      "highestLeverageNextStep": "Create an audit-context pack builder that selects only the layer-relevant theory, memory, and runtime files needed for a given audit run."
+    },
+    {
+      "dimension": "intent",
+      "tier": "strong",
+      "summary": "Intent engineering is explicit and durable: AIES has a north star, ranked priorities, and a live change direction that ties local work to system evolution.",
+      "strengths": [
+        "A durable intent hierarchy encodes project-level goals and tradeoff preferences.",
+        "Active OpenSpec work gives the current cycle a visible multi-step direction instead of ad-hoc local optimization.",
+        "The intent hierarchy encodes the north star, ranked priorities, and tradeoff defaults for self-evolution. (memory/knowledge/intent-hierarchy.yaml)",
+        "The latest OpenSpec change records a multi-step evolution direction rather than ad-hoc work. (openspec/changes/CHG-2026-03-15-aies-layer-audit-radar.md)"
+      ],
+      "gaps": [],
+      "evidenceIds": [
+        "audit-intent-north-star",
+        "audit-intent-active-change-direction"
+      ],
+      "highestLeverageNextStep": "Turn audit findings into a draft OpenSpec proposal path so explicit intent keeps propagating into future cycle selection."
+    },
+    {
+      "dimension": "judgment",
+      "tier": "partial",
+      "summary": "Judgment engineering has explicit red lines and escalation boundaries, but the audit still lacks strong evidence of proactive pause-and-doubt mechanisms embedded into execution flow.",
+      "strengths": [
+        "Explicit red lines constrain unsafe or misleading autonomous behavior.",
+        "Autonomy boundaries and escalation triggers are encoded instead of being left implicit.",
+        "AGENTS.md defines non-negotiable red lines that constrain autonomous action. (AGENTS.md)",
+        "Autonomy boundaries and escalation triggers make uncertainty handling explicit. (memory/knowledge/intent-hierarchy.yaml)"
+      ],
+      "gaps": [
+        "Current evidence shows guardrails and escalation boundaries, but not yet a strong repo-native mechanism that forces pre-implementation pause-and-doubt inside the audit flow itself."
+      ],
+      "evidenceIds": [
+        "audit-judgment-redlines",
+        "audit-judgment-escalation-boundaries"
+      ],
+      "highestLeverageNextStep": "Add an audit judgment gate that refuses strong ratings when evidence is thin, ambiguous, or purely post-hoc."
+    },
+    {
+      "dimension": "coherence",
+      "tier": "partial",
+      "summary": "Coherence engineering is explicitly articulated and now has native drift comparison, but longitudinal evidence is still thin and not yet deeply integrated into broader runtime review.",
+      "strengths": [
+        "A durable coherence charter defines identity commitments and failure signals.",
+        "The theory fork preserves an explicit interpretation layer instead of letting coherence drift stay implicit.",
+        "The coherence charter defines identity commitments, failure signals, and evolution health checks. (memory/knowledge/coherence-charter.yaml)",
+        "The theory fork preserves an evolving interpretation layer that mediates between stable foundations and runtime behavior. (memory/theory-fork/index.md)"
+      ],
+      "gaps": [
+        "A native drift monitor now exists, but the audit still has limited longitudinal history proving that it meaningfully catches session-to-session behavioral drift."
+      ],
+      "evidenceIds": [
+        "audit-coherence-charter",
+        "audit-coherence-theory-fork",
+        "audit-coherence-audit-radar-drift"
+      ],
+      "highestLeverageNextStep": "Use repeated audit snapshots to test whether coherence drift warnings actually change future cycle choices rather than staying descriptive."
+    },
+    {
+      "dimension": "evaluation",
+      "tier": "partial",
+      "summary": "Evaluation engineering now has structural scoring, verification surfaces, durable audit snapshots, audit-driven proposal drafting, active-change reconciliation, correction-path comparison, and a native audit-loop command, but attribution is still coarse and the loop still depends on explicit invocation.",
+      "strengths": [
+        "The runtime already records structured evaluation snapshots rather than relying only on narrative self-report.",
+        "Verification and recovery are tracked as explicit state surfaces that can be inspected by later cycles.",
+        "The evaluation extension already creates structured evaluation snapshots with neglected-dimension and drift markers. (aies/extensions/evaluation/index.ts)",
+        "The verification extension records verification mode, verification results, and recovery follow-up as explicit evaluation surfaces. (aies/extensions/verification/index.ts)"
+      ],
+      "gaps": [
+        "A native audit loop now runs assessment, outcome comparison, and quick verification together, but attribution is still coarse when multiple interventions overlap and the loop still depends on explicit invocation rather than cycle-level orchestration."
+      ],
+      "evidenceIds": [
+        "audit-evaluation-snapshot-logic",
+        "audit-evaluation-verification-recovery",
+        "audit-evaluation-audit-radar-persistence",
+        "audit-evaluation-audit-radar-proposal-bridge",
+        "audit-evaluation-audit-radar-reconciliation-bridge",
+        "audit-evaluation-audit-radar-outcome-comparator",
+        "audit-evaluation-audit-radar-outcome-report",
+        "audit-evaluation-audit-radar-loop-command",
+        "audit-evaluation-audit-radar-loop-report",
+        "audit-evaluation-audit-radar-runtime-surface"
+      ],
+      "highestLeverageNextStep": "Integrate the audit loop into cycle orchestration so audit assessment, outcome comparison, and proportionate verification happen consistently instead of only by manual command use."
+    },
+    {
+      "dimension": "harness",
+      "tier": "partial",
+      "summary": "Harness engineering is real and reproducible, and now includes a repeatable audit-loop command with durable reports, but the loop is not yet wired into continuous orchestration or an always-on evaluation pipeline.",
+      "strengths": [
+        "Pi settings make extension, prompt, and skill registration explicit and reproducible.",
+        "The operator UI backend provides a visible control and execution bridge instead of relying on hidden orchestration.",
+        "Pi settings wire the project-local extensions, skills, and prompts into the execution harness. (.pi/settings.json)",
+        "The operator UI backend provides the local execution bridge, control surface, and heartbeat orchestration hooks. (operator-ui/server/index.ts)"
+      ],
+      "gaps": [
+        "A repeatable audit-loop harness command now exists and has produced durable reports, but it still requires manual invocation instead of continuous orchestration."
+      ],
+      "evidenceIds": [
+        "audit-harness-extension-registry",
+        "audit-harness-operator-ui-bridge",
+        "audit-harness-audit-radar-operator-report",
+        "audit-harness-audit-radar-loop-command",
+        "audit-harness-audit-radar-loop-report"
+      ],
+      "highestLeverageNextStep": "Wire the audit loop into cycle-runner or operator-triggered orchestration so self-evolution checks happen consistently without relying on manual choreography."
+    }
+  ],
+  "evidence": [
+    {
+      "evidenceId": "audit-prompt-agents-structured-cycle",
+      "dimension": "prompt",
+      "summary": "AGENTS.md provides structured cycle instructions, constraints, and success-shape guidance.",
+      "sourceType": "file",
+      "sourcePath": "AGENTS.md",
+      "excerpt": "- Preferred shape: one meaningful evolution step per cycle. This can be a new tool, a multi-step OpenSpec plan proposal, a capability expansion, or a substantive architectural change — not just a micro-fix.",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-prompt-openspec-skill-decomposition",
+      "dimension": "prompt",
+      "summary": "The OpenSpec apply skill decomposes implementation into explicit steps, pause conditions, and completion reporting.",
+      "sourceType": "file",
+      "sourcePath": ".pi/skills/openspec-apply-change/SKILL.md",
+      "excerpt": "6. **Implement tasks (loop until done or blocked)**",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-context-memory-tree",
+      "dimension": "context",
+      "summary": "AIES keeps durable cross-session context in dedicated memory roots.",
+      "sourceType": "directory",
+      "sourcePath": "memory",
+      "excerpt": "Contains knowledge, theory-fork, devlog.",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-context-memory-readme",
+      "dimension": "context",
+      "summary": "The memory README defines durable human-readable storage for lessons, theory, and devlog continuity.",
+      "sourceType": "file",
+      "sourcePath": "memory/README.md",
+      "excerpt": "Durable AIES memory stays here in human-readable form.",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-intent-north-star",
+      "dimension": "intent",
+      "summary": "The intent hierarchy encodes the north star, ranked priorities, and tradeoff defaults for self-evolution.",
+      "sourceType": "file",
+      "sourcePath": "memory/knowledge/intent-hierarchy.yaml",
+      "excerpt": "north_star: Evolve the harness into a more capable, coherent, self-aware system grounded in the AI-Human Engineering Stack. Pursue emergent complexity through proactive capability expansion.",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-intent-active-change-direction",
+      "dimension": "intent",
+      "summary": "The latest OpenSpec change records a multi-step evolution direction rather than ad-hoc work.",
+      "sourceType": "file",
+      "sourcePath": "openspec/changes/CHG-2026-03-15-aies-layer-audit-radar.md",
+      "excerpt": "AIES has theory assets, durable memory, and several runtime extensions, but it still lacks a native capability for evidence-backed self-audit across the full 5+2 stack. That gap makes future cycles too dependent on ad-h…",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-judgment-redlines",
+      "dimension": "judgment",
+      "summary": "AGENTS.md defines non-negotiable red lines that constrain autonomous action.",
+      "sourceType": "file",
+      "sourcePath": "AGENTS.md",
+      "excerpt": "- Do not invent hidden control state, hidden completion criteria, or hidden retry loops. - Do not claim verification or recovery outcomes that disagree with recorded AIES state. - Do not create unnecessary scratch-file…",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-judgment-escalation-boundaries",
+      "dimension": "judgment",
+      "summary": "Autonomy boundaries and escalation triggers make uncertainty handling explicit.",
+      "sourceType": "file",
+      "sourcePath": "memory/knowledge/intent-hierarchy.yaml",
+      "excerpt": "autonomy_boundaries:",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-coherence-charter",
+      "dimension": "coherence",
+      "summary": "The coherence charter defines identity commitments, failure signals, and evolution health checks.",
+      "sourceType": "file",
+      "sourcePath": "memory/knowledge/coherence-charter.yaml",
+      "excerpt": "identity_commitments:",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-coherence-theory-fork",
+      "dimension": "coherence",
+      "summary": "The theory fork preserves an evolving interpretation layer that mediates between stable foundations and runtime behavior.",
+      "sourceType": "file",
+      "sourcePath": "memory/theory-fork/index.md",
+      "excerpt": "This theory fork now sits on top of a small foundation stack:",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-coherence-audit-radar-drift",
+      "dimension": "coherence",
+      "summary": "The audit radar now compares snapshots over time to detect stagnation, repeated binding constraints, and theory/runtime divergence.",
+      "sourceType": "file",
+      "sourcePath": "aies/extensions/evaluation/audit-radar-drift.ts",
+      "excerpt": "function repeatedBindingConstraintCount(history: LayerAuditSnapshot[], current: LayerAuditSnapshot): number {",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-evaluation-snapshot-logic",
+      "dimension": "evaluation",
+      "summary": "The evaluation extension already creates structured evaluation snapshots with neglected-dimension and drift markers.",
+      "sourceType": "file",
+      "sourcePath": "aies/extensions/evaluation/index.ts",
+      "excerpt": "function recommendationForFocus(suggestedFocus: FocusType | null): string {",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-evaluation-verification-recovery",
+      "dimension": "evaluation",
+      "summary": "The verification extension records verification mode, verification results, and recovery follow-up as explicit evaluation surfaces.",
+      "sourceType": "file",
+      "sourcePath": "aies/extensions/verification/index.ts",
+      "excerpt": "VERIFICATION_MODE_ENTRY_TYPE,",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-evaluation-audit-radar-persistence",
+      "dimension": "evaluation",
+      "summary": "The audit radar persistence layer stores serialized snapshots in durable memory so later cycles can compare audit state across sessions.",
+      "sourceType": "file",
+      "sourcePath": "aies/extensions/evaluation/audit-radar-state.ts",
+      "excerpt": "const fullPath = join(getAiesPaths().auditRadarSnapshotsRoot, normalizeSnapshotFileName(snapshot));",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-evaluation-audit-radar-proposal-bridge",
+      "dimension": "evaluation",
+      "summary": "The audit radar can now draft follow-on OpenSpec changes from durable snapshots so repeated findings can become planned evolution work.",
+      "sourceType": "file",
+      "sourcePath": "aies/extensions/evaluation/audit-radar-proposal.ts",
+      "excerpt": "`generated_from_audit_snapshot: ${snapshot.snapshotId}`,",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-evaluation-audit-radar-reconciliation-bridge",
+      "dimension": "evaluation",
+      "summary": "The audit radar can now reconcile repeated findings into an aligned active OpenSpec change instead of only drafting new proposal files.",
+      "sourceType": "file",
+      "sourcePath": "aies/extensions/evaluation/audit-radar-reconciliation.ts",
+      "excerpt": "const pattern = /\\n## Audit Radar Reconciliation\\n([\\s\\S]*?)(?=\\n## |$)/;",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-evaluation-audit-radar-outcome-comparator",
+      "dimension": "evaluation",
+      "summary": "The audit radar can now compare consecutive audit snapshots against OpenSpec reconciliation/proposal signals plus verification, recovery, and operator verification-mode activity.",
+      "sourceType": "file",
+      "sourcePath": "aies/extensions/evaluation/audit-radar-outcomes.ts",
+      "excerpt": "\"operator_verification_mode\",",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-evaluation-audit-radar-outcome-report",
+      "dimension": "evaluation",
+      "summary": "Durable audit outcome reports now record which correction paths appeared between audit snapshots and whether prior weak layers improved, regressed, or stayed stagnant.",
+      "sourceType": "file",
+      "sourcePath": "memory/knowledge/audit-radar/outcomes/2026-03-15T16-27-18-207Z--audit-outcomes-2026-03-15T16-27-18-207Z.json",
+      "excerpt": "\"stagnantWeakDimensions\": [",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-evaluation-audit-radar-loop-command",
+      "dimension": "evaluation",
+      "summary": "The audit radar now has a native loop command that couples assessment, durable outcome comparison, and quick verification while recording session verification and recovery evidence from the same run.",
+      "sourceType": "file",
+      "sourcePath": "aies/extensions/evaluation/audit-radar-loop.ts",
+      "excerpt": "function runQuickVerification(requestedMode: VerificationMode): AuditLoopQuickVerification {",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-evaluation-audit-radar-loop-report",
+      "dimension": "evaluation",
+      "summary": "Durable audit loop reports now capture the linked snapshot, outcome report, and verification/recovery result from one reproducible harness run.",
+      "sourceType": "file",
+      "sourcePath": "memory/knowledge/audit-radar/loops/2026-03-15T16-27-38-789Z--audit-loop-2026-03-15T16-27-38-789Z.json",
+      "excerpt": "\"snapshotPath\": \"memory/knowledge/audit-radar/snapshots/2026-03-15T16-27-16-702Z--audit-2026-03-15T16-27-16-702Z.json\",",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-evaluation-audit-radar-runtime-surface",
+      "dimension": "evaluation",
+      "summary": "The evaluation extension now surfaces the latest durable audit inside runtime command flow and prompt context so future cycles can reuse it during work selection.",
+      "sourceType": "file",
+      "sourcePath": "aies/extensions/evaluation/index.ts",
+      "excerpt": "import { buildAuditRadarPromptBlock, buildAuditRadarWidgetLines, formatAuditRadarStatus } from \"./audit-radar-runtime.ts\";",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-harness-extension-registry",
+      "dimension": "harness",
+      "summary": "Pi settings wire the project-local extensions, skills, and prompts into the execution harness.",
+      "sourceType": "file",
+      "sourcePath": ".pi/settings.json",
+      "excerpt": "\"extensions\": [",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-harness-operator-ui-bridge",
+      "dimension": "harness",
+      "summary": "The operator UI backend provides the local execution bridge, control surface, and heartbeat orchestration hooks.",
+      "sourceType": "file",
+      "sourcePath": "operator-ui/server/index.ts",
+      "excerpt": "runPiDetached,",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-harness-audit-radar-operator-report",
+      "dimension": "harness",
+      "summary": "The operator UI now includes a dedicated Audit Radar report sourced from durable audit snapshots.",
+      "sourceType": "file",
+      "sourcePath": "operator-ui/server/index.ts",
+      "excerpt": "import { listAuditValues, readLatestAuditRadarReport, summarizeAuditRadarReport, trimAuditText } from \"./audit-radar\";",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-harness-audit-radar-loop-command",
+      "dimension": "harness",
+      "summary": "A native /audit-radar-loop command now runs audit assessment, outcome comparison, and quick verification as one reproducible harness action.",
+      "sourceType": "file",
+      "sourcePath": "aies/extensions/evaluation/index.ts",
+      "excerpt": "import { executeAuditRadarLoop, formatAuditLoopRun } from \"./audit-radar-loop.ts\";",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    },
+    {
+      "evidenceId": "audit-harness-audit-radar-loop-report",
+      "dimension": "harness",
+      "summary": "The harness now persists durable audit-loop reports so operators and later cycles can inspect a single run's linked audit, outcome, and verification evidence.",
+      "sourceType": "file",
+      "sourcePath": "memory/knowledge/audit-radar/loops/2026-03-15T16-27-38-789Z--audit-loop-2026-03-15T16-27-38-789Z.json",
+      "excerpt": "\"loopId\": \"audit-loop-2026-03-15T16-27-38-789Z\",",
+      "observedAt": "2026-03-15T16:32:37.125Z"
+    }
+  ],
+  "bindingConstraint": {
+    "dimension": "evaluation",
+    "rationale": "Evaluation is the binding constraint because other layers can be partially encoded yet still fail to steer future cycles if AIES cannot compare, diagnose, and trust its own cross-layer evidence.",
+    "consequence": "Future work selection remains too dependent on ad-hoc judgment, making maintenance drift and flattering self-ratings harder to catch.",
+    "evidenceIds": [
+      "audit-evaluation-snapshot-logic",
+      "audit-evaluation-verification-recovery",
+      "audit-evaluation-audit-radar-persistence",
+      "audit-evaluation-audit-radar-proposal-bridge",
+      "audit-evaluation-audit-radar-reconciliation-bridge",
+      "audit-evaluation-audit-radar-outcome-comparator",
+      "audit-evaluation-audit-radar-outcome-report",
+      "audit-evaluation-audit-radar-loop-command",
+      "audit-evaluation-audit-radar-loop-report",
+      "audit-evaluation-audit-radar-runtime-surface"
+    ]
+  },
+  "drift": {
+    "comparedToSnapshotId": "audit-2026-03-15T16-28-29-370Z",
+    "comparedToObservedAt": "2026-03-15T16:28:29.370Z",
+    "improvedDimensions": [],
+    "regressedDimensions": [],
+    "stagnantDimensions": [
+      "context",
+      "judgment",
+      "coherence",
+      "evaluation",
+      "harness"
+    ],
+    "repeatedBindingConstraintCount": 9,
+    "maintenanceLoopRisk": true,
+    "theoryRuntimeDivergence": true,
+    "dimensionChanges": [
+      {
+        "dimension": "prompt",
+        "previousTier": "strong",
+        "currentTier": "strong",
+        "change": "unchanged",
+        "summary": "prompt stayed strong."
+      },
+      {
+        "dimension": "context",
+        "previousTier": "partial",
+        "currentTier": "partial",
+        "change": "unchanged",
+        "summary": "context stayed partial."
+      },
+      {
+        "dimension": "intent",
+        "previousTier": "strong",
+        "currentTier": "strong",
+        "change": "unchanged",
+        "summary": "intent stayed strong."
+      },
+      {
+        "dimension": "judgment",
+        "previousTier": "partial",
+        "currentTier": "partial",
+        "change": "unchanged",
+        "summary": "judgment stayed partial."
+      },
+      {
+        "dimension": "coherence",
+        "previousTier": "partial",
+        "currentTier": "partial",
+        "change": "unchanged",
+        "summary": "coherence stayed partial."
+      },
+      {
+        "dimension": "evaluation",
+        "previousTier": "partial",
+        "currentTier": "partial",
+        "change": "unchanged",
+        "summary": "evaluation stayed partial."
+      },
+      {
+        "dimension": "harness",
+        "previousTier": "partial",
+        "currentTier": "partial",
+        "change": "unchanged",
+        "summary": "harness stayed partial."
+      }
+    ],
+    "summary": "Improved: none. Regressed: none. Stagnant weak layers: context, judgment, coherence, evaluation, harness. Binding constraint streak: evaluation x9. Maintenance-loop risk is emerging because the same weak layers persisted without improvement. Theory/runtime divergence is present: declared or documented layers are still ahead of operational evaluation/harness capabilities."
+  },
+  "failurePatterns": [
+    "Cross-layer self-evaluation is still more structurally present than operationally binding, so future cycles can drift back toward ad-hoc work selection.",
+    "AIES can now compare audit snapshots, but coherence evidence is still thin enough that session-to-session drift detection remains provisional rather than fully trusted.",
+    "Judgment is better encoded as red lines and escalation boundaries than as proactive pause-and-doubt mechanisms inside execution flow."
+  ],
+  "recommendedNextStep": {
+    "summary": "Integrate the audit loop into cycle orchestration so audit assessment, outcome comparison, and proportionate verification happen consistently instead of only by manual command use.",
+    "rationale": "Evaluation is the binding constraint because other layers can be partially encoded yet still fail to steer future cycles if AIES cannot compare, diagnose, and trust its own cross-layer evidence.",
+    "actionType": "tool",
+    "targetDimensions": [
+      "evaluation",
+      "coherence",
+      "harness"
+    ],
+    "suggestedPaths": [
+      "aies/extensions/evaluation/",
+      "aies/extensions/cycle-runner/",
+      "verify-aies-quick.ps1"
+    ]
+  },
+  "confidence": "medium"
+}
