@@ -43,6 +43,7 @@ type AgentEndEvent = {
 const HEARTBEAT_ENTRY_TYPE = "aies-heartbeat";
 const DEFAULT_TRIGGER_SOURCE: CycleRunTriggerSource = "slash_command";
 const OPERATOR_SOURCE = "operator_ui";
+const HEARTBEAT_TUI_SOURCE: CycleRunTriggerSource = "heartbeat_tui";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -281,6 +282,16 @@ type OperatorControlsSummary = {
   verificationUpdatedAt: string | null;
 };
 
+type LiveVerificationStatus = {
+  controls: OperatorControlsSummary | null;
+  currentSessionLabel: string;
+  controlSessionLabel: string;
+  hasSessionMismatch: boolean;
+  controlModeLabel: string;
+  recordedModeLabel: string;
+  interpretationLabel: string;
+};
+
 function toOptionalJsonString(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const normalized = value.trim();
@@ -314,12 +325,7 @@ function readOperatorControls(): OperatorControlsSummary | null {
   }
 }
 
-function renderLiveStatusSection(
-  ctx: ExtensionContext,
-  modeEntry: VerificationModeEntry | null,
-  verification: VerificationEntry | null,
-  recovery: RecoveryEntry | null,
-): string[] {
+function resolveLiveVerificationStatus(ctx: ExtensionContext, modeEntry: VerificationModeEntry | null): LiveVerificationStatus {
   const controls = readOperatorControls();
   const currentSession = getSessionId(ctx);
   const currentSessionLabel = currentSession === "ephemeral" ? currentSession : basename(currentSession);
@@ -329,26 +335,43 @@ function renderLiveStatusSection(
     && currentSession !== "ephemeral"
     && resolve(controls.activeSessionPath) !== resolve(currentSession),
   );
-  const sessionMismatch = hasSessionMismatch ? ` [mismatch: current session is ${currentSessionLabel}]` : "";
   const controlModeLabel = controls?.verificationMode
     ? `${controls.verificationMode}${controls?.verificationSource ? ` (${controls.verificationSource})` : ""}`
     : "none";
   const recordedModeLabel = modeEntry ? `${modeEntry.mode} (${modeEntry.source})` : "none";
-  const verificationLabel = verification ? `${verification.record.mode}/${verification.record.result}` : "none";
-  const recoveryLabel = recovery ? `${recovery.status}/${recovery.reasonType}/${recovery.severity}` : "none";
   const interpretationLabel = hasSessionMismatch
     ? "Operator controls target another session; treat control-derived verification mode as advisory context only for this turn."
     : "Operator controls align with the current session.";
 
+  return {
+    controls,
+    currentSessionLabel,
+    controlSessionLabel,
+    hasSessionMismatch,
+    controlModeLabel,
+    recordedModeLabel,
+    interpretationLabel,
+  };
+}
+
+function renderLiveStatusSection(
+  liveStatus: LiveVerificationStatus,
+  verification: VerificationEntry | null,
+  recovery: RecoveryEntry | null,
+): string[] {
+  const sessionMismatch = liveStatus.hasSessionMismatch ? ` [mismatch: current session is ${liveStatus.currentSessionLabel}]` : "";
+  const verificationLabel = verification ? `${verification.record.mode}/${verification.record.result}` : "none";
+  const recoveryLabel = recovery ? `${recovery.status}/${recovery.reasonType}/${recovery.severity}` : "none";
+
   return [
     "Live status surfaces:",
-    `- Operator controls session: ${controlSessionLabel}${sessionMismatch}`,
-    `- Operator controls verification mode: ${controlModeLabel}`,
-    `- Operator controls updated: ${controls?.verificationUpdatedAt ?? "none"}`,
-    `- Session verification mode entry: ${recordedModeLabel}`,
+    `- Operator controls session: ${liveStatus.controlSessionLabel}${sessionMismatch}`,
+    `- Operator controls verification mode: ${liveStatus.controlModeLabel}`,
+    `- Operator controls updated: ${liveStatus.controls?.verificationUpdatedAt ?? "none"}`,
+    `- Session verification mode entry: ${liveStatus.recordedModeLabel}`,
     `- Session verification record: ${verificationLabel}`,
     `- Session recovery record: ${recoveryLabel}`,
-    `- Live status interpretation: ${interpretationLabel}`,
+    `- Live status interpretation: ${liveStatus.interpretationLabel}`,
   ];
 }
 
@@ -398,17 +421,43 @@ function renderEvaluationSection(entry: EvaluationEntry | null): string[] {
   ];
 }
 
-function renderVerificationSection(entry: VerificationEntry | null, modeEntry: VerificationModeEntry | null): string[] {
-  const mode = entry?.record.mode ?? modeEntry?.mode ?? "none";
+function renderVerificationSection(
+  liveStatus: LiveVerificationStatus,
+  entry: VerificationEntry | null,
+  modeEntry: VerificationModeEntry | null,
+): string[] {
+  const alignedControlMode = !liveStatus.hasSessionMismatch ? liveStatus.controls?.verificationMode : null;
+  let mode = entry?.record.mode ?? modeEntry?.mode ?? "none";
+  let modeSource = entry
+    ? "session verification record"
+    : modeEntry
+      ? `session verification mode entry (${modeEntry.source})`
+      : "none";
+  let advisory = "none";
+
+  if (!entry && !modeEntry && alignedControlMode) {
+    mode = alignedControlMode;
+    modeSource = `aligned operator controls${liveStatus.controls?.verificationSource ? ` (${liveStatus.controls.verificationSource})` : ""}`;
+    advisory = "No session verification mode entry is recorded yet; using aligned operator controls as the best live mode surface.";
+  } else if (!entry && modeEntry && alignedControlMode && modeEntry.mode !== alignedControlMode) {
+    advisory = `Aligned operator controls show ${liveStatus.controlModeLabel}, while the session mode entry records ${liveStatus.recordedModeLabel}.`;
+  } else if (!entry && liveStatus.hasSessionMismatch && liveStatus.controls?.verificationMode) {
+    advisory = `Operator controls show ${liveStatus.controlModeLabel} for another session; advisory only for this turn.`;
+  }
+
   if (!entry) {
     return [
       `Verification mode: ${mode}`,
+      `Verification mode source: ${modeSource}`,
+      `Verification advisory: ${advisory}`,
       "Verification follow-up: none",
     ];
   }
 
   return [
     `Verification mode: ${mode}`,
+    `Verification mode source: ${modeSource}`,
+    `Verification advisory: ${advisory}`,
     `Verification result: ${entry.record.result}`,
     `Verification state: ${entry.record.verificationState}`,
     `Verification follow-up: ${entry.record.followUpRequired ? "required" : "none"}`,
@@ -441,6 +490,7 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
   const verification = restoreVerificationEntry(ctx);
   const recovery = restoreRecoveryEntry(ctx);
   const verificationMode = restoreVerificationModeEntry(ctx);
+  const liveStatus = resolveLiveVerificationStatus(ctx, verificationMode);
   const policyMode = restorePolicyModeEntry(ctx)?.mode ?? "advisory";
   const memory = latestMemorySignals();
 
@@ -453,6 +503,7 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     : `Run one self-maintenance cycle with explicit rationale`;
 
   const lines = [
+    "You are an AIES self-evolving agent. Your task is to follow AIES theory and principles to evolve over time. You have significant autonomy and self-direction",
     "Run one AIES self-evolution cycle in this current session.",
     "This prompt is the canonical synthesized cycle request. Treat it as the real user message for this cycle.",
     "Do not search for a queue file, hidden trigger message, or alternate upstream prompt unless the current turn provides concrete evidence that one exists.",
@@ -486,9 +537,9 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     "",
     ...renderEvaluationSection(evaluation),
     "",
-    ...renderVerificationSection(verification, verificationMode),
+    ...renderVerificationSection(liveStatus, verification, verificationMode),
     "",
-    ...renderLiveStatusSection(ctx, verificationMode, verification, recovery),
+    ...renderLiveStatusSection(liveStatus, verification, recovery),
     "",
     ...renderRecoverySection(recovery),
     "",
@@ -498,7 +549,9 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     `Latest durable memory signal: ${memory.durable ?? "none"}`,
     "",
     "Requirements:",
+    "- Read AGENTS.md for more direction",
     "- Choose one concrete next step.",
+    "- do not read or rg any .log files (they are too large).",
     "- Keep your rationale explicit.",
     "- Continue the active change if it is the best move.",
     "- If there is no active change, choose the best self-maintenance/evolution action from current evidence.",
@@ -577,7 +630,132 @@ function parseTriggerSource(args: string | undefined): CycleRunTriggerSource {
   const raw = args?.trim() ?? "";
   const match = raw.match(/--source\s+(\S+)/);
   const source = match?.[1]?.trim().toLowerCase();
-  return source === OPERATOR_SOURCE ? OPERATOR_SOURCE : DEFAULT_TRIGGER_SOURCE;
+  if (source === OPERATOR_SOURCE) return OPERATOR_SOURCE;
+  if (source === HEARTBEAT_TUI_SOURCE) return HEARTBEAT_TUI_SOURCE;
+  return DEFAULT_TRIGGER_SOURCE;
+}
+
+export async function runCycleCommand(
+  pi: ExtensionAPI,
+  ctx: ExtensionContext,
+  args: string | undefined,
+  activeRunRef?: { current: CycleRunEntry | null },
+  options: { quietBusy?: boolean } = {},
+): Promise<CycleRunEntry | null> {
+  let activeRun = activeRunRef?.current ?? restoreCycleRunEntry(ctx);
+
+  if (!ctx.isIdle() || ctx.hasPendingMessages()) {
+    const blocked = buildRunEntry(
+      createRunId(),
+      "blocked",
+      parseTriggerSource(args),
+      getSessionId(ctx),
+      "Cycle run blocked because Pi is already busy.",
+      activeRun?.promptText ?? "Cycle run blocked because Pi is already busy.",
+      activeRun?.relatedChangeId ?? null,
+      "Pi is already processing a turn or has pending messages.",
+      nowIso(),
+      nowIso(),
+      activeRun?.relatedCycleId ?? null,
+    );
+    activeRun = blocked;
+    if (activeRunRef) {
+      activeRunRef.current = blocked;
+    }
+    persistRun(pi, blocked);
+    updateUi(activeRun, ctx);
+    if (!options.quietBusy) {
+      writeLine(ctx, "Cycle runner is busy; no follow-up was queued.", "warning");
+    }
+    return activeRun;
+  }
+
+  const synthesized = buildCyclePrompt(ctx);
+  const runId = createRunId();
+  const startedAt = nowIso();
+  const triggerSource = parseTriggerSource(args);
+
+  activeRun = buildRunEntry(
+    runId,
+    "requested",
+    triggerSource,
+    getSessionId(ctx),
+    synthesized.summary,
+    synthesized.prompt,
+    synthesized.relatedChangeId,
+    null,
+    startedAt,
+    null,
+    null,
+  );
+  if (activeRunRef) {
+    activeRunRef.current = activeRun;
+  }
+  persistRun(pi, activeRun);
+
+  const running = buildRunEntry(
+    runId,
+    "running",
+    triggerSource,
+    getSessionId(ctx),
+    synthesized.summary,
+    synthesized.prompt,
+    synthesized.relatedChangeId,
+    null,
+    startedAt,
+    null,
+    null,
+  );
+  activeRun = running;
+  if (activeRunRef) {
+    activeRunRef.current = running;
+  }
+  persistRun(pi, running);
+  updateUi(activeRun, ctx);
+
+  try {
+    pi.sendUserMessage(synthesized.prompt);
+    await ctx.waitForIdle();
+    activeRun = restoreCycleRunEntry(ctx);
+    if (activeRunRef) {
+      activeRunRef.current = activeRun;
+    }
+    updateUi(activeRun, ctx);
+    if (!options.quietBusy) {
+      writeLine(
+        ctx,
+        activeRun?.status === "completed"
+          ? `Cycle run completed: ${activeRun.promptSummary}`
+          : `Cycle run finished with status ${activeRun?.status ?? "unknown"}`,
+        activeRun?.status === "failed" ? "error" : "info",
+      );
+    }
+  } catch (error) {
+    const failed = buildRunEntry(
+      runId,
+      "failed",
+      triggerSource,
+      getSessionId(ctx),
+      synthesized.summary,
+      synthesized.prompt,
+      synthesized.relatedChangeId,
+      error instanceof Error ? error.message : String(error),
+      startedAt,
+      nowIso(),
+      null,
+    );
+    activeRun = failed;
+    if (activeRunRef) {
+      activeRunRef.current = failed;
+    }
+    persistRun(pi, failed);
+    updateUi(activeRun, ctx);
+    if (!options.quietBusy) {
+      writeLine(ctx, `Cycle run failed to start: ${failed.failureNote}`, "error");
+    }
+  }
+
+  return activeRun;
 }
 
 export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
@@ -595,97 +773,7 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
   pi.registerCommand(AIES_COMMANDS.cycleRun, {
     description: "Run one explicit AIES self-evolution cycle in the current session",
     handler: async (args, ctx) => {
-      activeRun = restoreCycleRunEntry(ctx);
-
-      if (!ctx.isIdle() || ctx.hasPendingMessages()) {
-        const blocked = buildRunEntry(
-          createRunId(),
-          "blocked",
-          parseTriggerSource(args),
-          getSessionId(ctx),
-          "Cycle run blocked because Pi is already busy.",
-          activeRun?.promptText ?? "Cycle run blocked because Pi is already busy.",
-          activeRun?.relatedChangeId ?? null,
-          "Pi is already processing a turn or has pending messages.",
-          nowIso(),
-          nowIso(),
-          activeRun?.relatedCycleId ?? null,
-        );
-        activeRun = blocked;
-        persistRun(pi, blocked);
-        updateUi(activeRun, ctx);
-        writeLine(ctx, "Cycle runner is busy; no follow-up was queued.", "warning");
-        return;
-      }
-
-      const synthesized = buildCyclePrompt(ctx);
-      const runId = createRunId();
-      const startedAt = nowIso();
-      const triggerSource = parseTriggerSource(args);
-
-      activeRun = buildRunEntry(
-        runId,
-        "requested",
-        triggerSource,
-        getSessionId(ctx),
-        synthesized.summary,
-        synthesized.prompt,
-        synthesized.relatedChangeId,
-        null,
-        startedAt,
-        null,
-        null,
-      );
-      persistRun(pi, activeRun);
-
-      const running = buildRunEntry(
-        runId,
-        "running",
-        triggerSource,
-        getSessionId(ctx),
-        synthesized.summary,
-        synthesized.prompt,
-        synthesized.relatedChangeId,
-        null,
-        startedAt,
-        null,
-        null,
-      );
-      activeRun = running;
-      persistRun(pi, running);
-      updateUi(activeRun, ctx);
-
-      try {
-        pi.sendUserMessage(synthesized.prompt);
-        await ctx.waitForIdle();
-        activeRun = restoreCycleRunEntry(ctx);
-        updateUi(activeRun, ctx);
-        writeLine(
-          ctx,
-          activeRun?.status === "completed"
-            ? `Cycle run completed: ${activeRun.promptSummary}`
-            : `Cycle run finished with status ${activeRun?.status ?? "unknown"}`,
-          activeRun?.status === "failed" ? "error" : "info",
-        );
-      } catch (error) {
-        const failed = buildRunEntry(
-          runId,
-          "failed",
-          triggerSource,
-          getSessionId(ctx),
-          synthesized.summary,
-          synthesized.prompt,
-          synthesized.relatedChangeId,
-          error instanceof Error ? error.message : String(error),
-          startedAt,
-          nowIso(),
-          null,
-        );
-        activeRun = failed;
-        persistRun(pi, failed);
-        updateUi(activeRun, ctx);
-        writeLine(ctx, `Cycle run failed to start: ${failed.failureNote}`, "error");
-      }
+      activeRun = await runCycleCommand(pi, ctx, args, { current: activeRun });
     },
   });
 

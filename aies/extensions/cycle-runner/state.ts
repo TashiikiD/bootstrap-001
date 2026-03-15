@@ -1,7 +1,7 @@
 import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
 
 export type CycleRunStatus = "idle" | "requested" | "running" | "completed" | "blocked" | "aborted" | "failed";
-export type CycleRunTriggerSource = "slash_command" | "operator_ui";
+export type CycleRunTriggerSource = "slash_command" | "operator_ui" | "heartbeat_tui";
 
 export interface CycleRunEntry {
   runId: string;
