@@ -749,6 +749,7 @@ class AiesOperatorApp extends LitElement {
     const verificationDebt = observatory.verificationStats.find((item) => item.result === "not_run")?.count ?? 0;
     const recoveryDebt = observatory.recoveryStats.find((item) => item.status === "open")?.count ?? 0;
     const openRequests = observatory.requestStats.find((item) => item.status === "open")?.count ?? 0;
+    const orchestratedLoops = observatory.auditLoopReports.filter((item) => item.orchestrationSource === "cycle_runner").length;
     return html`
       <div class="content stack">
         <div class="metric-grid">
@@ -775,6 +776,14 @@ class AiesOperatorApp extends LitElement {
           <div class="metric-card">
             <div class="metric-label">Memory Highlights</div>
             <div class="metric-value">${observatory.memoryHighlights.length}</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Audit Loops</div>
+            <div class="metric-value">${observatory.auditLoopReports.length}</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Orchestrated Loops</div>
+            <div class="metric-value">${orchestratedLoops}</div>
           </div>
           <div class="metric-card">
             <div class="metric-label">Thought Archives</div>
@@ -837,6 +846,58 @@ class AiesOperatorApp extends LitElement {
                   </div>
                 </div>
               `)}
+            </div>
+          </section>
+          <section class="card stack">
+            <h2>Audit Loop Reports</h2>
+            <div class="history-list">
+              ${observatory.auditLoopReports.length === 0
+                ? html`<div class="empty">No durable audit loop reports yet.</div>`
+                : observatory.auditLoopReports.map((item) => html`
+                    <div class="artifact-item">
+                      <div class="row wrap">
+                        <strong>${item.loopId}</strong>
+                        <div class="pill-summary">
+                          <span class="chip">${item.orchestrationSource}</span>
+                          <span class="chip">${item.verificationMode}/${item.verificationResult}</span>
+                        </div>
+                      </div>
+                      <div>${item.summary}</div>
+                      <div class="artifact-meta">
+                        change=${item.relatedChangeId ?? "none"} · cycle=${item.relatedCycleId ?? "none"} · generated=${formatTimestamp(item.generatedAt)}
+                      </div>
+                      <div class="artifact-meta">${item.path}</div>
+                    </div>
+                  `)}
+            </div>
+          </section>
+          <section class="card stack">
+            <h2>Cycle-run Audit Trails</h2>
+            <div class="history-list">
+              ${observatory.cycleRunAudits.length === 0
+                ? html`<div class="empty">No cross-session post-run audit trails recorded yet.</div>`
+                : observatory.cycleRunAudits.map((item) => html`
+                    <div class="artifact-item">
+                      <div class="row wrap">
+                        <strong>${item.runId}</strong>
+                        <div class="pill-summary">
+                          <span class="chip">${item.auditStatus}</span>
+                          <span class="chip">${item.auditVerification}</span>
+                        </div>
+                      </div>
+                      <div>${item.promptSummary}</div>
+                      <div class="artifact-meta">
+                        session=${item.sessionLabel} · source=${item.triggerSource} · status=${item.status} · finished=${formatTimestamp(item.finishedAt ?? item.startedAt)}
+                      </div>
+                      <div class="artifact-meta">
+                        change=${item.relatedChangeId ?? "none"} · cycle=${item.relatedCycleId ?? "none"} · loop=${item.loopId ?? "none"}
+                      </div>
+                      <div class="artifact-meta">
+                        report=${item.loopReportPath ?? "none"} · durable=${item.hasDurableLoopReport ? "yes" : "no"}
+                      </div>
+                      <div class="artifact-meta">${item.auditFailure ?? item.auditSummary}</div>
+                    </div>
+                  `)}
             </div>
           </section>
           <section class="card stack">

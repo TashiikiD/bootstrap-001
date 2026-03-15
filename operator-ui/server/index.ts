@@ -34,6 +34,13 @@ import {
   type PiExecutionResult,
 } from "./lib";
 import { listAuditValues, readLatestAuditRadarReport, summarizeAuditRadarReport, trimAuditText } from "./audit-radar";
+import {
+  readAuditLoopHistory,
+  readAuditLoopReportByRelativePath,
+  summarizeAuditLoopReport,
+  summarizeAuditLoopVerification,
+} from "./audit-radar-loops";
+import { readCycleRunAuditHistory } from "./cycle-runner-audits";
 
 const port = Number.parseInt(process.env.AIES_OPERATOR_UI_PORT ?? "4320", 10);
 const distRoot = resolve(operatorUiRoot, "dist");
@@ -518,21 +525,41 @@ function buildState() {
   const verificationMode = verification?.record?.mode ?? controls.verification.mode ?? "none";
   const verificationResult = verification?.record?.result ?? "not_run";
   const auditRadar = readLatestAuditRadarReport();
+  const auditLoopHistory = readAuditLoopHistory(12);
+  const latestAuditLoop = auditLoopHistory[0] ?? null;
+  const cycleRunAuditHistory = readCycleRunAuditHistory(sessions, 12);
+  const latestCycleRunAudit = cycleRunAuditHistory[0] ?? null;
+  const cycleRunnerAuditReport = readAuditLoopReportByRelativePath(cycleRunner?.postRunAudit?.loopReportPath ?? null);
+  const cycleRunnerAuditVerification = cycleRunner?.postRunAudit?.verificationMode && cycleRunner?.postRunAudit?.verificationResult
+    ? `${cycleRunner.postRunAudit.verificationMode}/${cycleRunner.postRunAudit.verificationResult}`
+    : "none";
 
   const panels = {
     cycleRunner: panel(
       "Cycle Runner",
-      cycleRunner ? `${cycleRunner.status} · ${cycleRunner.promptSummary}` : "No explicit cycle run yet",
+      cycleRunner
+        ? `${cycleRunner.status} · audit ${cycleRunner?.postRunAudit?.status ?? "none"} · ${cycleRunner.promptSummary}`
+        : "No explicit cycle run yet",
       [
         `status=${cycleRunner?.status ?? "idle"}`,
         `source=${cycleRunner?.triggerSource ?? "none"}`,
         `change=${cycleRunner?.relatedChangeId ?? "none"}`,
         `cycle=${cycleRunner?.relatedCycleId ?? "pending"}`,
+        `auditStatus=${cycleRunner?.postRunAudit?.status ?? "none"}`,
+        `auditVerification=${cycleRunnerAuditVerification}`,
+        `auditLoop=${cycleRunner?.postRunAudit?.loopId ?? "none"}`,
+        `auditReport=${cycleRunner?.postRunAudit?.loopReportPath ?? "none"}`,
         `promptLines=${typeof cycleRunner?.promptText === "string" ? cycleRunner.promptText.split(/\r?\n/).length : 0}`,
         `thoughtBlocks=${thoughtStream.length}`,
         `failure=${cycleRunner?.failureNote ?? "none"}`,
       ],
-      { cycleRunner, activePiMutationLabel, thoughtStream: thoughtStream.slice(0, 6) },
+      {
+        cycleRunner,
+        cycleRunnerAuditReport,
+        latestCycleRunAudit,
+        activePiMutationLabel,
+        thoughtStream: thoughtStream.slice(0, 6),
+      },
       {
         sourceType: "recorded",
         sourceLabel: "session-entry:aies-cycle-run",
@@ -642,15 +669,21 @@ function buildState() {
     ),
     auditRadar: panel(
       "Audit Radar",
-      summarizeAuditRadarReport(auditRadar),
+      `${summarizeAuditRadarReport(auditRadar)} · ${summarizeAuditLoopReport(latestAuditLoop)}`,
       [
         `snapshot=${auditRadar?.snapshot.snapshotId ?? "none"}`,
         `binding=${auditRadar?.snapshot.bindingConstraint?.dimension ?? "none"}`,
         `confidence=${auditRadar?.snapshot.confidence ?? "none"}`,
         `targets=${listAuditValues(auditRadar?.snapshot.recommendedNextStep?.targetDimensions)}`,
+        `latestLoop=${latestAuditLoop?.report.loopId ?? "none"}`,
+        `loopSource=${latestAuditLoop?.report.orchestrationSource ?? "none"}`,
+        `loopVerification=${summarizeAuditLoopVerification(latestAuditLoop?.report)}`,
       ],
       {
         auditRadar,
+        latestAuditLoop,
+        recentAuditLoops: auditLoopHistory.slice(0, 6),
+        latestCycleRunAudit,
         recommendation: trimAuditText(auditRadar?.snapshot.recommendedNextStep?.summary),
         drift: trimAuditText(auditRadar?.snapshot.drift?.summary),
         failurePatterns: auditRadar?.snapshot.failurePatterns ?? [],
@@ -825,6 +858,18 @@ function buildState() {
       memoryHighlights,
       openspecChanges: openSpecFiles,
       providerUsage,
+      auditLoopReports: auditLoopHistory.map((record) => ({
+        loopId: record.report.loopId,
+        generatedAt: record.report.generatedAt,
+        orchestrationSource: record.report.orchestrationSource ?? "unknown",
+        verificationMode: record.report.verification?.requestedMode ?? "none",
+        verificationResult: record.report.verification?.result ?? "none",
+        relatedCycleId: record.report.relatedCycleId ?? null,
+        relatedChangeId: record.report.relatedChangeId ?? null,
+        path: record.relativePath,
+        summary: record.report.summary,
+      })),
+      cycleRunAudits: cycleRunAuditHistory,
       cycleThoughtArchives: cycleThoughtEntries
         .slice()
         .sort((left, right) => String(right.finishedAt ?? right.startedAt ?? "").localeCompare(String(left.finishedAt ?? left.startedAt ?? "")))

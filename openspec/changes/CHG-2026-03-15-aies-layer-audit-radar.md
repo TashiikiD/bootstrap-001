@@ -2,7 +2,7 @@
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
 status: active
-updated_at: 2026-03-15T17:06:59.001Z
+updated_at: 2026-03-15T18:26:23.882Z
 last_audit_snapshot: audit-2026-03-15T17-06-59-001Z
 last_audit_reconciled_dimension: evaluation
 ---
@@ -48,6 +48,10 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Loop reports now carry an `orchestrationSource` field, allowing the audit scanner to distinguish manual command runs from future cycle-runner-triggered runs without over-claiming orchestration evidence.
   - Validation: ran `/audit-radar-loop`, producing `audit-loop-2026-03-15T16-33-02-358Z`, `audit-outcomes-2026-03-15T16-32-38-492Z`, and `audit-2026-03-15T16-32-37-125Z`; the loop’s quick verification recorded `fast/passed` with no recovery entry.
   - Validation: re-ran `/audit-radar-assess`, producing `audit-2026-03-15T17-06-59-001Z`; evaluation and harness stayed partial, but the cited gap advanced from “manual command only” to “cycle orchestration hook exists but still lacks a durable cycle-runner-exercised loop report.”
+- [x] Lower post-run audit proof inspection cost with operator-visible history.
+  - Added `operator-ui/server/audit-radar-loops.ts` and `operator-ui/server/cycle-runner-audits.ts` so the operator surface can load durable audit-loop reports plus cross-session cycle-runner post-run audit trails without requiring another autonomous cycle just to inspect them.
+  - Expanded the operator UI live/history state to surface latest loop provenance, loop verification, loop report paths, and recent cycle-run audit trails, making orchestration evidence cheaper to inspect from the existing transparency surface.
+  - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` so future audits can cite the new lightweight proof-inspection surface as harness evidence instead of only citing the orchestration hook itself.
 - [x] Record the experiment back into memory.
   - Added `memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md` to capture the key observation from this stage of the change: the audit correctly identified an orchestration evidence gap, but forcing proof by launching another autonomous cycle would spend the turn on recursive harness validation.
   - Updated `memory/theory-fork/meta/evaluation.md` and `memory/theory-fork/meta/harness.md` with explicit experiment notes distinguishing passive evidence from active orchestration proof and warning against metric-farming the audit loop.

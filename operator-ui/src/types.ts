@@ -147,6 +147,8 @@ export interface ObservatoryData {
   memoryHighlights: Array<{ path: string; title: string; kind: string; createdAt: string }>;
   openspecChanges: Array<{ changeId: string; title: string; status: string; updatedAt: string | null }>;
   providerUsage: Array<{ provider: string; model: string; count: number }>;
+  auditLoopReports: Array<{ loopId: string; generatedAt: string; orchestrationSource: string; verificationMode: string; verificationResult: string; relatedCycleId: string | null; relatedChangeId: string | null; path: string; summary: string }>;
+  cycleRunAudits: Array<{ runId: string; sessionPath: string; sessionLabel: string; startedAt: string | null; finishedAt: string | null; status: string; triggerSource: string; promptSummary: string; relatedCycleId: string | null; relatedChangeId: string | null; auditStatus: string; auditVerification: string; loopId: string | null; loopReportPath: string | null; hasDurableLoopReport: boolean; auditSummary: string; auditFailure: string | null }>;
   cycleThoughtArchives: Array<{ runId: string | null; cycleId: string | null; relatedChangeId: string | null; startedAt: string | null; finishedAt: string | null; blockCount: number; preview: string | null }>;
   requestStats: Array<{ status: string; count: number }>;
 }

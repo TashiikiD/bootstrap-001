@@ -395,6 +395,14 @@ function buildRules(): EvidenceRule[] {
     },
     {
       kind: "file",
+      ruleId: "harness-audit-radar-loop-observatory",
+      dimension: "harness",
+      relativePath: "operator-ui/server/audit-radar-loops.ts",
+      summary: "The operator UI server can now load durable audit-loop history and individual loop reports as a lightweight proof-inspection surface.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function readAuditLoopHistory", "export function readAuditLoopReportByRelativePath", "summarizeAuditLoopReport"]),
+    },
+    {
+      kind: "file",
       ruleId: "harness-audit-radar-loop-command",
       dimension: "harness",
       relativePath: "aies/extensions/evaluation/index.ts",
