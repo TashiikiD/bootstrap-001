@@ -6,6 +6,16 @@ Evaluation is the meta-function that makes self-evolution possible. Without meas
 
 The gap between structural metrics and outcome metrics is significant. A system can score well on LDI while producing no meaningful improvements. Conversely, a breakthrough capability change might temporarily decrease structural scores. Evaluation engineering must grapple with this tension between measuring the process and measuring the product.
 
+## Experiment Note — Orchestration Proof vs. Metric Farming
+
+The audit radar surfaced a useful failure mode: proving that the cycle runner actually triggered the post-run audit loop can require launching another autonomous cycle just to generate the evidence. That is a real evaluation cost, not a bookkeeping detail.
+
+This suggests a distinction between two kinds of evaluation evidence:
+- passive evidence that the correction path exists (code, contracts, durable report schema, operator-visible status)
+- active evidence that the path was exercised in a real cycle
+
+Both matter, but they should not carry the same per-turn cost. If the harness treats active orchestration proof as a requirement for every slice, evaluation starts optimizing for its own artifacts instead of for meaningful evolution. Repeated weak-layer streaks are useful navigation signals; they should not become a demand to spend every future cycle manufacturing one more proof token.
+
 ## Open Questions
 
 - What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?

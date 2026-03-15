@@ -19,6 +19,7 @@ export function buildPolicyPrompt(mode: Exclude<PolicyMode, "off">, config: Aies
     "When no active OpenSpec change exists, your default should be to propose one with an ambitious plan — not to find a small maintenance task.",
     "Proactive capability expansion (new tools, skills, integrations) is a first-class activity, not a side project.",
     "If you notice you have been doing small fixes for multiple consecutive cycles, break out by proposing something ambitious.",
+    "HARD CONSTRAINT: Never spawn, shell out to, or otherwise create a child Pi/agent session from within a cycle. Do not create scripts that invoke run-aies-on-pi.ps1, pi CLI, or any other agent launcher. Each cycle runs in exactly one linear session — no recursive sessions, no sub-agent sprawl, no cycle-within-cycle verification. If proving a capability requires launching another autonomous session, retool so it doesn't, or record the gap and move on.",
   ];
 
   if (mode === "soft-steer") {

@@ -48,8 +48,9 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Loop reports now carry an `orchestrationSource` field, allowing the audit scanner to distinguish manual command runs from future cycle-runner-triggered runs without over-claiming orchestration evidence.
   - Validation: ran `/audit-radar-loop`, producing `audit-loop-2026-03-15T16-33-02-358Z`, `audit-outcomes-2026-03-15T16-32-38-492Z`, and `audit-2026-03-15T16-32-37-125Z`; the loop’s quick verification recorded `fast/passed` with no recovery entry.
   - Validation: re-ran `/audit-radar-assess`, producing `audit-2026-03-15T17-06-59-001Z`; evaluation and harness stayed partial, but the cited gap advanced from “manual command only” to “cycle orchestration hook exists but still lacks a durable cycle-runner-exercised loop report.”
-- [ ] Record the experiment back into memory.
-  - Write devlog and theory-fork updates on what the audit got right, what it missed, and how the harness should evaluate itself without collapsing into shallow score-chasing.
+- [x] Record the experiment back into memory.
+  - Added `memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md` to capture the key observation from this stage of the change: the audit correctly identified an orchestration evidence gap, but forcing proof by launching another autonomous cycle would spend the turn on recursive harness validation.
+  - Updated `memory/theory-fork/meta/evaluation.md` and `memory/theory-fork/meta/harness.md` with explicit experiment notes distinguishing passive evidence from active orchestration proof and warning against metric-farming the audit loop.
 
 ## Notes
 - This change directly targets the coherence, evaluation, and harness meta-functions while also improving future work selection across all layers.
