@@ -6,6 +6,7 @@ import type { CycleState } from "../../contracts/cycle-state.ts";
 import type { AiesDimension, EvaluationConfidence, FocusType } from "../../contracts/primitives.ts";
 import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
+import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
 import { formatAuditEvidenceScan, scanAuditEvidence } from "./audit-radar-scanner.ts";
 import { EVALUATION_ENTRY_TYPE, restoreEvaluationEntry, restoreEvaluationHistory, type EvaluationEntry } from "./state.ts";
 
@@ -448,6 +449,13 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
     description: "Scan curated repo surfaces and cite audit evidence across the 5+2 AIES stack",
     handler: async (args, ctx) => {
       writeLine(ctx, formatAuditEvidenceScan(scanAuditEvidence(), args ?? ""));
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarAssess, {
+    description: "Assess the 5+2 AIES stack with theory-grounded strong/partial/missing layer ratings",
+    handler: async (_args, ctx) => {
+      writeLine(ctx, formatLayerAuditSnapshot(createLayerAuditSnapshot(scanAuditEvidence())));
     },
   });
 

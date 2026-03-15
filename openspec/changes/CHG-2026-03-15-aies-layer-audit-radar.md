@@ -16,9 +16,9 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
 - [x] Implement a repo scanner for audit evidence.
   - Added `aies/extensions/evaluation/audit-radar-scanner.ts` and the `/audit-radar-scan` command to read curated surfaces such as `AGENTS.md`, `memory/`, `openspec/`, `aies/extensions/`, `operator-ui/`, and `.pi/`.
   - The scanner now extracts explicit cited evidence for prompt, context, intent, judgment, coherence, evaluation, and harness layers instead of guessing, and reports any dimensions still missing evidence.
-- [ ] Implement theory-grounded layer assessment logic.
-  - Translate the local audit protocol into explicit rules for classifying each layer as strong, partial, or missing.
-  - Include anti-Goodhart guardrails so the system prefers cited evidence and identified gaps over flattering self-ratings.
+- [x] Implement theory-grounded layer assessment logic.
+  - Added `aies/extensions/evaluation/audit-radar-assessment.ts` and the `/audit-radar-assess` command to translate cited scanner evidence into explicit strong / partial / missing layer assessments.
+  - The assessment engine uses conservative, anti-Goodhart rules: strong requires multiple cited artifacts and no unresolved protocol gap checks, while partial is preferred whenever evidence is real but incomplete.
 - [ ] Add binding-constraint and drift detection.
   - Compare snapshots over time to detect repeated maintenance loops, neglected layers, and theory/runtime divergence.
   - Produce one explicit highest-leverage next step rather than an unfocused list.

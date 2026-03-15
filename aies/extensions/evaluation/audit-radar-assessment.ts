@@ -1,0 +1,432 @@
+import type {
+  AuditRecommendation,
+  BindingConstraintAssessment,
+  LayerAuditAssessment,
+  LayerAuditSnapshot,
+} from "../../contracts/layer-audit-snapshot.ts";
+import type { AuditEvidenceItem } from "../../contracts/layer-audit-snapshot.ts";
+import {
+  AIES_AUDIT_TIERS,
+} from "../../contracts/layer-audit-snapshot.ts";
+import { AIES_DIMENSIONS, type AiesDimension, type EvaluationConfidence } from "../../contracts/primitives.ts";
+import type { AuditEvidenceScanResult } from "./audit-radar-scanner.ts";
+
+type DimensionRule = {
+  dimension: AiesDimension;
+  requiredEvidenceIds: string[];
+  strongSummary: string;
+  partialSummary: string;
+  missingSummary: string;
+  strengthTemplates: string[];
+  protocolGapChecks: (evidence: AuditEvidenceItem[]) => string[];
+  highestLeverageNextStep: string;
+  recommendationActionType: AuditRecommendation["actionType"];
+  suggestedPaths: string[];
+};
+
+const BINDING_CONSTRAINT_PRIORITY: AiesDimension[] = [
+  "evaluation",
+  "coherence",
+  "judgment",
+  "harness",
+  "context",
+  "intent",
+  "prompt",
+];
+
+function createSnapshotId(observedAt: string): string {
+  return `audit-${observedAt.replace(/[:.]/g, "-")}`;
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function tierRank(tier: LayerAuditAssessment["tier"]): number {
+  const index = AIES_AUDIT_TIERS.indexOf(tier);
+  return index === -1 ? Number.MAX_SAFE_INTEGER : AIES_AUDIT_TIERS.length - index;
+}
+
+function summarizeEvidence(item: AuditEvidenceItem): string {
+  const source = item.sourcePath ?? item.sourceType;
+  return `${item.summary} (${source})`;
+}
+
+function missingRequiredEvidenceGaps(rule: DimensionRule, evidence: AuditEvidenceItem[]): string[] {
+  const presentIds = new Set(evidence.map((item) => item.evidenceId));
+  const missingIds = rule.requiredEvidenceIds.filter((evidenceId) => !presentIds.has(evidenceId));
+  return missingIds.map((evidenceId) => `Missing expected audit evidence: ${evidenceId}.`);
+}
+
+function conservativeTier(rule: DimensionRule, evidence: AuditEvidenceItem[]): LayerAuditAssessment["tier"] {
+  if (evidence.length === 0) {
+    return "missing";
+  }
+
+  const gaps = [
+    ...missingRequiredEvidenceGaps(rule, evidence),
+    ...rule.protocolGapChecks(evidence),
+  ];
+
+  const presentIds = new Set(evidence.map((item) => item.evidenceId));
+  const hasAllRequiredEvidence = rule.requiredEvidenceIds.every((evidenceId) => presentIds.has(evidenceId));
+
+  if (hasAllRequiredEvidence && evidence.length >= Math.max(2, rule.requiredEvidenceIds.length) && gaps.length === 0) {
+    return "strong";
+  }
+
+  return "partial";
+}
+
+function buildRules(): DimensionRule[] {
+  return [
+    {
+      dimension: "prompt",
+      requiredEvidenceIds: [
+        "audit-prompt-agents-structured-cycle",
+        "audit-prompt-openspec-skill-decomposition",
+      ],
+      strongSummary: "Prompt engineering is explicit, structured, and restart-stable across both repo-wide cycle instructions and implementation workflow guidance.",
+      partialSummary: "Prompt engineering exists, but the audit cannot yet confirm that structured instructions stay consistent across all important execution surfaces.",
+      missingSummary: "The audit found no explicit prompt-engineering artifacts in the curated scan roots.",
+      strengthTemplates: [
+        "Cycle-level instructions define role, scope, constraints, and success shape explicitly.",
+        "Implementation guidance decomposes work into steps and pause conditions instead of relying on ad-hoc prompting.",
+      ],
+      protocolGapChecks: () => [],
+      highestLeverageNextStep: "Add a first-class audit prompt/report template so future layer audits are requested in a uniform format instead of relying on command discoverability.",
+      recommendationActionType: "tool",
+      suggestedPaths: ["aies/extensions/evaluation/", "aies/prompts/"],
+    },
+    {
+      dimension: "context",
+      requiredEvidenceIds: [
+        "audit-context-memory-tree",
+        "audit-context-memory-readme",
+      ],
+      strongSummary: "Context engineering is durable and curated enough to survive restart, with explicit memory roots and documented storage semantics.",
+      partialSummary: "Context engineering is durable, but the audit still lacks evidence of task-specific retrieval, pruning, or restart-aware context packaging beyond static memory roots.",
+      missingSummary: "The audit found no explicit durable context-engineering artifacts in the curated scan roots.",
+      strengthTemplates: [
+        "Durable memory roots preserve context across sessions in operator-visible files.",
+        "Memory storage is documented in human-readable form rather than hidden in transient state.",
+      ],
+      protocolGapChecks: () => [
+        "No cited evidence yet of task-specific retrieval, pruning, or restart-aware context selection beyond static durable memory roots.",
+      ],
+      highestLeverageNextStep: "Create an audit-context pack builder that selects only the layer-relevant theory, memory, and runtime files needed for a given audit run.",
+      recommendationActionType: "tool",
+      suggestedPaths: ["aies/extensions/shared/", "memory/", "docs/foundations/"],
+    },
+    {
+      dimension: "intent",
+      requiredEvidenceIds: [
+        "audit-intent-north-star",
+        "audit-intent-active-change-direction",
+      ],
+      strongSummary: "Intent engineering is explicit and durable: AIES has a north star, ranked priorities, and a live change direction that ties local work to system evolution.",
+      partialSummary: "Intent engineering is present, but the audit cannot yet confirm that diagnosed gaps automatically flow into future planning and task selection.",
+      missingSummary: "The audit found no explicit intent-engineering artifacts in the curated scan roots.",
+      strengthTemplates: [
+        "A durable intent hierarchy encodes project-level goals and tradeoff preferences.",
+        "Active OpenSpec work gives the current cycle a visible multi-step direction instead of ad-hoc local optimization.",
+      ],
+      protocolGapChecks: () => [],
+      highestLeverageNextStep: "Turn audit findings into a draft OpenSpec proposal path so explicit intent keeps propagating into future cycle selection.",
+      recommendationActionType: "openspec_change",
+      suggestedPaths: ["openspec/changes/", "aies/extensions/openspec/", "memory/knowledge/intent-hierarchy.yaml"],
+    },
+    {
+      dimension: "judgment",
+      requiredEvidenceIds: [
+        "audit-judgment-redlines",
+        "audit-judgment-escalation-boundaries",
+      ],
+      strongSummary: "Judgment engineering is explicit, proactive, and bounded by encoded pause conditions, autonomy limits, and uncertainty protocols.",
+      partialSummary: "Judgment engineering has explicit red lines and escalation boundaries, but the audit still lacks strong evidence of proactive pause-and-doubt mechanisms embedded into execution flow.",
+      missingSummary: "The audit found no explicit judgment-engineering artifacts in the curated scan roots.",
+      strengthTemplates: [
+        "Explicit red lines constrain unsafe or misleading autonomous behavior.",
+        "Autonomy boundaries and escalation triggers are encoded instead of being left implicit.",
+      ],
+      protocolGapChecks: () => [
+        "Current evidence shows guardrails and escalation boundaries, but not yet a strong repo-native mechanism that forces pre-implementation pause-and-doubt inside the audit flow itself.",
+      ],
+      highestLeverageNextStep: "Add an audit judgment gate that refuses strong ratings when evidence is thin, ambiguous, or purely post-hoc.",
+      recommendationActionType: "extension",
+      suggestedPaths: ["aies/extensions/evaluation/", "AGENTS.md", ".pi/skills/openspec-apply-change/SKILL.md"],
+    },
+    {
+      dimension: "coherence",
+      requiredEvidenceIds: [
+        "audit-coherence-charter",
+        "audit-coherence-theory-fork",
+      ],
+      strongSummary: "Coherence engineering has durable identity commitments plus an evolving interpretation layer that could keep behavior aligned across sessions.",
+      partialSummary: "Coherence engineering is explicitly articulated, but the audit still lacks a native drift monitor that compares actual runtime behavior and outcomes over time.",
+      missingSummary: "The audit found no explicit coherence-engineering artifacts in the curated scan roots.",
+      strengthTemplates: [
+        "A durable coherence charter defines identity commitments and failure signals.",
+        "The theory fork preserves an explicit interpretation layer instead of letting coherence drift stay implicit.",
+      ],
+      protocolGapChecks: () => [
+        "No cited evidence yet of native drift detection across sessions, changes, or accumulated maintenance loops.",
+      ],
+      highestLeverageNextStep: "Persist and compare audit snapshots so coherence can be checked against history instead of only declared in theory artifacts.",
+      recommendationActionType: "memory_update",
+      suggestedPaths: ["memory/knowledge/audit-radar/snapshots/", "memory/knowledge/coherence-charter.yaml", "aies/extensions/evaluation/"],
+    },
+    {
+      dimension: "evaluation",
+      requiredEvidenceIds: [
+        "audit-evaluation-snapshot-logic",
+        "audit-evaluation-verification-recovery",
+      ],
+      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence.",
+      partialSummary: "Evaluation engineering has real runtime surfaces, but it still lacks a complete evidence-backed layer diagnostic loop with durable snapshots, drift comparison, and anti-Goodhart enforcement.",
+      missingSummary: "The audit found no explicit evaluation-engineering artifacts in the curated scan roots.",
+      strengthTemplates: [
+        "The runtime already records structured evaluation snapshots rather than relying only on narrative self-report.",
+        "Verification and recovery are tracked as explicit state surfaces that can be inspected by later cycles.",
+      ],
+      protocolGapChecks: () => [
+        "Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison.",
+      ],
+      highestLeverageNextStep: "Turn audit assessments into durable snapshots so future cycles can compare layers over time before choosing their next change.",
+      recommendationActionType: "extension",
+      suggestedPaths: ["aies/extensions/evaluation/", "memory/knowledge/audit-radar/snapshots/", "aies/contracts/layer-audit-snapshot.ts"],
+    },
+    {
+      dimension: "harness",
+      requiredEvidenceIds: [
+        "audit-harness-extension-registry",
+        "audit-harness-operator-ui-bridge",
+      ],
+      strongSummary: "Harness engineering is explicit, reproducible, and sufficiently automated to carry orchestration, operator transparency, and evaluation without relying on hidden local setup.",
+      partialSummary: "Harness engineering is real and reproducible, but the audit still lacks evidence of a fully automated audit/verification gate wired into a repeatable pipeline.",
+      missingSummary: "The audit found no explicit harness-engineering artifacts in the curated scan roots.",
+      strengthTemplates: [
+        "Pi settings make extension, prompt, and skill registration explicit and reproducible.",
+        "The operator UI backend provides a visible control and execution bridge instead of relying on hidden orchestration.",
+      ],
+      protocolGapChecks: () => [
+        "No cited evidence yet of a fully automated CI-style audit and verification pipeline that enforces evaluation continuously.",
+      ],
+      highestLeverageNextStep: "Wrap audit plus quick verification into one reproducible harness command so self-evolution checks are easier to run consistently.",
+      recommendationActionType: "tool",
+      suggestedPaths: ["run-aies-on-pi.ps1", "verify-aies-quick.ps1", "aies/extensions/evaluation/"],
+    },
+  ];
+}
+
+function summarizeTier(rule: DimensionRule, tier: LayerAuditAssessment["tier"]): string {
+  if (tier === "strong") {
+    return rule.strongSummary;
+  }
+  if (tier === "partial") {
+    return rule.partialSummary;
+  }
+  return rule.missingSummary;
+}
+
+function buildAssessment(rule: DimensionRule, evidence: AuditEvidenceItem[]): LayerAuditAssessment {
+  const tier = conservativeTier(rule, evidence);
+  const strengths = tier === "missing"
+    ? []
+    : uniqueStrings([
+        ...rule.strengthTemplates,
+        ...evidence.slice(0, 2).map(summarizeEvidence),
+      ]);
+
+  const gaps = tier === "missing"
+    ? [rule.missingSummary]
+    : uniqueStrings([
+        ...missingRequiredEvidenceGaps(rule, evidence),
+        ...rule.protocolGapChecks(evidence),
+      ]);
+
+  return {
+    dimension: rule.dimension,
+    tier,
+    summary: summarizeTier(rule, tier),
+    strengths,
+    gaps,
+    evidenceIds: evidence.map((item) => item.evidenceId),
+    highestLeverageNextStep: rule.highestLeverageNextStep,
+  };
+}
+
+function dimensionRulesByKey(): Record<AiesDimension, DimensionRule> {
+  return Object.fromEntries(buildRules().map((rule) => [rule.dimension, rule])) as Record<AiesDimension, DimensionRule>;
+}
+
+export function assessAuditLayers(scan: AuditEvidenceScanResult): LayerAuditAssessment[] {
+  const evidenceByDimension = new Map<AiesDimension, AuditEvidenceItem[]>();
+  for (const dimension of AIES_DIMENSIONS) {
+    evidenceByDimension.set(dimension, scan.evidence.filter((item) => item.dimension === dimension));
+  }
+
+  const rules = buildRules();
+  return rules.map((rule) => buildAssessment(rule, evidenceByDimension.get(rule.dimension) ?? []));
+}
+
+function selectBindingConstraint(assessments: LayerAuditAssessment[]): BindingConstraintAssessment {
+  const selected = [...assessments].sort((left, right) => {
+    const tierDelta = tierRank(left.tier) - tierRank(right.tier);
+    if (tierDelta !== 0) {
+      return tierDelta;
+    }
+    return BINDING_CONSTRAINT_PRIORITY.indexOf(left.dimension) - BINDING_CONSTRAINT_PRIORITY.indexOf(right.dimension);
+  })[0];
+
+  if (!selected) {
+    return {
+      dimension: "evaluation",
+      rationale: "No audit assessments were produced, so evaluation is treated as the binding constraint by default.",
+      consequence: "Without usable audit output, future cycles will continue to choose work without a reliable theory-grounded compass.",
+      evidenceIds: [],
+    };
+  }
+
+  const rationale = selected.dimension === "evaluation"
+    ? "Evaluation is the binding constraint because other layers can be partially encoded yet still fail to steer future cycles if AIES cannot compare, diagnose, and trust its own cross-layer evidence."
+    : `${selected.dimension} is the binding constraint because the audit shows this layer still limits how effectively the stronger layers can translate into durable self-improvement.`;
+
+  const consequence = selected.dimension === "evaluation"
+    ? "Future work selection remains too dependent on ad-hoc judgment, making maintenance drift and flattering self-ratings harder to catch."
+    : `Until ${selected.dimension} is strengthened, improvements in other layers will keep landing unevenly and the harness will continue to underperform its encoded intent.`;
+
+  return {
+    dimension: selected.dimension,
+    rationale,
+    consequence,
+    evidenceIds: selected.evidenceIds,
+  };
+}
+
+function buildFailurePatterns(assessments: LayerAuditAssessment[]): string[] {
+  const byDimension = Object.fromEntries(assessments.map((assessment) => [assessment.dimension, assessment])) as Record<AiesDimension, LayerAuditAssessment>;
+  const patterns: string[] = [];
+
+  if (byDimension.evaluation?.tier !== "strong") {
+    patterns.push("Cross-layer self-evaluation is still more structurally present than operationally binding, so future cycles can drift back toward ad-hoc work selection.");
+  }
+  if (byDimension.coherence?.tier !== "strong") {
+    patterns.push("AIES can declare identity commitments, but it still lacks native evidence-backed drift detection across sessions and changes.");
+  }
+  if (byDimension.judgment?.tier !== "strong") {
+    patterns.push("Judgment is better encoded as red lines and escalation boundaries than as proactive pause-and-doubt mechanisms inside execution flow.");
+  }
+  if (patterns.length === 0) {
+    patterns.push("No dominant failure pattern was detected in the current evidence scan.");
+  }
+
+  return patterns;
+}
+
+function confidenceForSnapshot(assessments: LayerAuditAssessment[]): EvaluationConfidence {
+  const missingCount = assessments.filter((assessment) => assessment.tier === "missing").length;
+  const strongCount = assessments.filter((assessment) => assessment.tier === "strong").length;
+
+  if (missingCount > 0) {
+    return "low";
+  }
+  if (strongCount >= 5) {
+    return "high";
+  }
+  return "medium";
+}
+
+function summarizeSnapshot(assessments: LayerAuditAssessment[], bindingConstraint: BindingConstraintAssessment): string {
+  const strong = assessments.filter((assessment) => assessment.tier === "strong").map((assessment) => assessment.dimension);
+  const partial = assessments.filter((assessment) => assessment.tier === "partial").map((assessment) => assessment.dimension);
+  const missing = assessments.filter((assessment) => assessment.tier === "missing").map((assessment) => assessment.dimension);
+
+  return [
+    strong.length > 0 ? `Strong: ${strong.join(", ")}.` : "Strong: none.",
+    partial.length > 0 ? `Partial: ${partial.join(", ")}.` : "Partial: none.",
+    missing.length > 0 ? `Missing: ${missing.join(", ")}.` : "Missing: none.",
+    `Current binding constraint: ${bindingConstraint.dimension}.`,
+  ].join(" ");
+}
+
+function buildRecommendation(
+  assessments: LayerAuditAssessment[],
+  bindingConstraint: BindingConstraintAssessment,
+): AuditRecommendation {
+  const assessment = assessments.find((item) => item.dimension === bindingConstraint.dimension);
+  const rules = dimensionRulesByKey();
+  const rule = rules[bindingConstraint.dimension];
+
+  return {
+    summary: assessment?.highestLeverageNextStep ?? "Produce a durable layer-audit snapshot before choosing the next major change.",
+    rationale: bindingConstraint.rationale,
+    actionType: rule?.recommendationActionType ?? "other",
+    targetDimensions: uniqueStrings([bindingConstraint.dimension, ...(bindingConstraint.dimension === "evaluation" ? ["coherence", "harness"] : [])]) as AiesDimension[],
+    suggestedPaths: uniqueStrings(rule?.suggestedPaths ?? []),
+  };
+}
+
+export function createLayerAuditSnapshot(scan: AuditEvidenceScanResult): LayerAuditSnapshot {
+  const dimensions = assessAuditLayers(scan);
+  const bindingConstraint = selectBindingConstraint(dimensions);
+  const failurePatterns = buildFailurePatterns(dimensions);
+  const recommendedNextStep = buildRecommendation(dimensions, bindingConstraint);
+
+  return {
+    snapshotId: createSnapshotId(scan.observedAt),
+    auditProtocolVersion: scan.auditProtocolVersion,
+    observedAt: scan.observedAt,
+    auditedPathRoots: [...scan.scannedRoots],
+    summary: summarizeSnapshot(dimensions, bindingConstraint),
+    dimensions,
+    evidence: scan.evidence,
+    bindingConstraint,
+    failurePatterns,
+    recommendedNextStep,
+    confidence: confidenceForSnapshot(dimensions),
+  };
+}
+
+function formatTier(tier: LayerAuditAssessment["tier"]): string {
+  if (tier === "strong") {
+    return "✅ strong";
+  }
+  if (tier === "partial") {
+    return "⚠️ partial";
+  }
+  return "❌ missing";
+}
+
+function formatDimension(assessment: LayerAuditAssessment): string {
+  return [
+    `${assessment.dimension.toUpperCase()}: ${formatTier(assessment.tier)}`,
+    `Summary: ${assessment.summary}`,
+    `Evidence IDs: ${assessment.evidenceIds.length > 0 ? assessment.evidenceIds.join(", ") : "none"}`,
+    `Strengths: ${assessment.strengths.length > 0 ? assessment.strengths.join(" | ") : "none"}`,
+    `Gaps: ${assessment.gaps.length > 0 ? assessment.gaps.join(" | ") : "none"}`,
+    `Next: ${assessment.highestLeverageNextStep}`,
+  ].join("\n");
+}
+
+export function formatLayerAuditSnapshot(snapshot: LayerAuditSnapshot): string {
+  return [
+    `AIES layer audit @ ${snapshot.observedAt}`,
+    `Snapshot: ${snapshot.snapshotId}`,
+    `Protocol: ${snapshot.auditProtocolVersion}`,
+    `Confidence: ${snapshot.confidence}`,
+    `Summary: ${snapshot.summary}`,
+    ...snapshot.dimensions.map((assessment) => formatDimension(assessment)),
+    `BINDING CONSTRAINT: ${snapshot.bindingConstraint.dimension}`,
+    `Rationale: ${snapshot.bindingConstraint.rationale}`,
+    `Consequence: ${snapshot.bindingConstraint.consequence}`,
+    `Evidence IDs: ${snapshot.bindingConstraint.evidenceIds.length > 0 ? snapshot.bindingConstraint.evidenceIds.join(", ") : "none"}`,
+    "Failure patterns:",
+    ...snapshot.failurePatterns.map((pattern) => `- ${pattern}`),
+    `Recommendation: ${snapshot.recommendedNextStep.summary}`,
+    `Recommendation rationale: ${snapshot.recommendedNextStep.rationale}`,
+    `Action type: ${snapshot.recommendedNextStep.actionType}`,
+    `Target dimensions: ${snapshot.recommendedNextStep.targetDimensions.join(", ")}`,
+    `Suggested paths: ${snapshot.recommendedNextStep.suggestedPaths.join(", ")}`,
+  ].join("\n");
+}
