@@ -883,6 +883,12 @@ class AiesOperatorApp extends LitElement {
                         <div class="pill-summary">
                           <span class="chip">${item.auditStatus}</span>
                           <span class="chip">${item.auditVerification}</span>
+                          ${item.guidanceOutcomeStatus !== "none"
+                            ? html`<span class="chip">guidance:${item.guidanceOutcomeStatus}</span>`
+                            : nothing}
+                          ${item.guidanceEffectivenessVerdict
+                            ? html`<span class="chip">effect:${item.guidanceEffectivenessVerdict}</span>`
+                            : nothing}
                         </div>
                       </div>
                       <div>${item.promptSummary}</div>
@@ -893,8 +899,16 @@ class AiesOperatorApp extends LitElement {
                         change=${item.relatedChangeId ?? "none"} · cycle=${item.relatedCycleId ?? "none"} · loop=${item.loopId ?? "none"}
                       </div>
                       <div class="artifact-meta">
-                        report=${item.loopReportPath ?? "none"} · durable=${item.hasDurableLoopReport ? "yes" : "no"}
+                        auditReport=${item.loopReportPath ?? "none"} · durable=${item.hasDurableLoopReport ? "yes" : "no"}
                       </div>
+                      <div class="artifact-meta">
+                        guidanceReport=${item.guidanceOutcomeReportPath ?? "none"} · durable=${item.hasDurableGuidanceOutcomeReport ? "yes" : "no"}
+                      </div>
+                      <div class="artifact-meta">
+                        effectReport=${item.guidanceEffectivenessReportPath ?? "none"} · durable=${item.hasDurableGuidanceEffectivenessReport ? "yes" : "no"}
+                      </div>
+                      <div class="artifact-meta">${item.guidanceOutcomeSummary}</div>
+                      <div class="artifact-meta">${item.guidanceEffectivenessSummary}</div>
                       <div class="artifact-meta">${item.auditFailure ?? item.auditSummary}</div>
                     </div>
                   `)}

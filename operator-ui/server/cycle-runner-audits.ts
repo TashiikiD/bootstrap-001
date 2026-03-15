@@ -1,5 +1,9 @@
 import { basename, resolve } from "node:path";
 import { existsSync } from "node:fs";
+import {
+  readAuditGuidanceEffectivenessReportByRelativePath,
+  readAuditGuidanceOutcomeReportByRelativePath,
+} from "./audit-radar-guidance-reports";
 import { projectRoot, type ParsedSession } from "./lib";
 
 export interface CycleRunAuditHistoryItem {
@@ -20,6 +24,14 @@ export interface CycleRunAuditHistoryItem {
   hasDurableLoopReport: boolean;
   auditSummary: string;
   auditFailure: string | null;
+  guidanceOutcomeStatus: string;
+  guidanceOutcomeSummary: string;
+  guidanceOutcomeReportPath: string | null;
+  hasDurableGuidanceOutcomeReport: boolean;
+  guidanceEffectivenessVerdict: string | null;
+  guidanceEffectivenessSummary: string;
+  guidanceEffectivenessReportPath: string | null;
+  hasDurableGuidanceEffectivenessReport: boolean;
 }
 
 function cycleAuditVerificationLabel(audit: Record<string, unknown> | null | undefined): string {
@@ -28,7 +40,7 @@ function cycleAuditVerificationLabel(audit: Record<string, unknown> | null | und
   return mode && result ? `${mode}/${result}` : "none";
 }
 
-function loopReportExists(relativePath: string | null | undefined): boolean {
+function reportExists(relativePath: string | null | undefined): boolean {
   const normalized = String(relativePath ?? "").trim();
   if (!normalized) {
     return false;
@@ -44,6 +56,22 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
       const data = entry.data ?? {};
       const audit = data.postRunAudit ?? null;
       const loopReportPath = typeof audit?.loopReportPath === "string" ? audit.loopReportPath : null;
+      const guidanceOutcomeReportPath = typeof data.guidanceOutcomeReportPath === "string" ? data.guidanceOutcomeReportPath : null;
+      const guidanceEffectivenessReportPath = typeof data.guidanceEffectivenessReportPath === "string"
+        ? data.guidanceEffectivenessReportPath
+        : null;
+      const guidanceOutcomeRecord = readAuditGuidanceOutcomeReportByRelativePath(guidanceOutcomeReportPath);
+      const guidanceEffectivenessRecord = readAuditGuidanceEffectivenessReportByRelativePath(guidanceEffectivenessReportPath);
+      const matchingGuidanceEffectivenessItem = guidanceEffectivenessRecord?.report.items.find((item) =>
+        guidanceOutcomeRecord ? item.guidanceOutcomeReportId === guidanceOutcomeRecord.report.reportId : true)
+        ?? guidanceEffectivenessRecord?.report.items[0]
+        ?? null;
+      const fallbackGuidanceEffectivenessVerdict = typeof data.guidanceEffectivenessVerdict === "string"
+        ? data.guidanceEffectivenessVerdict
+        : null;
+      const fallbackGuidanceEffectivenessSummary = typeof data.guidanceEffectivenessSummary === "string"
+        ? data.guidanceEffectivenessSummary
+        : null;
 
       return {
         runId: String(data.runId ?? entry.id ?? basename(session.path)),
@@ -60,9 +88,26 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
         auditVerification: cycleAuditVerificationLabel(audit),
         loopId: typeof audit?.loopId === "string" ? audit.loopId : null,
         loopReportPath,
-        hasDurableLoopReport: loopReportExists(loopReportPath),
+        hasDurableLoopReport: reportExists(loopReportPath),
         auditSummary: typeof audit?.summary === "string" ? audit.summary : "No post-run audit recorded.",
         auditFailure: typeof audit?.failureNote === "string" ? audit.failureNote : null,
+        guidanceOutcomeStatus: guidanceOutcomeReportPath
+          ? guidanceOutcomeRecord?.report.alignment.status ?? "missing_report"
+          : "none",
+        guidanceOutcomeSummary: guidanceOutcomeRecord?.report.alignment.summary
+          ?? (guidanceOutcomeReportPath
+            ? `Guidance-outcome report path was recorded but could not be loaded: ${guidanceOutcomeReportPath}`
+            : "No guidance-outcome report recorded."),
+        guidanceOutcomeReportPath,
+        hasDurableGuidanceOutcomeReport: Boolean(guidanceOutcomeRecord),
+        guidanceEffectivenessVerdict: matchingGuidanceEffectivenessItem?.verdict ?? fallbackGuidanceEffectivenessVerdict,
+        guidanceEffectivenessSummary: matchingGuidanceEffectivenessItem?.summary
+          ?? fallbackGuidanceEffectivenessSummary
+          ?? (guidanceEffectivenessReportPath
+            ? `Guidance-effectiveness report path was recorded but could not be loaded: ${guidanceEffectivenessReportPath}`
+            : "No guidance-effectiveness report recorded."),
+        guidanceEffectivenessReportPath,
+        hasDurableGuidanceEffectivenessReport: Boolean(guidanceEffectivenessRecord),
       } satisfies CycleRunAuditHistoryItem;
     }))
     .filter((item) => item.auditStatus !== "none");

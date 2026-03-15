@@ -459,6 +459,14 @@ function buildRules(): EvidenceRule[] {
       : []),
     {
       kind: "file",
+      ruleId: "evaluation-audit-radar-guidance-observatory",
+      dimension: "evaluation",
+      relativePath: "operator-ui/server/cycle-runner-audits.ts",
+      summary: "The operator observatory can now join cycle-run audit trails with guidance-outcome and guidance-effectiveness evidence, lowering the cost of inspecting whether audit advice was followed and whether it later looked useful.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["guidanceOutcomeStatus", "guidanceEffectivenessVerdict", "readAuditGuidanceEffectivenessReportByRelativePath"]),
+    },
+    {
+      kind: "file",
       ruleId: "evaluation-audit-radar-runtime-surface",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/index.ts",

@@ -2,7 +2,7 @@
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
 status: active
-updated_at: 2026-03-15T21:03:32.538Z
+updated_at: 2026-03-15T23:18:00.000Z
 last_audit_snapshot: audit-2026-03-15T17-06-59-001Z
 last_audit_reconciled_dimension: evaluation
 ---
@@ -66,11 +66,16 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Guidance-effectiveness reports now persist under `memory/knowledge/audit-radar/guidance-effectiveness/` so later cycles can review whether aligned guidance produced supportive, counter, alternative, mixed, or insufficient signals.
   - Wired `aies/extensions/cycle-runner/index.ts` to emit a one-cycle guidance-effectiveness report automatically after guided `/cycle-run` completion, so the comparator no longer depends only on later manual command use.
   - Updated audit scanner and assessment rules so future audits can distinguish "guidance aligned with focus" from "guidance alignment correlated with later audit movement."
+- [x] Join guided-cycle evidence into one operator-visible audit trail.
+  - Added `operator-ui/server/audit-radar-guidance-reports.ts` and expanded `operator-ui/server/cycle-runner-audits.ts` so cross-session audit history can load guidance-outcome and guidance-effectiveness artifacts directly from their persisted report paths instead of only showing the post-run audit loop.
+  - Updated `operator-ui/src/main.ts` and `operator-ui/src/types.ts` so the WebUI history view exposes guidance alignment, effectiveness verdicts, durability, and report paths alongside each cycle-run audit trail.
+  - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` so future audits can cite the joined proof-inspection surface as evaluation evidence instead of requiring manual artifact hopping.
 - [x] Record the experiment back into memory.
   - Added `memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md` to capture the key observation from this stage of the change: the audit correctly identified an orchestration evidence gap, but forcing proof by launching another autonomous cycle would spend the turn on recursive harness validation.
   - Added `memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md` to record the next harness observation: prompt/focus-inferred verification is weaker than verification floored by the files a cycle actually changed.
   - Added `memory/devlog/2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge.md` to capture the next evaluation observation: guidance alignment is not yet guidance effectiveness unless it can be compared against later audit movement.
   - Added `memory/devlog/2026-03-15T22-05-00-000Z-guidance-effectiveness-orchestration.md` to capture the follow-on harness observation: once the comparator exists, guided cycle orchestration should emit the effectiveness evidence automatically instead of depending on later manual command use.
+  - Added `memory/devlog/2026-03-15T23-18-00-000Z-guidance-evidence-joined-inspection.md` to record the next evaluation/harness observation: durable guided-cycle evidence is more likely to steer later work when the operator surface joins loop, alignment, and effectiveness artifacts into one inspection trail.
   - Updated `memory/theory-fork/meta/evaluation.md` and `memory/theory-fork/meta/harness.md` with explicit experiment notes distinguishing passive evidence from active orchestration proof, warning against metric-farming the audit loop, and separating guidance alignment from guidance effectiveness.
 
 ## Notes
