@@ -1,0 +1,27 @@
+{
+  "loopId": "audit-loop-2026-03-15T19-00-11-959Z",
+  "generatedAt": "2026-03-15T19:00:11.959Z",
+  "orchestrationSource": "cycle_runner",
+  "sessionPath": "E:\\Coding\\AIES-runs\\bootstrap-001\\.aies-runtime\\sessions\\2026-03-15T18-26-23-882Z_f0bfc08c-e481-4254-bb73-c9f8a05060ad.jsonl",
+  "relatedCycleId": "cycle-1773599272551",
+  "relatedChangeId": "CHG-2026-03-15-aies-layer-audit-radar",
+  "snapshotId": "audit-2026-03-15T18-59-18-526Z",
+  "snapshotPath": "memory/knowledge/audit-radar/snapshots/2026-03-15T18-59-18-526Z--audit-2026-03-15T18-59-18-526Z.json",
+  "outcomeReportId": "audit-outcomes-2026-03-15T18-59-22-311Z",
+  "outcomeReportPath": "memory/knowledge/audit-radar/outcomes/2026-03-15T18-59-22-311Z--audit-outcomes-2026-03-15T18-59-22-311Z.json",
+  "verificationRecordId": "ver-2026-03-15T19-00-11-933Z",
+  "verification": {
+    "requestedMode": "none",
+    "executedCommand": "./verify-aies-quick.ps1",
+    "exitCode": 0,
+    "durationMs": 49603,
+    "result": "passed",
+    "verificationState": "verified",
+    "stdoutExcerpt": "==> operator-ui build > aies-operator-ui@0.1.0 build > vite build \u001b[36mvite v7.3.1 \u001b[32mbuilding client environment for production...\u001b[36m\u001b[39m transforming... \u001b[32m✓\u001b[39m 10 modules transformed. rendering chunks... computing gzip size... \u001b[2mdist/\u001b[22m\u001b[32mindex.html \u001b[39m\u001b[1m\u001b[2m 0.41 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 0.28 kB\u001b[22m \u001b[2mdist/\u001b[22m\u001b[35massets/index-D4N0Cg1S.css \u001b[39m\u001b[1m\u001b[2m 5.42 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 1.85 kB\u001b[22m \u001b[2mdist/\u001b[22m\u001b[36massets/index-CSV4Vlrv.js \u001b[39m\u001b[1m\u001b[2m51.39 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 12.75 kB\u001b[22m \u001b[32m✓ built in 1.40s\u001b[39m ==> operator-ui typecheck ==> AIES runtime slash-command smoke Smoke note: this runs /cycle-status in a fresh local Pi session. Th…",
+    "stderrExcerpt": null,
+    "notableFailures": [],
+    "followUpRequired": false
+  },
+  "recoveryId": null,
+  "summary": "Audit snapshot audit-2026-03-15T18-59-18-526Z recorded binding constraint evaluation. Outcome report audit-outcomes-2026-03-15T18-59-22-311Z compared 11 intervals. Quick verification recorded none/passed. No recovery entry was needed."
+}
