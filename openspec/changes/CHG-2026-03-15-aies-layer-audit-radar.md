@@ -19,9 +19,9 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
 - [x] Implement theory-grounded layer assessment logic.
   - Added `aies/extensions/evaluation/audit-radar-assessment.ts` and the `/audit-radar-assess` command to translate cited scanner evidence into explicit strong / partial / missing layer assessments.
   - The assessment engine uses conservative, anti-Goodhart rules: strong requires multiple cited artifacts and no unresolved protocol gap checks, while partial is preferred whenever evidence is real but incomplete.
-- [ ] Add binding-constraint and drift detection.
-  - Compare snapshots over time to detect repeated maintenance loops, neglected layers, and theory/runtime divergence.
-  - Produce one explicit highest-leverage next step rather than an unfocused list.
+- [x] Add binding-constraint and drift detection.
+  - `/audit-radar-assess` now persists serialized snapshots under `memory/knowledge/audit-radar/snapshots/` and compares them against prior captures to flag stagnant weak layers, repeated binding constraints, maintenance-loop risk, and theory/runtime divergence.
+  - The audit output keeps one explicit highest-leverage next step, and evaluation recommendations now move from persistence toward planning integration once durable snapshot comparison exists.
 - [ ] Surface the audit in AIES runtime tools.
   - Add a command and/or operator-visible widget/report for the latest audit summary, binding constraint, and suggested change direction.
   - Make it easy for future cycles to use the audit when choosing work.

@@ -63,6 +63,27 @@ export interface AuditRecommendation {
   suggestedPaths: string[];
 }
 
+export interface AuditDimensionDrift {
+  dimension: AiesDimension;
+  previousTier: AiesAuditTier | null;
+  currentTier: AiesAuditTier;
+  change: "new" | "unchanged" | "improved" | "regressed";
+  summary: string;
+}
+
+export interface LayerAuditDrift {
+  comparedToSnapshotId: string | null;
+  comparedToObservedAt: IsoTimestamp | null;
+  improvedDimensions: AiesDimension[];
+  regressedDimensions: AiesDimension[];
+  stagnantDimensions: AiesDimension[];
+  repeatedBindingConstraintCount: number;
+  maintenanceLoopRisk: boolean;
+  theoryRuntimeDivergence: boolean;
+  dimensionChanges: AuditDimensionDrift[];
+  summary: string;
+}
+
 export interface LayerAuditSnapshot {
   snapshotId: string;
   auditProtocolVersion: string;
@@ -72,6 +93,7 @@ export interface LayerAuditSnapshot {
   dimensions: LayerAuditAssessment[];
   evidence: AuditEvidenceItem[];
   bindingConstraint: BindingConstraintAssessment;
+  drift: LayerAuditDrift | null;
   failurePatterns: string[];
   recommendedNextStep: AuditRecommendation;
   confidence: EvaluationConfidence;

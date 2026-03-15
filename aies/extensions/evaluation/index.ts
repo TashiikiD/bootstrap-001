@@ -8,6 +8,7 @@ import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
 import { formatAuditEvidenceScan, scanAuditEvidence } from "./audit-radar-scanner.ts";
+import { loadAuditSnapshotHistory, persistAuditSnapshot } from "./audit-radar-state.ts";
 import { EVALUATION_ENTRY_TYPE, restoreEvaluationEntry, restoreEvaluationHistory, type EvaluationEntry } from "./state.ts";
 
 type AgentEndEvent = {
@@ -455,7 +456,10 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
   pi.registerCommand(AIES_COMMANDS.auditRadarAssess, {
     description: "Assess the 5+2 AIES stack with theory-grounded strong/partial/missing layer ratings",
     handler: async (_args, ctx) => {
-      writeLine(ctx, formatLayerAuditSnapshot(createLayerAuditSnapshot(scanAuditEvidence())));
+      const history = loadAuditSnapshotHistory();
+      const snapshot = createLayerAuditSnapshot(scanAuditEvidence(), history);
+      const persistedPath = persistAuditSnapshot(snapshot);
+      writeLine(ctx, `${formatLayerAuditSnapshot(snapshot)}\nPersisted: ${persistedPath}`);
     },
   });
 

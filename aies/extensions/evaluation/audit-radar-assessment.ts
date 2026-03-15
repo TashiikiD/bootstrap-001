@@ -10,6 +10,7 @@ import {
 } from "../../contracts/layer-audit-snapshot.ts";
 import { AIES_DIMENSIONS, type AiesDimension, type EvaluationConfidence } from "../../contracts/primitives.ts";
 import type { AuditEvidenceScanResult } from "./audit-radar-scanner.ts";
+import { withAuditDrift } from "./audit-radar-drift.ts";
 
 type DimensionRule = {
   dimension: AiesDimension;
@@ -162,18 +163,18 @@ function buildRules(): DimensionRule[] {
         "audit-coherence-charter",
         "audit-coherence-theory-fork",
       ],
-      strongSummary: "Coherence engineering has durable identity commitments plus an evolving interpretation layer that could keep behavior aligned across sessions.",
-      partialSummary: "Coherence engineering is explicitly articulated, but the audit still lacks a native drift monitor that compares actual runtime behavior and outcomes over time.",
+      strongSummary: "Coherence engineering has durable identity commitments, an evolving interpretation layer, and a native drift monitor that can compare audit state across time.",
+      partialSummary: "Coherence engineering is explicitly articulated and now has native drift comparison, but longitudinal evidence is still thin and not yet deeply integrated into broader runtime review.",
       missingSummary: "The audit found no explicit coherence-engineering artifacts in the curated scan roots.",
       strengthTemplates: [
         "A durable coherence charter defines identity commitments and failure signals.",
         "The theory fork preserves an explicit interpretation layer instead of letting coherence drift stay implicit.",
       ],
-      protocolGapChecks: () => [
-        "No cited evidence yet of native drift detection across sessions, changes, or accumulated maintenance loops.",
-      ],
-      highestLeverageNextStep: "Persist and compare audit snapshots so coherence can be checked against history instead of only declared in theory artifacts.",
-      recommendationActionType: "memory_update",
+      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-coherence-audit-radar-drift")
+        ? ["A native drift monitor now exists, but the audit still has limited longitudinal history proving that it meaningfully catches session-to-session behavioral drift."]
+        : ["No cited evidence yet of native drift detection across sessions, changes, or accumulated maintenance loops."],
+      highestLeverageNextStep: "Use repeated audit snapshots to test whether coherence drift warnings actually change future cycle choices rather than staying descriptive.",
+      recommendationActionType: "theory_experiment",
       suggestedPaths: ["memory/knowledge/audit-radar/snapshots/", "memory/knowledge/coherence-charter.yaml", "aies/extensions/evaluation/"],
     },
     {
@@ -181,20 +182,21 @@ function buildRules(): DimensionRule[] {
       requiredEvidenceIds: [
         "audit-evaluation-snapshot-logic",
         "audit-evaluation-verification-recovery",
+        "audit-evaluation-audit-radar-persistence",
       ],
-      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence.",
-      partialSummary: "Evaluation engineering has real runtime surfaces, but it still lacks a complete evidence-backed layer diagnostic loop with durable snapshots, drift comparison, and anti-Goodhart enforcement.",
+      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence and historical comparison.",
+      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, and durable audit snapshots, but it still lacks a complete path from diagnosis to automated planning and correction-path comparison.",
       missingSummary: "The audit found no explicit evaluation-engineering artifacts in the curated scan roots.",
       strengthTemplates: [
         "The runtime already records structured evaluation snapshots rather than relying only on narrative self-report.",
         "Verification and recovery are tracked as explicit state surfaces that can be inspected by later cycles.",
       ],
-      protocolGapChecks: () => [
-        "Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison.",
-      ],
-      highestLeverageNextStep: "Turn audit assessments into durable snapshots so future cycles can compare layers over time before choosing their next change.",
-      recommendationActionType: "extension",
-      suggestedPaths: ["aies/extensions/evaluation/", "memory/knowledge/audit-radar/snapshots/", "aies/contracts/layer-audit-snapshot.ts"],
+      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-persistence")
+        ? ["The audit can now persist and compare snapshots, but findings still do not automatically draft or update planning artifacts when a binding constraint repeats."]
+        : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
+      highestLeverageNextStep: "Connect repeated audit findings to OpenSpec proposal drafting so evaluation changes future work selection instead of only describing it.",
+      recommendationActionType: "openspec_change",
+      suggestedPaths: ["aies/extensions/evaluation/", "aies/extensions/openspec/", "openspec/changes/"],
     },
     {
       dimension: "harness",
@@ -312,7 +314,7 @@ function buildFailurePatterns(assessments: LayerAuditAssessment[]): string[] {
     patterns.push("Cross-layer self-evaluation is still more structurally present than operationally binding, so future cycles can drift back toward ad-hoc work selection.");
   }
   if (byDimension.coherence?.tier !== "strong") {
-    patterns.push("AIES can declare identity commitments, but it still lacks native evidence-backed drift detection across sessions and changes.");
+    patterns.push("AIES can now compare audit snapshots, but coherence evidence is still thin enough that session-to-session drift detection remains provisional rather than fully trusted.");
   }
   if (byDimension.judgment?.tier !== "strong") {
     patterns.push("Judgment is better encoded as red lines and escalation boundaries than as proactive pause-and-doubt mechanisms inside execution flow.");
@@ -367,13 +369,13 @@ function buildRecommendation(
   };
 }
 
-export function createLayerAuditSnapshot(scan: AuditEvidenceScanResult): LayerAuditSnapshot {
+export function createLayerAuditSnapshot(scan: AuditEvidenceScanResult, history: LayerAuditSnapshot[] = []): LayerAuditSnapshot {
   const dimensions = assessAuditLayers(scan);
   const bindingConstraint = selectBindingConstraint(dimensions);
   const failurePatterns = buildFailurePatterns(dimensions);
   const recommendedNextStep = buildRecommendation(dimensions, bindingConstraint);
 
-  return {
+  return withAuditDrift({
     snapshotId: createSnapshotId(scan.observedAt),
     auditProtocolVersion: scan.auditProtocolVersion,
     observedAt: scan.observedAt,
@@ -382,10 +384,11 @@ export function createLayerAuditSnapshot(scan: AuditEvidenceScanResult): LayerAu
     dimensions,
     evidence: scan.evidence,
     bindingConstraint,
+    drift: null,
     failurePatterns,
     recommendedNextStep,
     confidence: confidenceForSnapshot(dimensions),
-  };
+  }, history);
 }
 
 function formatTier(tier: LayerAuditAssessment["tier"]): string {
@@ -410,6 +413,8 @@ function formatDimension(assessment: LayerAuditAssessment): string {
 }
 
 export function formatLayerAuditSnapshot(snapshot: LayerAuditSnapshot): string {
+  const drift = snapshot.drift;
+
   return [
     `AIES layer audit @ ${snapshot.observedAt}`,
     `Snapshot: ${snapshot.snapshotId}`,
@@ -421,6 +426,31 @@ export function formatLayerAuditSnapshot(snapshot: LayerAuditSnapshot): string {
     `Rationale: ${snapshot.bindingConstraint.rationale}`,
     `Consequence: ${snapshot.bindingConstraint.consequence}`,
     `Evidence IDs: ${snapshot.bindingConstraint.evidenceIds.length > 0 ? snapshot.bindingConstraint.evidenceIds.join(", ") : "none"}`,
+    "DRIFT:",
+    drift
+      ? `Compared to: ${drift.comparedToSnapshotId ?? "none"} @ ${drift.comparedToObservedAt ?? "n/a"}`
+      : "Compared to: none",
+    drift
+      ? `Summary: ${drift.summary}`
+      : "Summary: none",
+    drift
+      ? `Improved: ${drift.improvedDimensions.length > 0 ? drift.improvedDimensions.join(", ") : "none"}`
+      : "Improved: none",
+    drift
+      ? `Regressed: ${drift.regressedDimensions.length > 0 ? drift.regressedDimensions.join(", ") : "none"}`
+      : "Regressed: none",
+    drift
+      ? `Stagnant weak layers: ${drift.stagnantDimensions.length > 0 ? drift.stagnantDimensions.join(", ") : "none"}`
+      : "Stagnant weak layers: none",
+    drift
+      ? `Binding constraint streak: ${drift.repeatedBindingConstraintCount}`
+      : "Binding constraint streak: 0",
+    drift
+      ? `Maintenance-loop risk: ${drift.maintenanceLoopRisk}`
+      : "Maintenance-loop risk: false",
+    drift
+      ? `Theory/runtime divergence: ${drift.theoryRuntimeDivergence}`
+      : "Theory/runtime divergence: false",
     "Failure patterns:",
     ...snapshot.failurePatterns.map((pattern) => `- ${pattern}`),
     `Recommendation: ${snapshot.recommendedNextStep.summary}`,

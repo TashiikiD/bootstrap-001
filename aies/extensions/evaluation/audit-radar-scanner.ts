@@ -200,6 +200,14 @@ function buildRules(): EvidenceRule[] {
     },
     {
       kind: "file",
+      ruleId: "coherence-audit-radar-drift",
+      dimension: "coherence",
+      relativePath: "aies/extensions/evaluation/audit-radar-drift.ts",
+      summary: "The audit radar now compares snapshots over time to detect stagnation, repeated binding constraints, and theory/runtime divergence.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["function repeatedBindingConstraintCount(", "maintenanceLoopRisk", "theoryRuntimeDivergence"]),
+    },
+    {
+      kind: "file",
       ruleId: "evaluation-snapshot-logic",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/index.ts",
@@ -213,6 +221,14 @@ function buildRules(): EvidenceRule[] {
       relativePath: "aies/extensions/verification/index.ts",
       summary: "The verification extension records verification mode, verification results, and recovery follow-up as explicit evaluation surfaces.",
       extractExcerpt: (content) => firstMatchingLine(content, ["VERIFICATION_MODE_ENTRY_TYPE", "restoreVerificationEntry", "restoreRecoveryEntry"]),
+    },
+    {
+      kind: "file",
+      ruleId: "evaluation-audit-radar-persistence",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/audit-radar-state.ts",
+      summary: "The audit radar persistence layer stores serialized snapshots in durable memory so later cycles can compare audit state across sessions.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function loadAuditSnapshotHistory(", "export function persistAuditSnapshot(", "auditRadarSnapshotsRoot"]),
     },
     {
       kind: "file",
