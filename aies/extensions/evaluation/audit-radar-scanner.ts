@@ -363,11 +363,19 @@ function buildRules(): EvidenceRule[] {
       : []),
     {
       kind: "file",
+      ruleId: "evaluation-audit-radar-guidance-bridge",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/audit-radar-guidance.ts",
+      summary: "The audit radar can now compress durable audit state into an explicit next-cycle guidance brief so evaluation steers planning instead of staying descriptive.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditRadarGuidance(", "export function buildAuditRadarGuidancePromptBlock(", "export function formatAuditRadarGuidance("]),
+    },
+    {
+      kind: "file",
       ruleId: "evaluation-audit-radar-runtime-surface",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/index.ts",
-      summary: "The evaluation extension now surfaces the latest durable audit inside runtime command flow and prompt context so future cycles can reuse it during work selection.",
-      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "AIES_COMMANDS.auditRadarLoop", "buildAuditRadarPromptBlock"]),
+      summary: "The evaluation extension now surfaces the latest durable audit inside runtime command flow, prompt context, and next-cycle guidance so future cycles can reuse it during work selection.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "AIES_COMMANDS.auditRadarNext", "buildAuditRadarGuidancePromptBlock"]),
     },
     {
       kind: "file",

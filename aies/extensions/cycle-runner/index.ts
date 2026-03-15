@@ -3,6 +3,7 @@ import { basename, resolve } from "node:path";
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import type { CycleState } from "../../contracts/cycle-state.ts";
+import { latestAuditRadarGuidance, type AuditRadarGuidance } from "../evaluation/audit-radar-guidance.ts";
 import { restoreEvaluationEntry, type EvaluationEntry } from "../evaluation/state.ts";
 import { restoreOpenSpecEntry, type OpenSpecEntry } from "../openspec/state.ts";
 import { restorePolicyModeEntry } from "../policy/state.ts";
@@ -462,6 +463,23 @@ function renderEvaluationSection(entry: EvaluationEntry | null): string[] {
   ];
 }
 
+function renderAuditGuidanceSection(guidance: AuditRadarGuidance | null): string[] {
+  if (!guidance) {
+    return ["Audit guidance: none"];
+  }
+
+  return [
+    `Audit guidance summary: ${guidance.summary}`,
+    `Audit guidance focus: ${guidance.recommendedFocusType}`,
+    `Audit guidance action type: ${guidance.actionType}`,
+    `Audit guidance binding constraint: ${guidance.bindingConstraint}`,
+    `Audit guidance targets: ${guidance.targetDimensions.length > 0 ? guidance.targetDimensions.join(", ") : "none"}`,
+    `Audit guidance paths: ${guidance.suggestedPaths.length > 0 ? guidance.suggestedPaths.join(", ") : "none"}`,
+    `Audit guidance drift: ${guidance.driftSummary}`,
+    `Audit guidance recent loop: ${guidance.latestLoopSource ?? "none"} · ${guidance.latestLoopVerification}`,
+  ];
+}
+
 function renderVerificationSection(
   liveStatus: LiveVerificationStatus,
   entry: VerificationEntry | null,
@@ -538,6 +556,7 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
   const liveStatus = resolveLiveVerificationStatus(ctx, verificationMode);
   const policyMode = restorePolicyModeEntry(ctx)?.mode ?? "advisory";
   const memory = latestMemorySignals();
+  const auditGuidance = latestAuditRadarGuidance(openSpec?.context.activeChangeId ?? resolveHeartbeatCycle(heartbeat)?.activeChangeId ?? null);
 
   const openSpecFirst = Boolean(openSpec?.context.activeChangeId);
   const recoveryFirst = recovery?.status === "open" && (recovery.relatedChangeId === (openSpec?.context.activeChangeId ?? null) || recovery.reasonType === "execution_failed");
@@ -595,6 +614,8 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     ...renderHeartbeatSection(heartbeat),
     "",
     ...renderEvaluationSection(evaluation),
+    "",
+    ...renderAuditGuidanceSection(auditGuidance),
     "",
     // === USER REQUESTS ===
     ...renderUserRequestSection(),

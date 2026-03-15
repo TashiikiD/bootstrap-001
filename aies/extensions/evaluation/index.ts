@@ -7,6 +7,7 @@ import type { AiesDimension, EvaluationConfidence, FocusType } from "../../contr
 import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
+import { createAuditRadarGuidance, buildAuditRadarGuidancePromptBlock, formatAuditRadarGuidance } from "./audit-radar-guidance.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
 import { executeAuditRadarLoop, formatAuditLoopRun } from "./audit-radar-loop.ts";
 import { createAuditOutcomeReport, formatAuditOutcomeReport, persistAuditOutcomeReport } from "./audit-radar-outcomes.ts";
@@ -496,6 +497,22 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
     },
   });
 
+  pi.registerCommand(AIES_COMMANDS.auditRadarNext, {
+    description: "Synthesize the latest durable audit into a next-cycle guidance brief with focus, targets, and continuity advice",
+    handler: async (_args, ctx) => {
+      const snapshot = latestAuditSnapshot();
+      updateUi(restoreEvaluationEntry(ctx), ctx);
+      if (!snapshot) {
+        writeLine(ctx, "Audit radar guidance needs a durable snapshot. Run /audit-radar-assess first.", "warning");
+        return;
+      }
+
+      const openSpecEntry = restoreOpenSpecEntry(ctx);
+      const guidance = createAuditRadarGuidance(snapshot, openSpecEntry?.context.activeChangeId ?? null);
+      writeLine(ctx, formatAuditRadarGuidance(guidance));
+    },
+  });
+
   pi.registerCommand(AIES_COMMANDS.auditRadarOutcomes, {
     description: "Compare consecutive audit snapshots against observed correction paths and persist a durable outcome report",
     handler: async (_args, ctx) => {
@@ -618,6 +635,13 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
       (() => {
         const auditSnapshot = latestAuditSnapshot();
         return auditSnapshot ? buildAuditRadarPromptBlock(auditSnapshot, openSpecEntry?.context.activeChangeId ?? null) : null;
+      })(),
+      (() => {
+        const auditSnapshot = latestAuditSnapshot();
+        if (!auditSnapshot) {
+          return null;
+        }
+        return buildAuditRadarGuidancePromptBlock(createAuditRadarGuidance(auditSnapshot, openSpecEntry?.context.activeChangeId ?? null));
       })(),
     ].filter((block): block is string => Boolean(block));
 
