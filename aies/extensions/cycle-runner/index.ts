@@ -7,6 +7,10 @@ import {
   createAuditGuidanceEffectivenessReport,
   persistAuditGuidanceEffectivenessReport,
 } from "../evaluation/audit-radar-guidance-effectiveness.ts";
+import {
+  createAuditGuidanceLearningReviewReport,
+  persistAuditGuidanceLearningReviewReport,
+} from "../evaluation/audit-radar-guidance-learning-review.ts";
 import { createAuditGuidanceOutcomeReport, captureAuditGuidanceBrief, persistAuditGuidanceOutcomeReport } from "../evaluation/audit-radar-guidance-outcomes.ts";
 import { latestAuditRadarGuidance, type AuditRadarGuidance } from "../evaluation/audit-radar-guidance.ts";
 import { restoreEvaluationEntry, type EvaluationEntry } from "../evaluation/state.ts";
@@ -185,7 +189,7 @@ function updateUi(entry: CycleRunEntry | null, ctx: ExtensionContext): void {
         `audit=${entry.postRunAudit?.verificationMode && entry.postRunAudit?.verificationResult
           ? `${entry.postRunAudit.verificationMode}/${entry.postRunAudit.verificationResult}`
           : entry.postRunAudit?.status ?? "pending"}`,
-        `guide=${entry.guidanceEffectivenessReportPath ? `effective:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
+        `guide=${entry.guidanceLearningReviewReportPath ? `reviewed:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceEffectivenessReportPath ? `effective:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
         `scope=${entry.verificationScope?.recommendedMode ?? (entry.verificationScopeBaseline ? "capturing" : "none")}`,
         `prompt=${entry.promptSummary}`,
       ]
@@ -713,6 +717,8 @@ function formatGuidanceSection(entry: CycleRunEntry): string[] {
     `Audit guidance effectiveness report: ${entry.guidanceEffectivenessReportPath ?? "none"}`,
     `Audit guidance effectiveness verdict: ${entry.guidanceEffectivenessVerdict ?? "none"}`,
     `Audit guidance effectiveness summary: ${entry.guidanceEffectivenessSummary ?? "none"}`,
+    `Audit guidance learning review report: ${entry.guidanceLearningReviewReportPath ?? "none"}`,
+    `Audit guidance learning review summary: ${entry.guidanceLearningReviewSummary ?? "none"}`,
   ];
 }
 
@@ -790,6 +796,8 @@ function buildRunEntry(
   guidanceEffectivenessReportPath: string | null = null,
   guidanceEffectivenessVerdict: string | null = null,
   guidanceEffectivenessSummary: string | null = null,
+  guidanceLearningReviewReportPath: string | null = null,
+  guidanceLearningReviewSummary: string | null = null,
   postRunAudit: CycleRunAuditTrail | null = null,
 ): CycleRunEntry {
   return {
@@ -811,6 +819,8 @@ function buildRunEntry(
     guidanceEffectivenessReportPath,
     guidanceEffectivenessVerdict,
     guidanceEffectivenessSummary,
+    guidanceLearningReviewReportPath,
+    guidanceLearningReviewSummary,
     postRunAudit,
   };
 }
@@ -853,6 +863,8 @@ export async function runCycleCommand(
       activeRun?.guidanceEffectivenessReportPath ?? null,
       activeRun?.guidanceEffectivenessVerdict ?? null,
       activeRun?.guidanceEffectivenessSummary ?? null,
+      activeRun?.guidanceLearningReviewReportPath ?? null,
+      activeRun?.guidanceLearningReviewSummary ?? null,
     );
     activeRun = blocked;
     if (activeRunRef) {
@@ -1010,6 +1022,8 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
         activeRun.guidanceEffectivenessReportPath,
         activeRun.guidanceEffectivenessVerdict,
         activeRun.guidanceEffectivenessSummary,
+        activeRun.guidanceLearningReviewReportPath,
+        activeRun.guidanceLearningReviewSummary,
       );
       activeRun = aborted;
       persistRun(pi, aborted);
@@ -1074,6 +1088,12 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
     const guidanceEffectivenessReportPath = guidanceEffectivenessReport
       ? persistAuditGuidanceEffectivenessReport(guidanceEffectivenessReport)
       : null;
+    const guidanceLearningReviewReport = guidanceEffectivenessReport
+      ? createAuditGuidanceLearningReviewReport()
+      : null;
+    const guidanceLearningReviewReportPath = guidanceLearningReviewReport
+      ? persistAuditGuidanceLearningReviewReport(guidanceLearningReviewReport)
+      : null;
     const guidanceEffectivenessItem = guidanceEffectivenessReport?.items[0] ?? null;
     const completed = buildRunEntry(
       activeRun.runId,
@@ -1094,6 +1114,8 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       guidanceEffectivenessReportPath,
       guidanceEffectivenessItem?.verdict ?? null,
       guidanceEffectivenessItem?.summary ?? null,
+      guidanceLearningReviewReportPath,
+      guidanceLearningReviewReport?.summary ?? null,
       postRunAudit,
     );
     const thoughtEntry: CycleThoughtEntry = {

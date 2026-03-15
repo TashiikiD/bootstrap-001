@@ -65,6 +65,8 @@ export interface CycleRunEntry {
   guidanceEffectivenessReportPath: string | null;
   guidanceEffectivenessVerdict: string | null;
   guidanceEffectivenessSummary: string | null;
+  guidanceLearningReviewReportPath: string | null;
+  guidanceLearningReviewSummary: string | null;
   postRunAudit: CycleRunAuditTrail | null;
 }
 
@@ -111,6 +113,8 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     guidanceEffectivenessReportPath: entry.guidanceEffectivenessReportPath ?? null,
     guidanceEffectivenessVerdict: entry.guidanceEffectivenessVerdict ?? null,
     guidanceEffectivenessSummary: entry.guidanceEffectivenessSummary ?? null,
+    guidanceLearningReviewReportPath: entry.guidanceLearningReviewReportPath ?? null,
+    guidanceLearningReviewSummary: entry.guidanceLearningReviewSummary ?? null,
     postRunAudit: entry.postRunAudit ?? null,
   };
 }

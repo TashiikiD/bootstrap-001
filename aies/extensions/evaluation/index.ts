@@ -8,6 +8,7 @@ import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
 import { formatAuditGuidanceEffectivenessReport, createAuditGuidanceEffectivenessReport, persistAuditGuidanceEffectivenessReport } from "./audit-radar-guidance-effectiveness.ts";
+import { formatAuditGuidanceLearningReviewReport, createAuditGuidanceLearningReviewReport, persistAuditGuidanceLearningReviewReport } from "./audit-radar-guidance-learning-review.ts";
 import { formatAuditGuidanceOutcomeReport, latestAuditGuidanceOutcomeReport } from "./audit-radar-guidance-outcomes.ts";
 import { createAuditRadarGuidance, buildAuditRadarGuidancePromptBlock, formatAuditRadarGuidance } from "./audit-radar-guidance.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
@@ -541,6 +542,21 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
 
       const persistedPath = persistAuditGuidanceEffectivenessReport(report);
       writeLine(ctx, `${formatAuditGuidanceEffectivenessReport(report)}\nPersisted: ${persistedPath}`);
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceLearningReview, {
+    description: "Compare bounded guidance-learning postures across durable effectiveness history so the harness can inspect whether baseline, cautious, or exploratory advice is actually helping",
+    handler: async (_args, ctx) => {
+      updateUi(restoreEvaluationEntry(ctx), ctx);
+      const report = createAuditGuidanceLearningReviewReport();
+      if (!report) {
+        writeLine(ctx, "Audit guidance learning review could not synthesize posture evidence yet.", "warning");
+        return;
+      }
+
+      const persistedPath = persistAuditGuidanceLearningReviewReport(report);
+      writeLine(ctx, `${formatAuditGuidanceLearningReviewReport(report)}\nPersisted: ${persistedPath}`);
     },
   });
 

@@ -17,6 +17,7 @@ export interface AiesPaths {
   auditRadarLoopsRoot: string;
   auditRadarGuidanceOutcomesRoot: string;
   auditRadarGuidanceEffectivenessRoot: string;
+  auditRadarGuidanceLearningReviewRoot: string;
   theoryForkRoot: string;
   devlogRoot: string;
   openSpecRoot: string;
@@ -52,6 +53,7 @@ export function getAiesPaths(runtimeDirName = ".aies-runtime", sessionDirName = 
     auditRadarLoopsRoot: resolve(auditRadarRoot, "loops"),
     auditRadarGuidanceOutcomesRoot: resolve(auditRadarRoot, "guidance-outcomes"),
     auditRadarGuidanceEffectivenessRoot: resolve(auditRadarRoot, "guidance-effectiveness"),
+    auditRadarGuidanceLearningReviewRoot: resolve(auditRadarRoot, "guidance-learning"),
     theoryForkRoot: resolve(memoryRoot, "theory-fork"),
     devlogRoot: resolve(memoryRoot, "devlog"),
     openSpecRoot,

@@ -907,8 +907,12 @@ class AiesOperatorApp extends LitElement {
                       <div class="artifact-meta">
                         effectReport=${item.guidanceEffectivenessReportPath ?? "none"} · durable=${item.hasDurableGuidanceEffectivenessReport ? "yes" : "no"}
                       </div>
+                      <div class="artifact-meta">
+                        learningReview=${item.guidanceLearningReviewReportPath ?? "none"} · durable=${item.hasDurableGuidanceLearningReviewReport ? "yes" : "no"}
+                      </div>
                       <div class="artifact-meta">${item.guidanceOutcomeSummary}</div>
                       <div class="artifact-meta">${item.guidanceEffectivenessSummary}</div>
+                      <div class="artifact-meta">${item.guidanceLearningReviewSummary}</div>
                       <div class="artifact-meta">${item.auditFailure ?? item.auditSummary}</div>
                     </div>
                   `)}

@@ -2,6 +2,7 @@ import { basename, resolve } from "node:path";
 import { existsSync } from "node:fs";
 import {
   readAuditGuidanceEffectivenessReportByRelativePath,
+  readAuditGuidanceLearningReviewReportByRelativePath,
   readAuditGuidanceOutcomeReportByRelativePath,
 } from "./audit-radar-guidance-reports";
 import { projectRoot, type ParsedSession } from "./lib";
@@ -32,6 +33,9 @@ export interface CycleRunAuditHistoryItem {
   guidanceEffectivenessSummary: string;
   guidanceEffectivenessReportPath: string | null;
   hasDurableGuidanceEffectivenessReport: boolean;
+  guidanceLearningReviewSummary: string;
+  guidanceLearningReviewReportPath: string | null;
+  hasDurableGuidanceLearningReviewReport: boolean;
 }
 
 function cycleAuditVerificationLabel(audit: Record<string, unknown> | null | undefined): string {
@@ -60,8 +64,12 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
       const guidanceEffectivenessReportPath = typeof data.guidanceEffectivenessReportPath === "string"
         ? data.guidanceEffectivenessReportPath
         : null;
+      const guidanceLearningReviewReportPath = typeof data.guidanceLearningReviewReportPath === "string"
+        ? data.guidanceLearningReviewReportPath
+        : null;
       const guidanceOutcomeRecord = readAuditGuidanceOutcomeReportByRelativePath(guidanceOutcomeReportPath);
       const guidanceEffectivenessRecord = readAuditGuidanceEffectivenessReportByRelativePath(guidanceEffectivenessReportPath);
+      const guidanceLearningReviewRecord = readAuditGuidanceLearningReviewReportByRelativePath(guidanceLearningReviewReportPath);
       const matchingGuidanceEffectivenessItem = guidanceEffectivenessRecord?.report.items.find((item) =>
         guidanceOutcomeRecord ? item.guidanceOutcomeReportId === guidanceOutcomeRecord.report.reportId : true)
         ?? guidanceEffectivenessRecord?.report.items[0]
@@ -108,6 +116,12 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
             : "No guidance-effectiveness report recorded."),
         guidanceEffectivenessReportPath,
         hasDurableGuidanceEffectivenessReport: Boolean(guidanceEffectivenessRecord),
+        guidanceLearningReviewSummary: guidanceLearningReviewRecord?.report.summary
+          ?? (guidanceLearningReviewReportPath
+            ? `Guidance-learning review report path was recorded but could not be loaded: ${guidanceLearningReviewReportPath}`
+            : "No guidance-learning review recorded."),
+        guidanceLearningReviewReportPath,
+        hasDurableGuidanceLearningReviewReport: Boolean(guidanceLearningReviewRecord),
       } satisfies CycleRunAuditHistoryItem;
     }))
     .filter((item) => item.auditStatus !== "none");

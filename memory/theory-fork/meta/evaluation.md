@@ -48,6 +48,18 @@ In practice, that means the audit should distinguish between:
 
 The point is not to make the guidance self-confident. The point is to make it slightly more honest about what recent evidence warrants.
 
+## Experiment Note — Learning Policy Needs Posture-Level Review
+
+Once bounded learning postures exist, another failure mode appears: the system can cite that a posture was selected without comparing whether different postures are actually producing more constructive than adverse downstream signals.
+
+That suggests a distinct review layer above per-cycle guidance-effectiveness items. The system should be able to group outcomes by posture (`baseline`, `cautious`, `exploratory`, etc.), compare constructive versus adverse signal balance, and treat that comparison as experimental evidence rather than as automatic policy truth.
+
+The key distinction is:
+- per-cycle effectiveness asks whether one guided cycle looked helpful
+- posture-level review asks whether one learning posture is starting to outperform another across repeated cycles
+
+That review should stay correlational and sample-aware. Its job is to guide the next experiment, not to declare a winner too early.
+
 ## Open Questions
 
 - What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?
