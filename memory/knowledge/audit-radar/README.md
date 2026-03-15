@@ -16,4 +16,5 @@ Planned layout:
 
 Loop report notes:
 - `orchestrationSource` distinguishes manual `/audit-radar-loop` invocations from future cycle-runner-triggered loop executions.
+- `verificationScope` captures the changed-file surface that set the minimum verification floor for that run, so the loop can report why quick verification was or was not sufficient.
 - This prevents the scanner from over-claiming orchestration evidence just because a manual loop report happened to reference the latest completed cycle.

@@ -12,6 +12,12 @@ A harness hook that can only be validated by spawning another autonomous cycle c
 
 The harness should therefore expose cheaper self-observation surfaces wherever possible. Lightweight status views, durable report histories, and explicit provenance fields are preferable first-line proof surfaces. Full end-to-end orchestration runs still matter, but they should be treated as explicit experiments or operator-invoked verification, not as the default cost of every cycle.
 
+## Experiment Note — Verification Should Have a Change-Surface Floor
+
+Prompt- or focus-inferred verification mode is not enough once the harness can inspect what files a cycle actually touched. If the run changed verification substrate or orchestration code, the minimum trustworthy verification depth should rise even when the prompt sounded narrow.
+
+That suggests a harness pattern: capture the repo surface before a cycle, compare it again before post-run audit artifacts are written, and let the changed-file surface set a minimum verification floor. This keeps verification proportionate without pretending that prompt labels alone can describe execution risk.
+
 ## Open Questions
 
 - When the harness modifies itself, how do you ensure the modification preserves the harness's ability to evaluate future modifications? Self-modification of the evaluation substrate is the most dangerous kind.

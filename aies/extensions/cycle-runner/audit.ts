@@ -1,5 +1,6 @@
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import type { VerificationResult, VerificationState } from "../../contracts/primitives.ts";
+import type { VerificationScopeReport } from "../verification/change-scope.ts";
 import { executeAuditRadarLoop } from "../evaluation/audit-radar-loop.ts";
 import type { CycleRunAuditTrail } from "./state.ts";
 
@@ -33,9 +34,16 @@ export function createSkippedPostRunAudit(summary: string, failureNote: string |
   };
 }
 
-export function runPostCycleAudit(pi: ExtensionAPI, ctx: ExtensionContext): CycleRunAuditTrail {
+export function runPostCycleAudit(
+  pi: ExtensionAPI,
+  ctx: ExtensionContext,
+  options: { verificationScope?: VerificationScopeReport | null } = {},
+): CycleRunAuditTrail {
   try {
-    const result = executeAuditRadarLoop(pi, ctx, { orchestrationSource: "cycle_runner" });
+    const result = executeAuditRadarLoop(pi, ctx, {
+      orchestrationSource: "cycle_runner",
+      verificationScope: options.verificationScope ?? null,
+    });
     return {
       status: "completed",
       loopId: result.loopReport.loopId,

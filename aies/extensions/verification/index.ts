@@ -31,6 +31,7 @@ import {
   type VerificationEntry,
   type VerificationModeEntry,
 } from "./state.ts";
+import { createVerificationScopeReport, strongerVerificationMode } from "./change-scope.ts";
 
 type BeforeAgentStartEvent = {
   prompt?: string;
@@ -587,11 +588,21 @@ function formatFollowup(entry: VerificationEntry | null, recovery: RecoveryEntry
   ].join("\n");
 }
 
-function formatPlan(mode: VerificationMode, cycle: CycleState | null, promptText: string): string {
-  const commands = buildSuggestedCommands(mode, cycle, promptText);
+function formatPlan(
+  mode: VerificationMode,
+  cycle: CycleState | null,
+  promptText: string,
+  scopeRecommendedMode: VerificationMode,
+  scopeSummary: string,
+): string {
+  const effectiveMode = strongerVerificationMode(mode, scopeRecommendedMode);
+  const commands = buildSuggestedCommands(effectiveMode, cycle, promptText);
   return [
     `Mode: ${mode}`,
-    `Plan: ${buildPlanSummary(mode, commands) ?? "none"}`,
+    `Change-surface floor: ${scopeRecommendedMode}`,
+    `Effective mode: ${effectiveMode}`,
+    `Change-surface summary: ${scopeSummary}`,
+    `Plan: ${buildPlanSummary(effectiveMode, commands) ?? "none"}`,
     `Suggested commands: ${commands.length > 0 ? commands.join(" | ") : "none"}`,
   ].join("\n");
 }
@@ -704,7 +715,8 @@ export default function aiesVerificationExtension(pi: ExtensionAPI): void {
       const mode = modeEntry?.source === "override"
         ? modeEntry.mode
         : inferVerificationMode(cycle, promptText, Boolean(openSpecEntry?.context.activeChangeId));
-      writeLine(ctx, formatPlan(mode, cycle, promptText));
+      const scope = createVerificationScopeReport(null);
+      writeLine(ctx, formatPlan(mode, cycle, promptText, scope.recommendedMode, scope.summary));
     },
   });
 

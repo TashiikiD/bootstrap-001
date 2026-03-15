@@ -182,6 +182,7 @@ function buildRules(): DimensionRule[] {
       requiredEvidenceIds: [
         "audit-evaluation-snapshot-logic",
         "audit-evaluation-verification-recovery",
+        "audit-evaluation-verification-scope-advisor",
         "audit-evaluation-audit-radar-persistence",
         "audit-evaluation-audit-radar-proposal-bridge",
         "audit-evaluation-audit-radar-reconciliation-bridge",
@@ -195,15 +196,15 @@ function buildRules(): DimensionRule[] {
         "audit-evaluation-audit-radar-guidance-outcome-cycle-bridge",
         "audit-evaluation-audit-radar-guidance-outcome-report",
       ],
-      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, historical comparison, plan reconciliation, correction-path outcome reports, native audit-loop execution, cycle-orchestrated evaluation, recorded verification/recovery results tied to the same run, and explicit guidance-alignment evidence about whether audit advice changed later focus selection.",
-      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, durable audit snapshots, audit-driven proposal drafting, active-change reconciliation, correction-path comparison, a native audit-loop command, cycle-runner orchestration, next-cycle audit guidance, and guidance-alignment tracking, but attribution is still coarse once multiple interventions overlap and guidance impact is not yet measured longitudinally.",
+      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, scope-aware verification planning, historical comparison, plan reconciliation, correction-path outcome reports, native audit-loop execution, cycle-orchestrated evaluation, recorded verification/recovery results tied to the same run, and explicit guidance-alignment evidence about whether audit advice changed later focus selection.",
+      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, scope-aware verification planning, durable audit snapshots, audit-driven proposal drafting, active-change reconciliation, correction-path comparison, a native audit-loop command, cycle-runner orchestration, next-cycle audit guidance, and guidance-alignment tracking, but attribution is still coarse once multiple interventions overlap and guidance impact is not yet measured longitudinally.",
       missingSummary: "The audit found no explicit evaluation-engineering artifacts in the curated scan roots.",
       strengthTemplates: [
         "The runtime already records structured evaluation snapshots rather than relying only on narrative self-report.",
         "Verification and recovery are tracked as explicit state surfaces that can be inspected by later cycles.",
       ],
       protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-report")
-        ? ["The audit now records whether guidance aligned with a real cycle's chosen focus, but it still needs longitudinal comparison against later audit drift and correction-path outcomes to know whether alignment actually improved the system."]
+        ? ["The audit now records whether guidance aligned with a real cycle's chosen focus and can floor verification by actual change surface, but it still needs longitudinal comparison against later audit drift and correction-path outcomes to know whether that alignment actually improved the system."]
         : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-tracker")
           && evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-cycle-bridge")
           ? ["The audit can now persist guidance-alignment reports from the cycle runner, but it does not yet have a durable guidance-outcome report proving the tracker has been exercised on a real guided cycle."]
@@ -230,7 +231,7 @@ function buildRules(): DimensionRule[] {
                         ? ["The audit can now persist and compare snapshots, but findings still do not automatically draft or update planning artifacts when a binding constraint repeats."]
                         : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
       highestLeverageNextStep: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-report")
-        ? "Compare guidance-alignment reports against later audit drift and correction-path outcomes so evaluation can tell whether following the guidance actually helped."
+        ? "Compare guidance-alignment reports and scope-aware verification floors against later audit drift and correction-path outcomes so evaluation can tell whether following the guidance actually helped."
         : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-tracker")
           && evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-cycle-bridge")
           ? "Exercise the guidance-outcome tracker on a real guided cycle so evaluation can observe whether the harness followed its own audit advice."
@@ -248,20 +249,21 @@ function buildRules(): DimensionRule[] {
       requiredEvidenceIds: [
         "audit-harness-extension-registry",
         "audit-harness-operator-ui-bridge",
+        "audit-harness-proportionate-verification-bridge",
         "audit-harness-audit-radar-loop-command",
         "audit-harness-audit-radar-cycle-orchestration",
         "audit-harness-audit-radar-loop-report",
         "audit-harness-audit-radar-orchestrated-loop-report",
       ],
-      strongSummary: "Harness engineering is explicit, reproducible, and sufficiently automated to carry orchestration, operator transparency, and evaluation without relying on hidden local setup.",
-      partialSummary: "Harness engineering is real and reproducible, and now includes cycle-orchestrated audit-loop execution with durable reports, but the verification path is still deliberately lightweight and the experiment still needs durable reflection in memory.",
+      strongSummary: "Harness engineering is explicit, reproducible, and sufficiently automated to carry orchestration, operator transparency, evaluation, and scope-aware verification without relying on hidden local setup.",
+      partialSummary: "Harness engineering is real and reproducible, and now includes cycle-orchestrated audit-loop execution with durable reports plus change-surface-aware verification flooring, but the verification path is still deliberately lightweight and the experiment still needs durable reflection in memory.",
       missingSummary: "The audit found no explicit harness-engineering artifacts in the curated scan roots.",
       strengthTemplates: [
         "Pi settings make extension, prompt, and skill registration explicit and reproducible.",
         "The operator UI backend provides a visible control and execution bridge instead of relying on hidden orchestration.",
       ],
       protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-harness-audit-radar-orchestrated-loop-report")
-        ? ["The harness now runs audit evaluation as part of cycle orchestration, but the experiment still needs a durable memory write-up on what this automation changed and what verification depth remains intentionally out of scope."]
+        ? ["The harness now runs audit evaluation as part of cycle orchestration and can floor verification by actual change surface, but the experiment still needs a durable memory write-up on what this automation changed and what broader verification depth remains intentionally out of scope."]
         : evidence.some((item) => item.evidenceId === "audit-harness-audit-radar-cycle-orchestration")
           ? ["The harness is wired to run the audit loop after cycle completion, but it does not yet have a durable orchestrated loop report proving the hook has executed on a real cycle."]
           : evidence.some((item) => item.evidenceId === "audit-harness-audit-radar-loop-report")
@@ -270,7 +272,7 @@ function buildRules(): DimensionRule[] {
               ? ["The harness exposes a native audit-loop command, but it does not yet have a durable run report proving the full command chain has been exercised end-to-end."]
               : ["No cited evidence yet of a repeatable audit/verification command chain wired into the harness."],
       highestLeverageNextStep: (evidence) => evidence.some((item) => item.evidenceId === "audit-harness-audit-radar-orchestrated-loop-report")
-        ? "Capture the orchestration experiment in durable memory and decide whether future harness verification should stay quick-by-default or grow a broader automated path."
+        ? "Capture the orchestration experiment in durable memory and decide whether scope-aware verification floors are predicting the right amount of follow-up or whether the harness needs a broader automated path."
         : "Wire the audit loop into cycle-runner or operator-triggered orchestration so self-evolution checks happen consistently without relying on manual choreography.",
       recommendationActionType: "tool",
       suggestedPaths: ["aies/extensions/cycle-runner/", "aies/extensions/evaluation/", "run-aies-on-pi.ps1"],

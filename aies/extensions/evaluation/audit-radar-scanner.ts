@@ -299,6 +299,14 @@ function buildRules(): EvidenceRule[] {
     },
     {
       kind: "file",
+      ruleId: "evaluation-verification-scope-advisor",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/verification/change-scope.ts",
+      summary: "Verification planning can now inspect the actual repo change surface and recommend a minimum verification mode from touched files instead of relying only on prompt or focus heuristics.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function createVerificationScopeReport(", "export function captureVerificationScopeBaseline(", "export function strongerVerificationMode("]),
+    },
+    {
+      kind: "file",
       ruleId: "evaluation-audit-radar-persistence",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/audit-radar-state.ts",
@@ -440,6 +448,14 @@ function buildRules(): EvidenceRule[] {
       relativePath: "operator-ui/server/index.ts",
       summary: "The operator UI now includes a dedicated Audit Radar report sourced from durable audit snapshots.",
       extractExcerpt: (content) => firstMatchingLine(content, ["\"Audit Radar\"", "summarizeAuditRadarReport", "readLatestAuditRadarReport"]),
+    },
+    {
+      kind: "file",
+      ruleId: "harness-proportionate-verification-bridge",
+      dimension: "harness",
+      relativePath: "aies/extensions/cycle-runner/index.ts",
+      summary: "The cycle runner now captures a pre-run repo baseline, computes the cycle-introduced change surface before post-run audit artifacts are written, and passes that scope into audit orchestration.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["captureVerificationScopeBaseline(", "createVerificationScopeReport(", "runPostCycleAudit(pi, ctx, { verificationScope })"]),
     },
     {
       kind: "file",

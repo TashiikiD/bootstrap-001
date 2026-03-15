@@ -2,7 +2,7 @@
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
 status: active
-updated_at: 2026-03-15T20:17:12.421Z
+updated_at: 2026-03-15T21:03:32.538Z
 last_audit_snapshot: audit-2026-03-15T17-06-59-001Z
 last_audit_reconciled_dimension: evaluation
 ---
@@ -46,6 +46,7 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - The scanner and theory-grounded assessment rules now treat loop code plus loop reports as evaluation/harness evidence, so the audit can distinguish “native command exists” from “native command has been exercised on real sessions.”
   - Added `aies/extensions/cycle-runner/audit.ts` plus cycle-runner state/reporting updates so completed `/cycle-run` turns can invoke the audit loop automatically and record a visible post-run audit trail instead of relying only on manual `/audit-radar-loop` use.
   - Loop reports now carry an `orchestrationSource` field, allowing the audit scanner to distinguish manual command runs from future cycle-runner-triggered runs without over-claiming orchestration evidence.
+  - Added `aies/extensions/verification/change-scope.ts` plus cycle-runner/audit-loop wiring so verification can be floored by the actual file surface introduced during a cycle instead of relying only on prompt/focus heuristics.
   - Validation: ran `/audit-radar-loop`, producing `audit-loop-2026-03-15T16-33-02-358Z`, `audit-outcomes-2026-03-15T16-32-38-492Z`, and `audit-2026-03-15T16-32-37-125Z`; the loop’s quick verification recorded `fast/passed` with no recovery entry.
   - Validation: re-ran `/audit-radar-assess`, producing `audit-2026-03-15T17-06-59-001Z`; evaluation and harness stayed partial, but the cited gap advanced from “manual command only” to “cycle orchestration hook exists but still lacks a durable cycle-runner-exercised loop report.”
 - [x] Lower post-run audit proof inspection cost with operator-visible history.
@@ -62,6 +63,7 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Added `/audit-radar-guidance-review` plus scanner/assessment updates so future audits can distinguish "guidance exists" from "guidance was exercised and compared against real focus selection."
 - [x] Record the experiment back into memory.
   - Added `memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md` to capture the key observation from this stage of the change: the audit correctly identified an orchestration evidence gap, but forcing proof by launching another autonomous cycle would spend the turn on recursive harness validation.
+  - Added `memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md` to record the next harness observation: prompt/focus-inferred verification is weaker than verification floored by the files a cycle actually changed.
   - Updated `memory/theory-fork/meta/evaluation.md` and `memory/theory-fork/meta/harness.md` with explicit experiment notes distinguishing passive evidence from active orchestration proof and warning against metric-farming the audit loop.
 
 ## Notes

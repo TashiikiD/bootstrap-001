@@ -1,6 +1,7 @@
 import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
 import type { AiesAuditRecommendedActionType } from "../../contracts/layer-audit-snapshot.ts";
 import type { AiesDimension, FocusType, IsoTimestamp, VerificationMode, VerificationResult, VerificationState } from "../../contracts/primitives.ts";
+import type { VerificationScopeBaseline, VerificationScopeReport } from "../verification/change-scope.ts";
 
 export type CycleRunStatus = "idle" | "requested" | "running" | "completed" | "blocked" | "aborted" | "failed";
 export type CycleRunTriggerSource = "slash_command" | "operator_ui" | "heartbeat_tui";
@@ -52,6 +53,8 @@ export interface CycleRunEntry {
   finishedAt: string | null;
   failureNote: string | null;
   auditGuidance: CycleRunGuidanceTrail | null;
+  verificationScopeBaseline: VerificationScopeBaseline | null;
+  verificationScope: VerificationScopeReport | null;
   guidanceOutcomeReportPath: string | null;
   postRunAudit: CycleRunAuditTrail | null;
 }
@@ -93,6 +96,8 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     finishedAt: entry.finishedAt ?? null,
     failureNote: entry.failureNote ?? null,
     auditGuidance: entry.auditGuidance ?? null,
+    verificationScopeBaseline: entry.verificationScopeBaseline ?? null,
+    verificationScope: entry.verificationScope ?? null,
     guidanceOutcomeReportPath: entry.guidanceOutcomeReportPath ?? null,
     postRunAudit: entry.postRunAudit ?? null,
   };

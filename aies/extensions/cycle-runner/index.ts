@@ -12,6 +12,12 @@ import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/mes
 import { getAiesPaths } from "../shared/paths.ts";
 import { latestSessionPathByRecency } from "../shared/session-paths.ts";
 import {
+  createVerificationScopeReport,
+  captureVerificationScopeBaseline,
+  type VerificationScopeBaseline,
+  type VerificationScopeReport,
+} from "../verification/change-scope.ts";
+import {
   restoreRecoveryEntry,
   restoreVerificationEntry,
   restoreVerificationModeEntry,
@@ -176,6 +182,7 @@ function updateUi(entry: CycleRunEntry | null, ctx: ExtensionContext): void {
           ? `${entry.postRunAudit.verificationMode}/${entry.postRunAudit.verificationResult}`
           : entry.postRunAudit?.status ?? "pending"}`,
         `guide=${entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
+        `scope=${entry.verificationScope?.recommendedMode ?? (entry.verificationScopeBaseline ? "capturing" : "none")}`,
         `prompt=${entry.promptSummary}`,
       ]
     : [
@@ -698,6 +705,24 @@ function formatGuidanceSection(entry: CycleRunEntry): string[] {
   ];
 }
 
+function formatVerificationScopeSection(entry: CycleRunEntry): string[] {
+  if (!entry.verificationScope) {
+    return [
+      `Verification scope baseline: ${entry.verificationScopeBaseline?.capturedAt ?? "none"}`,
+      "Verification scope: none recorded",
+    ];
+  }
+
+  return [
+    `Verification scope baseline: ${entry.verificationScope.baselineCapturedAt ?? entry.verificationScopeBaseline?.capturedAt ?? "none"}`,
+    `Verification scope summary: ${entry.verificationScope.summary}`,
+    `Verification scope recommended mode: ${entry.verificationScope.recommendedMode}`,
+    `Verification scope categories: ${entry.verificationScope.categories.join(", ") || "none"}`,
+    `Verification scope files: ${entry.verificationScope.introducedFiles.map((file) => `${file.status}:${file.path}`).join(" | ") || "none"}`,
+    `Verification scope scan failure: ${entry.verificationScope.scanFailure ?? "none"}`,
+  ];
+}
+
 function formatStatus(entry: CycleRunEntry | null, ctx: ExtensionContext): string {
   const verification = restoreVerificationEntry(ctx);
   const recovery = restoreRecoveryEntry(ctx);
@@ -728,6 +753,7 @@ function formatStatus(entry: CycleRunEntry | null, ctx: ExtensionContext): strin
     `Finished: ${entry.finishedAt ?? "in-progress"}`,
     `Failure note: ${entry.failureNote ?? "none"}`,
     ...formatGuidanceSection(entry),
+    ...formatVerificationScopeSection(entry),
     ...formatCycleAuditSection(entry.postRunAudit),
     "",
     ...liveStatusLines,
@@ -747,6 +773,8 @@ function buildRunEntry(
   finishedAt: string | null,
   relatedCycleId: string | null,
   auditGuidance: CycleRunGuidanceTrail | null = null,
+  verificationScopeBaseline: VerificationScopeBaseline | null = null,
+  verificationScope: VerificationScopeReport | null = null,
   guidanceOutcomeReportPath: string | null = null,
   postRunAudit: CycleRunAuditTrail | null = null,
 ): CycleRunEntry {
@@ -763,6 +791,8 @@ function buildRunEntry(
     finishedAt,
     failureNote,
     auditGuidance,
+    verificationScopeBaseline,
+    verificationScope,
     guidanceOutcomeReportPath,
     postRunAudit,
   };
@@ -800,6 +830,8 @@ export async function runCycleCommand(
       nowIso(),
       activeRun?.relatedCycleId ?? null,
       activeRun?.auditGuidance ?? null,
+      activeRun?.verificationScopeBaseline ?? null,
+      activeRun?.verificationScope ?? null,
       activeRun?.guidanceOutcomeReportPath ?? null,
     );
     activeRun = blocked;
@@ -818,6 +850,7 @@ export async function runCycleCommand(
   const runId = createRunId();
   const startedAt = nowIso();
   const triggerSource = parseTriggerSource(args);
+  const verificationScopeBaseline = captureVerificationScopeBaseline();
 
   activeRun = buildRunEntry(
     runId,
@@ -832,6 +865,7 @@ export async function runCycleCommand(
     null,
     null,
     synthesized.auditGuidance,
+    verificationScopeBaseline,
   );
   if (activeRunRef) {
     activeRunRef.current = activeRun;
@@ -851,6 +885,7 @@ export async function runCycleCommand(
     null,
     null,
     synthesized.auditGuidance,
+    verificationScopeBaseline,
   );
   activeRun = running;
   if (activeRunRef) {
@@ -890,6 +925,7 @@ export async function runCycleCommand(
       nowIso(),
       null,
       synthesized.auditGuidance,
+      verificationScopeBaseline,
     );
     activeRun = failed;
     if (activeRunRef) {
@@ -948,6 +984,8 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
         nowIso(),
         activeRun.relatedCycleId,
         activeRun.auditGuidance,
+        activeRun.verificationScopeBaseline,
+        activeRun.verificationScope,
         activeRun.guidanceOutcomeReportPath,
       );
       activeRun = aborted;
@@ -981,8 +1019,11 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
     const relatedChangeId = activeRun.relatedChangeId ?? cycle?.activeChangeId ?? null;
     const relatedCycleId = cycle?.cycleId ?? null;
     const failureNote = assistantText ? null : "Cycle run ended without assistant output.";
+    const verificationScope = assistantText
+      ? createVerificationScopeReport(activeRun.verificationScopeBaseline ?? null)
+      : null;
     const postRunAudit = assistantText
-      ? runPostCycleAudit(pi, ctx)
+      ? runPostCycleAudit(pi, ctx, { verificationScope })
       : createSkippedPostRunAudit("Post-run audit was skipped because the cycle run ended without assistant output.", failureNote);
     const guidanceOutcomeReportPath = activeRun.auditGuidance
       ? persistAuditGuidanceOutcomeReport(createAuditGuidanceOutcomeReport({
@@ -1014,6 +1055,8 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       finishedAt,
       relatedCycleId,
       activeRun.auditGuidance,
+      activeRun.verificationScopeBaseline,
+      verificationScope,
       guidanceOutcomeReportPath,
       postRunAudit,
     );
