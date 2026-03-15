@@ -23,6 +23,7 @@ import { loadAuditSnapshotHistory, persistAuditSnapshot } from "./audit-radar-st
 
 type HeartbeatEntry = {
   currentCycle: CycleState | null;
+  lastCycle: CycleState | null;
   completedCycles: number;
   lastPromptText: string | null;
   lastAssistantText: string | null;
@@ -46,9 +47,12 @@ export interface AuditLoopQuickVerification {
   followUpRequired: boolean;
 }
 
+export type AuditLoopOrchestrationSource = "manual_command" | "cycle_runner";
+
 export interface AuditLoopReport {
   loopId: string;
   generatedAt: IsoTimestamp;
+  orchestrationSource: AuditLoopOrchestrationSource;
   sessionPath: string | null;
   relatedCycleId: string | null;
   relatedChangeId: string | null;
@@ -71,6 +75,10 @@ export interface AuditLoopRunResult {
   recoveryEntry: RecoveryEntry | null;
   loopReport: AuditLoopReport;
   loopReportPath: string;
+}
+
+export interface ExecuteAuditRadarLoopOptions {
+  orchestrationSource?: AuditLoopOrchestrationSource;
 }
 
 function nowIso(): string {
@@ -122,6 +130,11 @@ function restoreHeartbeat(ctx: ExtensionContext): HeartbeatEntry | null {
     .pop() as { data?: HeartbeatEntry } | undefined;
 
   return entry?.data ?? null;
+}
+
+function resolveHeartbeatCycle(ctx: ExtensionContext): CycleState | null {
+  const heartbeat = restoreHeartbeat(ctx);
+  return heartbeat?.currentCycle ?? heartbeat?.lastCycle ?? null;
 }
 
 function requestedVerificationMode(ctx: ExtensionContext): VerificationMode {
@@ -313,12 +326,14 @@ function createLoopReport(
   verificationEntry: VerificationEntry,
   recoveryEntry: RecoveryEntry | null,
   verification: AuditLoopQuickVerification,
+  orchestrationSource: AuditLoopOrchestrationSource,
 ): AuditLoopReport {
   const generatedAt = nowIso();
 
   return {
     loopId: createLoopId(generatedAt),
     generatedAt,
+    orchestrationSource,
     sessionPath: ctx.sessionManager.getSessionFile() ?? null,
     relatedCycleId: verificationEntry.cycleId,
     relatedChangeId: verificationEntry.relatedChangeId,
@@ -380,8 +395,13 @@ export function persistAuditLoopReport(report: AuditLoopReport): string {
   return projectRelativePath(fullPath);
 }
 
-export function executeAuditRadarLoop(pi: ExtensionAPI, ctx: ExtensionContext): AuditLoopRunResult {
-  const cycle = restoreHeartbeat(ctx)?.currentCycle ?? null;
+export function executeAuditRadarLoop(
+  pi: ExtensionAPI,
+  ctx: ExtensionContext,
+  options: ExecuteAuditRadarLoopOptions = {},
+): AuditLoopRunResult {
+  const orchestrationSource = options.orchestrationSource ?? "manual_command";
+  const cycle = resolveHeartbeatCycle(ctx);
   const history = loadAuditSnapshotHistory(0);
   const snapshot = createLayerAuditSnapshot(scanAuditEvidence(), history);
   const snapshotPath = persistAuditSnapshot(snapshot);
@@ -413,6 +433,7 @@ export function executeAuditRadarLoop(pi: ExtensionAPI, ctx: ExtensionContext): 
     verificationEntry,
     recoveryEntry,
     verification,
+    orchestrationSource,
   );
   const loopReportPath = persistAuditLoopReport(loopReport);
 
@@ -433,6 +454,7 @@ export function formatAuditLoopRun(result: AuditLoopRunResult): string {
   const lines = [
     `AIES audit radar loop @ ${result.loopReport.generatedAt}`,
     `Loop: ${result.loopReport.loopId}`,
+    `Orchestration source: ${result.loopReport.orchestrationSource}`,
     `Snapshot: ${result.snapshot.snapshotId} (${result.snapshot.bindingConstraint.dimension})`,
     `Snapshot path: ${result.snapshotPath}`,
     `Outcome report: ${result.outcomeReport ? `${result.outcomeReport.reportId} (${result.outcomeReportPath})` : "skipped"}`,

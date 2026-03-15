@@ -333,6 +333,14 @@ function buildRules(): EvidenceRule[] {
       summary: "The audit radar now has a native loop command that couples assessment, durable outcome comparison, and quick verification while recording session verification and recovery evidence from the same run.",
       extractExcerpt: (content) => firstMatchingLine(content, ["export function executeAuditRadarLoop(", "runQuickVerification(", "persistAuditLoopReport"]),
     },
+    {
+      kind: "file",
+      ruleId: "evaluation-audit-radar-cycle-orchestration",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/cycle-runner/audit.ts",
+      summary: "Cycle orchestration now invokes the audit radar loop automatically after completed cycle-runner turns and records the linked audit trail in cycle-run state.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function runPostCycleAudit(", "executeAuditRadarLoop(", "loopReportPath"]),
+    },
     ...(latestLoopReport
       ? [{
           kind: "file" as const,
@@ -341,6 +349,16 @@ function buildRules(): EvidenceRule[] {
           relativePath: projectRelativePath(latestLoopReport),
           summary: "Durable audit loop reports now capture the linked snapshot, outcome report, and verification/recovery result from one reproducible harness run.",
           extractExcerpt: (content: string) => firstMatchingLine(content, ["\"snapshotPath\"", "\"outcomeReportPath\"", "\"verification\""]),
+        }]
+      : []),
+    ...(latestLoopReport
+      ? [{
+          kind: "file" as const,
+          ruleId: "evaluation-audit-radar-orchestrated-loop-report",
+          dimension: "evaluation",
+          relativePath: projectRelativePath(latestLoopReport),
+          summary: "A durable audit loop report now records a cycle-runner orchestration source, showing the audit loop has been exercised as part of cycle orchestration instead of only by manual command use.",
+          extractExcerpt: (content: string) => firstMatchingLine(content, [/\"orchestrationSource\":\s*\"cycle_runner\"/]),
         }]
       : []),
     {
@@ -383,6 +401,14 @@ function buildRules(): EvidenceRule[] {
       summary: "A native /audit-radar-loop command now runs audit assessment, outcome comparison, and quick verification as one reproducible harness action.",
       extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarLoop", "executeAuditRadarLoop", "Run audit assessment, outcome comparison, and quick verification"]),
     },
+    {
+      kind: "file",
+      ruleId: "harness-audit-radar-cycle-orchestration",
+      dimension: "harness",
+      relativePath: "aies/extensions/cycle-runner/index.ts",
+      summary: "The cycle runner now records a post-run audit trail and invokes audit-radar-loop orchestration automatically after completed cycle turns.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["runPostCycleAudit", "postRunAudit", "formatCycleAuditSection"]),
+    },
     ...(latestLoopReport
       ? [{
           kind: "file" as const,
@@ -391,6 +417,16 @@ function buildRules(): EvidenceRule[] {
           relativePath: projectRelativePath(latestLoopReport),
           summary: "The harness now persists durable audit-loop reports so operators and later cycles can inspect a single run's linked audit, outcome, and verification evidence.",
           extractExcerpt: (content: string) => firstMatchingLine(content, ["\"loopId\"", "\"verificationRecordId\"", "\"recoveryId\""]),
+        }]
+      : []),
+    ...(latestLoopReport
+      ? [{
+          kind: "file" as const,
+          ruleId: "harness-audit-radar-orchestrated-loop-report",
+          dimension: "harness",
+          relativePath: projectRelativePath(latestLoopReport),
+          summary: "The latest durable audit-loop report now records a cycle-runner orchestration source, showing the harness exercised audit evaluation as part of cycle orchestration.",
+          extractExcerpt: (content: string) => firstMatchingLine(content, [/\"orchestrationSource\":\s*\"cycle_runner\"/]),
         }]
       : []),
   ];

@@ -18,10 +18,12 @@ import {
   type VerificationModeEntry,
 } from "../verification/state.ts";
 import { summarizeRequestsForPrompt } from "../user-requests/state.ts";
+import { createSkippedPostRunAudit, runPostCycleAudit } from "./audit.ts";
 import {
   CYCLE_RUN_ENTRY_TYPE,
   CYCLE_THOUGHT_ENTRY_TYPE,
   restoreCycleRunEntry,
+  type CycleRunAuditTrail,
   type CycleRunEntry,
   type CycleRunStatus,
   type CycleRunTriggerSource,
@@ -31,6 +33,7 @@ import {
 
 type HeartbeatEntry = {
   currentCycle: CycleState | null;
+  lastCycle: CycleState | null;
   completedCycles: number;
   lastPromptText: string | null;
   lastAssistantText: string | null;
@@ -99,6 +102,10 @@ function restoreHeartbeat(ctx: ExtensionContext): HeartbeatEntry | null {
   return heartbeatEntry?.data ?? null;
 }
 
+function resolveHeartbeatCycle(heartbeat: HeartbeatEntry | null): CycleState | null {
+  return heartbeat?.currentCycle ?? heartbeat?.lastCycle ?? null;
+}
+
 function persistRun(pi: ExtensionAPI, entry: CycleRunEntry): void {
   pi.appendEntry(CYCLE_RUN_ENTRY_TYPE, entry);
 }
@@ -162,6 +169,9 @@ function updateUi(entry: CycleRunEntry | null, ctx: ExtensionContext): void {
         `source=${entry.triggerSource}`,
         `change=${entry.relatedChangeId ?? "none"}`,
         `cycle=${entry.relatedCycleId ?? "pending"}`,
+        `audit=${entry.postRunAudit?.verificationMode && entry.postRunAudit?.verificationResult
+          ? `${entry.postRunAudit.verificationMode}/${entry.postRunAudit.verificationResult}`
+          : entry.postRunAudit?.status ?? "pending"}`,
         `prompt=${entry.promptSummary}`,
       ]
     : [
@@ -624,8 +634,29 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
   return {
     prompt: lines.join("\n"),
     summary,
-    relatedChangeId: openSpec?.context.activeChangeId ?? heartbeat?.currentCycle?.activeChangeId ?? null,
+    relatedChangeId: openSpec?.context.activeChangeId ?? resolveHeartbeatCycle(heartbeat)?.activeChangeId ?? null,
   };
+}
+
+function formatCycleAuditSection(audit: CycleRunAuditTrail | null): string[] {
+  if (!audit) {
+    return ["Post-run audit: none recorded"];
+  }
+
+  return [
+    `Post-run audit status: ${audit.status}`,
+    `Post-run audit loop: ${audit.loopId ?? "none"}`,
+    `Post-run audit snapshot: ${audit.snapshotId ?? "none"}`,
+    `Post-run audit outcome report: ${audit.outcomeReportId ?? "none"}`,
+    `Post-run audit verification: ${audit.verificationMode && audit.verificationResult
+      ? `${audit.verificationMode}/${audit.verificationResult}`
+      : "none"}`,
+    `Post-run audit verification state: ${audit.verificationState ?? "none"}`,
+    `Post-run audit recovery: ${audit.recoveryId ?? "none"}`,
+    `Post-run audit report path: ${audit.loopReportPath ?? "none"}`,
+    `Post-run audit summary: ${audit.summary}`,
+    `Post-run audit failure: ${audit.failureNote ?? "none"}`,
+  ];
 }
 
 function formatStatus(entry: CycleRunEntry | null, ctx: ExtensionContext): string {
@@ -657,6 +688,7 @@ function formatStatus(entry: CycleRunEntry | null, ctx: ExtensionContext): strin
     `Started: ${entry.startedAt}`,
     `Finished: ${entry.finishedAt ?? "in-progress"}`,
     `Failure note: ${entry.failureNote ?? "none"}`,
+    ...formatCycleAuditSection(entry.postRunAudit),
     "",
     ...liveStatusLines,
   ].join("\n");
@@ -674,6 +706,7 @@ function buildRunEntry(
   startedAt: string,
   finishedAt: string | null,
   relatedCycleId: string | null,
+  postRunAudit: CycleRunAuditTrail | null = null,
 ): CycleRunEntry {
   return {
     runId,
@@ -687,6 +720,7 @@ function buildRunEntry(
     startedAt,
     finishedAt,
     failureNote,
+    postRunAudit,
   };
 }
 
@@ -890,10 +924,15 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
     }
 
     const heartbeat = restoreHeartbeat(ctx);
+    const cycle = resolveHeartbeatCycle(heartbeat);
     const assistantText = latestAssistantText(event.messages);
     const finishedAt = nowIso();
-    const relatedChangeId = activeRun.relatedChangeId ?? heartbeat?.currentCycle?.activeChangeId ?? null;
-    const relatedCycleId = heartbeat?.currentCycle?.cycleId ?? null;
+    const relatedChangeId = activeRun.relatedChangeId ?? cycle?.activeChangeId ?? null;
+    const relatedCycleId = cycle?.cycleId ?? null;
+    const failureNote = assistantText ? null : "Cycle run ended without assistant output.";
+    const postRunAudit = assistantText
+      ? runPostCycleAudit(pi, ctx)
+      : createSkippedPostRunAudit("Post-run audit was skipped because the cycle run ended without assistant output.", failureNote);
     const completed = buildRunEntry(
       activeRun.runId,
       assistantText ? "completed" : "failed",
@@ -902,10 +941,11 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       activeRun.promptSummary,
       activeRun.promptText,
       relatedChangeId,
-      assistantText ? null : "Cycle run ended without assistant output.",
+      failureNote,
       activeRun.startedAt,
       finishedAt,
       relatedCycleId,
+      postRunAudit,
     );
     const thoughtEntry: CycleThoughtEntry = {
       runId: activeRun.runId,

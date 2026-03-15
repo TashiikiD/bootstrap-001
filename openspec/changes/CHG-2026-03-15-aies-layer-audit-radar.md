@@ -2,8 +2,8 @@
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
 status: active
-updated_at: 2026-03-15T16:33:02.358Z
-last_audit_snapshot: audit-2026-03-15T16-32-37-125Z
+updated_at: 2026-03-15T17:06:59.001Z
+last_audit_snapshot: audit-2026-03-15T17-06-59-001Z
 last_audit_reconciled_dimension: evaluation
 ---
 
@@ -44,8 +44,10 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
 - [x] Wrap the audit learning loop into one reproducible harness command.
   - Added `aies/extensions/evaluation/audit-radar-loop.ts` plus `/audit-radar-loop`, which runs audit assessment, persists a fresh outcome comparison, executes `./verify-aies-quick.ps1`, records verification/recovery state, and emits a durable loop report under `memory/knowledge/audit-radar/loops/`.
   - The scanner and theory-grounded assessment rules now treat loop code plus loop reports as evaluation/harness evidence, so the audit can distinguish “native command exists” from “native command has been exercised on real sessions.”
+  - Added `aies/extensions/cycle-runner/audit.ts` plus cycle-runner state/reporting updates so completed `/cycle-run` turns can invoke the audit loop automatically and record a visible post-run audit trail instead of relying only on manual `/audit-radar-loop` use.
+  - Loop reports now carry an `orchestrationSource` field, allowing the audit scanner to distinguish manual command runs from future cycle-runner-triggered runs without over-claiming orchestration evidence.
   - Validation: ran `/audit-radar-loop`, producing `audit-loop-2026-03-15T16-33-02-358Z`, `audit-outcomes-2026-03-15T16-32-38-492Z`, and `audit-2026-03-15T16-32-37-125Z`; the loop’s quick verification recorded `fast/passed` with no recovery entry.
-  - Validation: re-ran `/audit-radar-assess`, producing `audit-2026-03-15T16-28-29-370Z`; evaluation and harness stayed partial, but their cited gap advanced from “missing reproducible command chain” to “loop exists but still requires explicit invocation instead of cycle orchestration.”
+  - Validation: re-ran `/audit-radar-assess`, producing `audit-2026-03-15T17-06-59-001Z`; evaluation and harness stayed partial, but the cited gap advanced from “manual command only” to “cycle orchestration hook exists but still lacks a durable cycle-runner-exercised loop report.”
 - [ ] Record the experiment back into memory.
   - Write devlog and theory-fork updates on what the audit got right, what it missed, and how the harness should evaluate itself without collapsing into shallow score-chasing.
 

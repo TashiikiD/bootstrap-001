@@ -1,7 +1,23 @@
 import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
+import type { VerificationMode, VerificationResult, VerificationState } from "../../contracts/primitives.ts";
 
 export type CycleRunStatus = "idle" | "requested" | "running" | "completed" | "blocked" | "aborted" | "failed";
 export type CycleRunTriggerSource = "slash_command" | "operator_ui" | "heartbeat_tui";
+export type CycleRunAuditStatus = "completed" | "failed" | "skipped";
+
+export interface CycleRunAuditTrail {
+  status: CycleRunAuditStatus;
+  loopId: string | null;
+  loopReportPath: string | null;
+  snapshotId: string | null;
+  outcomeReportId: string | null;
+  verificationMode: VerificationMode | null;
+  verificationResult: VerificationResult | null;
+  verificationState: VerificationState | null;
+  recoveryId: string | null;
+  summary: string;
+  failureNote: string | null;
+}
 
 export interface CycleRunEntry {
   runId: string;
@@ -15,6 +31,7 @@ export interface CycleRunEntry {
   startedAt: string;
   finishedAt: string | null;
   failureNote: string | null;
+  postRunAudit: CycleRunAuditTrail | null;
 }
 
 export interface CycleThoughtBlock {
@@ -53,6 +70,7 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     startedAt: entry.startedAt,
     finishedAt: entry.finishedAt ?? null,
     failureNote: entry.failureNote ?? null,
+    postRunAudit: entry.postRunAudit ?? null,
   };
 }
 

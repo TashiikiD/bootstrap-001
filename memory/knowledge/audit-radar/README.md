@@ -12,3 +12,7 @@ Planned layout:
 - `outcomes/` — durable correction-path comparison reports showing which interventions appeared between audits and whether weak layers improved
 - `loops/` — durable end-to-end loop reports tying one audit run to its linked outcome comparison plus verification/recovery result
 - optional human-readable reports can live alongside the structured snapshots later if the runtime needs them
+
+Loop report notes:
+- `orchestrationSource` distinguishes manual `/audit-radar-loop` invocations from future cycle-runner-triggered loop executions.
+- This prevents the scanner from over-claiming orchestration evidence just because a manual loop report happened to reference the latest completed cycle.
