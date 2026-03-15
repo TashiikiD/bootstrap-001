@@ -125,7 +125,7 @@ function adoptAlignedOperatorControlMode(
     source: "aligned_operator",
     updatedAt: nowIso(),
   };
-  persistModeEntry(pi, nextEntry);
+  persistModeEntryIfChanged(pi, ctx, nextEntry);
   return nextEntry;
 }
 
@@ -174,6 +174,16 @@ function persistHeartbeat(pi: ExtensionAPI, state: HeartbeatEntry): void {
 
 function persistModeEntry(pi: ExtensionAPI, entry: VerificationModeEntry): void {
   pi.appendEntry(VERIFICATION_MODE_ENTRY_TYPE, entry);
+}
+
+function persistModeEntryIfChanged(pi: ExtensionAPI, ctx: ExtensionContext, entry: VerificationModeEntry): boolean {
+  const currentEntry = restoreVerificationModeEntry(ctx);
+  if (currentEntry?.mode === entry.mode && currentEntry.source === entry.source) {
+    return false;
+  }
+
+  persistModeEntry(pi, entry);
+  return true;
 }
 
 function persistVerificationEntry(pi: ExtensionAPI, entry: VerificationEntry): void {
@@ -713,11 +723,11 @@ export default function aiesVerificationExtension(pi: ExtensionAPI): void {
 
       currentMode = requestedMode;
       currentModeSource = "override";
-      persistModeEntry(pi, { mode: currentMode, source: currentModeSource, updatedAt: nowIso() });
+      const changed = persistModeEntryIfChanged(pi, ctx, { mode: currentMode, source: currentModeSource, updatedAt: nowIso() });
       latestEntry = restoreVerificationEntry(ctx);
       latestRecovery = restoreRecoveryEntry(ctx);
       updateUi(currentMode, latestEntry, latestRecovery, ctx);
-      writeLine(ctx, `AIES verification mode set to ${currentMode}.`);
+      writeLine(ctx, changed ? `AIES verification mode set to ${currentMode}.` : `AIES verification mode already set to ${currentMode}.`);
     },
   });
 
@@ -749,7 +759,7 @@ export default function aiesVerificationExtension(pi: ExtensionAPI): void {
 
       persistVerificationEntry(pi, latestEntry);
       latestRecovery = persistRecoveryForRecord(pi, ctx, record, cycle, latestEntry.recoveryNote) ?? restoreRecoveryEntry(ctx);
-      persistModeEntry(pi, { mode: currentMode, source: currentModeSource, updatedAt: nowIso() });
+      persistModeEntryIfChanged(pi, ctx, { mode: currentMode, source: currentModeSource, updatedAt: nowIso() });
       updateHeartbeatVerification(pi, heartbeat, record);
       updateUi(currentMode, latestEntry, latestRecovery, ctx);
       writeLine(ctx, `Verification recorded: ${record.mode}/${record.result}`);
@@ -860,7 +870,7 @@ export default function aiesVerificationExtension(pi: ExtensionAPI): void {
     } else {
       currentMode = inferVerificationMode(cycle, event.prompt ?? heartbeat?.lastPromptText ?? "", Boolean(openSpecEntry?.context.activeChangeId));
       currentModeSource = "inferred";
-      persistModeEntry(pi, { mode: currentMode, source: currentModeSource, updatedAt: nowIso() });
+      persistModeEntryIfChanged(pi, ctx, { mode: currentMode, source: currentModeSource, updatedAt: nowIso() });
     }
 
     latestEntry = restoreVerificationEntry(ctx);
