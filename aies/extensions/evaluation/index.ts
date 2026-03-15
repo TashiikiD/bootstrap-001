@@ -6,6 +6,7 @@ import type { CycleState } from "../../contracts/cycle-state.ts";
 import type { AiesDimension, EvaluationConfidence, FocusType } from "../../contracts/primitives.ts";
 import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
+import { formatAuditEvidenceScan, scanAuditEvidence } from "./audit-radar-scanner.ts";
 import { EVALUATION_ENTRY_TYPE, restoreEvaluationEntry, restoreEvaluationHistory, type EvaluationEntry } from "./state.ts";
 
 type AgentEndEvent = {
@@ -440,6 +441,13 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
       const history = restoreEvaluationHistory(ctx);
       updateUi(restoreEvaluationEntry(ctx), ctx);
       writeLine(ctx, formatHistory(history, Number.isFinite(count) && count > 0 ? count : 5));
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarScan, {
+    description: "Scan curated repo surfaces and cite audit evidence across the 5+2 AIES stack",
+    handler: async (args, ctx) => {
+      writeLine(ctx, formatAuditEvidenceScan(scanAuditEvidence(), args ?? ""));
     },
   });
 

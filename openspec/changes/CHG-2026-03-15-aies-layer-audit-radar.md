@@ -13,9 +13,9 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
 - [x] Define the audit snapshot contract.
   - Created `aies/contracts/layer-audit-snapshot.ts` with a serialization-friendly schema for seven-component audit snapshots, evidence items, binding-constraint rationale, and recommended next step.
   - Chose `memory/knowledge/audit-radar/snapshots/` as the durable snapshot store so audits survive restarts and can be compared across sessions.
-- [ ] Implement a repo scanner for audit evidence.
-  - Build a local tool/script/extension that reads curated surfaces such as `AGENTS.md`, `memory/`, `openspec/`, `aies/extensions/`, and `operator-ui/`.
-  - Extract explicit evidence for prompt, context, intent, judgment, coherence, evaluation, and harness layers instead of guessing.
+- [x] Implement a repo scanner for audit evidence.
+  - Added `aies/extensions/evaluation/audit-radar-scanner.ts` and the `/audit-radar-scan` command to read curated surfaces such as `AGENTS.md`, `memory/`, `openspec/`, `aies/extensions/`, `operator-ui/`, and `.pi/`.
+  - The scanner now extracts explicit cited evidence for prompt, context, intent, judgment, coherence, evaluation, and harness layers instead of guessing, and reports any dimensions still missing evidence.
 - [ ] Implement theory-grounded layer assessment logic.
   - Translate the local audit protocol into explicit rules for classifying each layer as strong, partial, or missing.
   - Include anti-Goodhart guardrails so the system prefers cited evidence and identified gaps over flattering self-ratings.
