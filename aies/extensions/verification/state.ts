@@ -55,15 +55,6 @@ type CustomSnapshot<T> = {
   timestamp: string | null;
 };
 
-function restoreLatestCustom<T>(ctx: ExtensionContext, customType: string): T | null {
-  const entries = ctx.sessionManager.getEntries();
-  const entry = entries
-    .filter((item: { type: string; customType?: string }) => item.type === "custom" && item.customType === customType)
-    .pop() as { data?: T } | undefined;
-
-  return entry?.data ?? null;
-}
-
 function restoreLatestCustomSnapshot<T>(ctx: ExtensionContext, customType: string): CustomSnapshot<T> | null {
   const entries = ctx.sessionManager.getEntries();
   const entry = entries
@@ -80,15 +71,16 @@ function restoreLatestCustomSnapshot<T>(ctx: ExtensionContext, customType: strin
   };
 }
 
-function restoreLatestCustomSnapshotFromSessionFile<T>(ctx: ExtensionContext, customType: string): CustomSnapshot<T> | null {
+function restoreCustomSnapshotsFromSessionFile<T>(ctx: ExtensionContext, customType: string): CustomSnapshot<T>[] {
   const sessionFile = ctx.sessionManager.getSessionFile();
   if (!sessionFile || !existsSync(sessionFile)) {
-    return null;
+    return [];
   }
 
+  const snapshots: CustomSnapshot<T>[] = [];
   const lines = readFileSync(sessionFile, "utf8").split(/\r?\n/);
-  for (let index = lines.length - 1; index >= 0; index -= 1) {
-    const line = lines[index]?.trim();
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
     if (!line) {
       continue;
     }
@@ -96,17 +88,22 @@ function restoreLatestCustomSnapshotFromSessionFile<T>(ctx: ExtensionContext, cu
     try {
       const entry = JSON.parse(line) as CustomSessionEntry<T>;
       if (entry.type === "custom" && entry.customType === customType && entry.data) {
-        return {
+        snapshots.push({
           data: entry.data,
           timestamp: typeof entry.timestamp === "string" ? entry.timestamp : null,
-        };
+        });
       }
     } catch {
       continue;
     }
   }
 
-  return null;
+  return snapshots;
+}
+
+function restoreLatestCustomSnapshotFromSessionFile<T>(ctx: ExtensionContext, customType: string): CustomSnapshot<T> | null {
+  const snapshots = restoreCustomSnapshotsFromSessionFile<T>(ctx, customType);
+  return snapshots.length > 0 ? snapshots[snapshots.length - 1] ?? null : null;
 }
 
 function parseTimestamp(value: string | null): number | null {
@@ -134,7 +131,19 @@ function chooseLatestSnapshot<T>(left: CustomSnapshot<T> | null, right: CustomSn
   return rightTime !== null ? right : left;
 }
 
+function restoreLatestCustomData<T>(ctx: ExtensionContext, customType: string): T | null {
+  return chooseLatestSnapshot(
+    restoreLatestCustomSnapshot<T>(ctx, customType),
+    restoreLatestCustomSnapshotFromSessionFile<T>(ctx, customType),
+  )?.data ?? null;
+}
+
 function restoreCustomHistory<T>(ctx: ExtensionContext, customType: string): T[] {
+  const sessionSnapshots = restoreCustomSnapshotsFromSessionFile<T>(ctx, customType);
+  if (sessionSnapshots.length > 0) {
+    return sessionSnapshots.map((entry) => entry.data);
+  }
+
   const entries = ctx.sessionManager.getEntries();
   return entries
     .filter((entry: { type: string; customType?: string }) => entry.type === "custom" && entry.customType === customType)
@@ -143,7 +152,7 @@ function restoreCustomHistory<T>(ctx: ExtensionContext, customType: string): T[]
 }
 
 export function restoreVerificationEntry(ctx: ExtensionContext): VerificationEntry | null {
-  return restoreLatestCustom<VerificationEntry>(ctx, VERIFICATION_ENTRY_TYPE);
+  return restoreLatestCustomData<VerificationEntry>(ctx, VERIFICATION_ENTRY_TYPE);
 }
 
 export function restoreVerificationHistory(ctx: ExtensionContext): VerificationEntry[] {
@@ -151,14 +160,11 @@ export function restoreVerificationHistory(ctx: ExtensionContext): VerificationE
 }
 
 export function restoreVerificationModeEntry(ctx: ExtensionContext): VerificationModeEntry | null {
-  return chooseLatestSnapshot(
-    restoreLatestCustomSnapshot<VerificationModeEntry>(ctx, VERIFICATION_MODE_ENTRY_TYPE),
-    restoreLatestCustomSnapshotFromSessionFile<VerificationModeEntry>(ctx, VERIFICATION_MODE_ENTRY_TYPE),
-  )?.data ?? null;
+  return restoreLatestCustomData<VerificationModeEntry>(ctx, VERIFICATION_MODE_ENTRY_TYPE);
 }
 
 export function restoreRecoveryEntry(ctx: ExtensionContext): RecoveryEntry | null {
-  return restoreLatestCustom<RecoveryEntry>(ctx, RECOVERY_ENTRY_TYPE);
+  return restoreLatestCustomData<RecoveryEntry>(ctx, RECOVERY_ENTRY_TYPE);
 }
 
 export function restoreRecoveryHistory(ctx: ExtensionContext): RecoveryEntry[] {
