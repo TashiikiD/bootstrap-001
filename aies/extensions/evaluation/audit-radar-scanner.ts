@@ -98,22 +98,55 @@ function summarizeDirectory(entries: string[], interestingEntries: string[]): st
   return shorten(`Contains ${found.join(", ")}.`);
 }
 
-function latestChangePath(): string | null {
+function changeStatus(markdown: string): string {
+  const frontmatterMatch = markdown.replace(/^\uFEFF/, "").match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!frontmatterMatch?.[1]) {
+    return "proposed";
+  }
+
+  const statusMatch = frontmatterMatch[1].match(/^status:\s*(.+)$/m);
+  return statusMatch?.[1]?.trim() ?? "proposed";
+}
+
+function preferredChangePath(): string | null {
   const paths = getAiesPaths();
   if (!existsSync(paths.openSpecChangesRoot)) {
     return null;
   }
 
-  const fileName = readdirSync(paths.openSpecChangesRoot)
-    .filter((name) => /^CHG-.*\.md$/i.test(name))
-    .sort()
-    .reverse()[0] ?? null;
+  const priority = new Map([
+    ["active", 0],
+    ["blocked", 1],
+    ["proposed", 2],
+    ["complete", 3],
+    ["archived", 4],
+  ]);
 
-  return fileName ? join(paths.openSpecChangesRoot, fileName) : null;
+  const candidates = readdirSync(paths.openSpecChangesRoot)
+    .filter((name) => /^CHG-.*\.md$/i.test(name))
+    .map((name) => {
+      const fullPath = join(paths.openSpecChangesRoot, name);
+      const markdown = readFileSync(fullPath, "utf8");
+      return {
+        fullPath,
+        fileName: name,
+        status: changeStatus(markdown),
+      };
+    })
+    .sort((left, right) => {
+      const leftPriority = priority.get(left.status) ?? 99;
+      const rightPriority = priority.get(right.status) ?? 99;
+      if (leftPriority !== rightPriority) {
+        return leftPriority - rightPriority;
+      }
+      return right.fileName.localeCompare(left.fileName);
+    });
+
+  return candidates[0]?.fullPath ?? null;
 }
 
 function buildRules(): EvidenceRule[] {
-  const latestChange = latestChangePath();
+  const latestChange = preferredChangePath();
 
   return [
     {
@@ -229,6 +262,14 @@ function buildRules(): EvidenceRule[] {
       relativePath: "aies/extensions/evaluation/audit-radar-state.ts",
       summary: "The audit radar persistence layer stores serialized snapshots in durable memory so later cycles can compare audit state across sessions.",
       extractExcerpt: (content) => firstMatchingLine(content, ["export function loadAuditSnapshotHistory(", "export function persistAuditSnapshot(", "auditRadarSnapshotsRoot"]),
+    },
+    {
+      kind: "file",
+      ruleId: "evaluation-audit-radar-proposal-bridge",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/audit-radar-proposal.ts",
+      summary: "The audit radar can now draft follow-on OpenSpec changes from durable snapshots so repeated findings can become planned evolution work.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditDrivenOpenSpecChange(", "persistAuditDrivenOpenSpecChange", "generated_from_audit_snapshot"]),
     },
     {
       kind: "file",

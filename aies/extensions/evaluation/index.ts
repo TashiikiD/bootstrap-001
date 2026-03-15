@@ -7,8 +7,9 @@ import type { AiesDimension, EvaluationConfidence, FocusType } from "../../contr
 import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
+import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
 import { formatAuditEvidenceScan, scanAuditEvidence } from "./audit-radar-scanner.ts";
-import { loadAuditSnapshotHistory, persistAuditSnapshot } from "./audit-radar-state.ts";
+import { latestAuditSnapshot, loadAuditSnapshotHistory, persistAuditSnapshot } from "./audit-radar-state.ts";
 import { EVALUATION_ENTRY_TYPE, restoreEvaluationEntry, restoreEvaluationHistory, type EvaluationEntry } from "./state.ts";
 
 type AgentEndEvent = {
@@ -460,6 +461,30 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
       const snapshot = createLayerAuditSnapshot(scanAuditEvidence(), history);
       const persistedPath = persistAuditSnapshot(snapshot);
       writeLine(ctx, `${formatLayerAuditSnapshot(snapshot)}\nPersisted: ${persistedPath}`);
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarPropose, {
+    description: "Draft a follow-on OpenSpec change from the latest durable audit snapshot; optional arg: target dimension",
+    handler: async (args, ctx) => {
+      const snapshot = latestAuditSnapshot();
+      if (!snapshot) {
+        writeLine(ctx, "No durable audit snapshot exists yet. Run /audit-radar-assess first.", "warning");
+        return;
+      }
+
+      const draft = createAuditDrivenOpenSpecChange(snapshot, args ?? "");
+      const persistedPath = persistAuditDrivenOpenSpecChange(draft);
+      writeLine(
+        ctx,
+        [
+          `Created OpenSpec draft: ${draft.changeId}`,
+          `Title: ${draft.title}`,
+          `Dimension: ${draft.selectedDimension}`,
+          `Source snapshot: ${draft.sourceSnapshotPath}`,
+          `Persisted: ${persistedPath}`,
+        ].join("\n"),
+      );
     },
   });
 

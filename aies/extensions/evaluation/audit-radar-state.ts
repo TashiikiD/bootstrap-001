@@ -9,6 +9,11 @@ function normalizeSnapshotFileName(snapshot: LayerAuditSnapshot): string {
   return `${safeObservedAt}--${safeSnapshotId}.json`;
 }
 
+export function auditSnapshotRelativePath(snapshot: LayerAuditSnapshot): string {
+  const fullPath = join(getAiesPaths().auditRadarSnapshotsRoot, normalizeSnapshotFileName(snapshot));
+  return projectRelativePath(fullPath);
+}
+
 function projectRelativePath(fullPath: string): string {
   return relative(getAiesPaths().projectRoot, fullPath).replace(/\\/g, "/");
 }

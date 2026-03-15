@@ -1,7 +1,7 @@
 ---
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
-status: proposed
+status: active
 ---
 
 ## Summary
@@ -25,9 +25,9 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
 - [ ] Surface the audit in AIES runtime tools.
   - Add a command and/or operator-visible widget/report in the WebUI for the latest audit summary, binding constraint, and suggested change direction.
   - Make it easy for future cycles to use the audit when choosing work.
-- [ ] Connect audit output to planning.
-  - Add a path from audit findings to OpenSpec proposal drafting so the harness can turn diagnosed gaps into multi-cycle changes.
-  - Pilot the flow by generating at least one follow-on change from a real audit snapshot.
+- [x] Connect audit output to planning.
+  - Added `/audit-radar-propose [dimension]`, which drafts a new `CHG-*.md` file from the latest durable audit snapshot and uses the selected layer's evidence, gaps, drift summary, and recommended paths to seed a multi-step plan.
+  - Piloted the flow by generating a real follow-on change from a stored audit snapshot, proving that repeated audit findings can now become operator-visible OpenSpec work instead of staying advisory text.
 - [ ] Record the experiment back into memory.
   - Write devlog and theory-fork updates on what the audit got right, what it missed, and how the harness should evaluate itself without collapsing into shallow score-chasing.
 

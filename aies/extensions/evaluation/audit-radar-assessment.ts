@@ -183,18 +183,21 @@ function buildRules(): DimensionRule[] {
         "audit-evaluation-snapshot-logic",
         "audit-evaluation-verification-recovery",
         "audit-evaluation-audit-radar-persistence",
+        "audit-evaluation-audit-radar-proposal-bridge",
       ],
-      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence and historical comparison.",
-      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, and durable audit snapshots, but it still lacks a complete path from diagnosis to automated planning and correction-path comparison.",
+      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, historical comparison, and planning drafts tied to real findings.",
+      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, durable audit snapshots, and audit-driven proposal drafting, but it still lacks a complete path from diagnosis to automatically maintained plans and correction-path comparison.",
       missingSummary: "The audit found no explicit evaluation-engineering artifacts in the curated scan roots.",
       strengthTemplates: [
         "The runtime already records structured evaluation snapshots rather than relying only on narrative self-report.",
         "Verification and recovery are tracked as explicit state surfaces that can be inspected by later cycles.",
       ],
-      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-persistence")
-        ? ["The audit can now persist and compare snapshots, but findings still do not automatically draft or update planning artifacts when a binding constraint repeats."]
-        : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
-      highestLeverageNextStep: "Connect repeated audit findings to OpenSpec proposal drafting so evaluation changes future work selection instead of only describing it.",
+      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-proposal-bridge")
+        ? ["The audit can now draft follow-on OpenSpec changes, but repeated findings still do not automatically reconcile against existing plans or task queues."]
+        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-persistence")
+          ? ["The audit can now persist and compare snapshots, but findings still do not automatically draft or update planning artifacts when a binding constraint repeats."]
+          : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
+      highestLeverageNextStep: "Connect audit drafting to active-change reconciliation so repeated findings can update existing plans instead of only creating new proposals.",
       recommendationActionType: "openspec_change",
       suggestedPaths: ["aies/extensions/evaluation/", "aies/extensions/openspec/", "openspec/changes/"],
     },
