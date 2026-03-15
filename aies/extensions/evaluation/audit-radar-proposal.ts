@@ -47,9 +47,9 @@ const DIMENSION_PROFILES: Record<AiesDimension, ProposalProfile> = {
     summaryLead: "make repeated drift warnings shape future cycle choices instead of remaining descriptive memory",
   },
   evaluation: {
-    slug: "audit-openspec-planning-bridge",
-    title: "Connect audit findings to OpenSpec planning",
-    summaryLead: "make evaluation outputs draft actionable multi-cycle changes instead of stopping at diagnosis",
+    slug: "audit-correction-path-comparator",
+    title: "Compare audit corrections against outcomes",
+    summaryLead: "measure whether reconciled plans, verification actions, and other correction paths actually improve weak layers instead of assuming that plan updates helped",
   },
   harness: {
     slug: "audit-verification-command-chain",

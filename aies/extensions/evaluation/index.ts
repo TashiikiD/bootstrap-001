@@ -8,6 +8,7 @@ import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
+import { createAuditReconciliationDraft, persistAuditReconciliationDraft } from "./audit-radar-reconciliation.ts";
 import { buildAuditRadarPromptBlock, buildAuditRadarWidgetLines, formatAuditRadarStatus } from "./audit-radar-runtime.ts";
 import { formatAuditEvidenceScan, scanAuditEvidence } from "./audit-radar-scanner.ts";
 import { latestAuditSnapshot, loadAuditSnapshotHistory, persistAuditSnapshot } from "./audit-radar-state.ts";
@@ -75,6 +76,15 @@ function shorten(text: string, maxLength = 140): string {
   const compact = normalize(text);
   if (compact.length <= maxLength) return compact;
   return `${compact.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+function parseAuditPlanArgs(rawArgs: string | undefined): { forceNew: boolean; dimensionArgs: string } {
+  const parts = (rawArgs ?? "").split(/\s+/).map((part) => part.trim()).filter(Boolean);
+  const forceNew = parts.includes("--new");
+  return {
+    forceNew,
+    dimensionArgs: parts.filter((part) => part !== "--new").join(" "),
+  };
 }
 
 function restoreHeartbeat(ctx: ExtensionContext): HeartbeatEntry | null {
@@ -485,7 +495,7 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
   });
 
   pi.registerCommand(AIES_COMMANDS.auditRadarPropose, {
-    description: "Draft a follow-on OpenSpec change from the latest durable audit snapshot; optional arg: target dimension",
+    description: "Draft a follow-on OpenSpec change from the latest durable audit snapshot, or reconcile an aligned active change; optional args: target dimension, --new",
     handler: async (args, ctx) => {
       const snapshot = latestAuditSnapshot();
       if (!snapshot) {
@@ -493,7 +503,30 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
         return;
       }
 
-      const draft = createAuditDrivenOpenSpecChange(snapshot, args ?? "");
+      const parsedArgs = parseAuditPlanArgs(args);
+      const openSpecEntry = restoreOpenSpecEntry(ctx);
+      if (!parsedArgs.forceNew) {
+        const reconciliation = createAuditReconciliationDraft(snapshot, openSpecEntry, parsedArgs.dimensionArgs);
+        if (reconciliation) {
+          const persistedPath = persistAuditReconciliationDraft(reconciliation);
+          writeLine(
+            ctx,
+            [
+              `Reconciled active OpenSpec change: ${reconciliation.changeId}`,
+              `Title: ${reconciliation.title ?? "unknown"}`,
+              `Dimension: ${reconciliation.selectedDimension}`,
+              `Source snapshot: ${reconciliation.sourceSnapshotPath}`,
+              `Added task: ${reconciliation.addedTask}`,
+              `Reason: ${reconciliation.reason}`,
+              `Persisted: ${persistedPath}`,
+              "Tip: pass --new to force a separate follow-on proposal file.",
+            ].join("\n"),
+          );
+          return;
+        }
+      }
+
+      const draft = createAuditDrivenOpenSpecChange(snapshot, parsedArgs.dimensionArgs);
       const persistedPath = persistAuditDrivenOpenSpecChange(draft);
       writeLine(
         ctx,
@@ -502,6 +535,38 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
           `Title: ${draft.title}`,
           `Dimension: ${draft.selectedDimension}`,
           `Source snapshot: ${draft.sourceSnapshotPath}`,
+          `Persisted: ${persistedPath}`,
+        ].join("\n"),
+      );
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarReconcile, {
+    description: "Merge the latest durable audit findings into an aligned active OpenSpec change instead of creating a new proposal",
+    handler: async (args, ctx) => {
+      const snapshot = latestAuditSnapshot();
+      if (!snapshot) {
+        writeLine(ctx, "No durable audit snapshot exists yet. Run /audit-radar-assess first.", "warning");
+        return;
+      }
+
+      const parsedArgs = parseAuditPlanArgs(args);
+      const reconciliation = createAuditReconciliationDraft(snapshot, restoreOpenSpecEntry(ctx), parsedArgs.dimensionArgs);
+      if (!reconciliation) {
+        writeLine(ctx, "No aligned active OpenSpec change could be reconciled. Use /audit-radar-propose --new to draft a separate follow-on change.", "warning");
+        return;
+      }
+
+      const persistedPath = persistAuditReconciliationDraft(reconciliation);
+      writeLine(
+        ctx,
+        [
+          `Reconciled active OpenSpec change: ${reconciliation.changeId}`,
+          `Title: ${reconciliation.title ?? "unknown"}`,
+          `Dimension: ${reconciliation.selectedDimension}`,
+          `Source snapshot: ${reconciliation.sourceSnapshotPath}`,
+          `Added task: ${reconciliation.addedTask}`,
+          `Reason: ${reconciliation.reason}`,
           `Persisted: ${persistedPath}`,
         ].join("\n"),
       );

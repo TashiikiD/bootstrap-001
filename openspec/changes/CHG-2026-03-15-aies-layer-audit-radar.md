@@ -2,6 +2,9 @@
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
 status: active
+updated_at: 2026-03-15T15:26:58.985Z
+last_audit_snapshot: audit-2026-03-15T15-26-58-985Z
+last_audit_reconciled_dimension: evaluation
 ---
 
 ## Summary
@@ -28,6 +31,11 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
 - [x] Connect audit output to planning.
   - Added `/audit-radar-propose [dimension]`, which drafts a new `CHG-*.md` file from the latest durable audit snapshot and uses the selected layer's evidence, gaps, drift summary, and recommended paths to seed a multi-step plan.
   - Piloted the flow by generating a real follow-on change from a stored audit snapshot, proving that repeated audit findings can now become operator-visible OpenSpec work instead of staying advisory text.
+- [x] Reconcile repeated audit findings into the active OpenSpec plan.
+  - Added `aies/extensions/evaluation/audit-radar-reconciliation.ts` plus `/audit-radar-reconcile`, and taught `/audit-radar-propose` to update an aligned active change unless `--new` is passed.
+  - Active-change reconciliation now appends structured audit context, avoids duplicate task injection by snapshot id, and updates OpenSpec frontmatter so repeated weak-layer findings can steer the current plan instead of only spawning more proposals.
+  - The evaluation-layer audit rules now treat reconciliation as first-class evidence and move the next recommendation toward comparing which correction path actually improved later audits.
+  - Validation: re-ran `/audit-radar-assess`, producing `audit-2026-03-15T15-26-58-985Z`; evaluation stayed partial, but the cited gap and recommended next step advanced from proposal-only planning to correction-path comparison.
 - [ ] Record the experiment back into memory.
   - Write devlog and theory-fork updates on what the audit got right, what it missed, and how the harness should evaluate itself without collapsing into shallow score-chasing.
 
@@ -37,3 +45,13 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
 - The key experiment is whether a structured self-audit actually changes future cycle quality: fewer maintenance loops, clearer binding constraints, and more ambitious yet justified OpenSpec proposals.
 - Avoid false precision. If evidence is weak, the audit should say so instead of inventing certainty.
 - Expected outcome: future cycles become less reactive and more strategically self-directing because they can see, with citations, what AIES is missing right now.
+
+## Audit Radar Reconciliation
+### audit-2026-03-15T06-48-19-161Z
+- observed_at: 2026-03-15T06:48:19.161Z
+- source_snapshot: memory/knowledge/audit-radar/snapshots/2026-03-15T06-48-19-161Z--audit-2026-03-15T06-48-19-161Z.json
+- binding_constraint: evaluation
+- selected_dimension: evaluation
+- decision: merged the repeated evaluation finding into the active change by adding a native reconciliation path instead of generating another proposal-only loop
+- rationale: the active change already targets audit/planning behavior and the audit explicitly recommended connecting drafting to active-change reconciliation
+- highest_leverage_next_step_at_capture: Connect audit drafting to active-change reconciliation so repeated findings can update existing plans instead of only creating new proposals.

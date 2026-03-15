@@ -273,6 +273,14 @@ function buildRules(): EvidenceRule[] {
     },
     {
       kind: "file",
+      ruleId: "evaluation-audit-radar-reconciliation-bridge",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/audit-radar-reconciliation.ts",
+      summary: "The audit radar can now reconcile repeated findings into an aligned active OpenSpec change instead of only drafting new proposal files.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditReconciliationDraft(", "persistAuditReconciliationDraft", "## Audit Radar Reconciliation"]),
+    },
+    {
+      kind: "file",
       ruleId: "evaluation-audit-radar-runtime-surface",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/index.ts",
