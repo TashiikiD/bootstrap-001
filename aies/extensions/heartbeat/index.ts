@@ -58,6 +58,8 @@ const HEARTBEAT_MIN_INTERVAL_MS = 1000;
 const DEFAULT_HEARTBEAT_INTERVAL_MS = 300_000;
 const CONTINUOUS_RESTART_DELAY_MS = 5000;
 const HEARTBEAT_TRIGGER_ARGS = "--source heartbeat_tui";
+const CONTINUOUS_COMPACTION_INSTRUCTIONS =
+  "Compact the session before the next AIES cycle. Preserve the latest cycle outcome, active change context, operator automation state, verification posture, and the most concrete next-step continuity needed for the upcoming cycle.";
 const controlsFile = resolve(getAiesPaths().runtimeRoot, "operator-ui", "controls.json");
 
 function nowIso(): string {
@@ -456,10 +458,45 @@ export default function aiesHeartbeatExtension(pi: ExtensionAPI): void {
     return state.currentCycle !== null || !ctx.isIdle() || ctx.hasPendingMessages();
   }
 
-  async function triggerHeartbeatCycle(ctx: ExtensionContext): Promise<void> {
+  async function compactForContinuousCycle(ctx: ExtensionContext): Promise<void> {
+    await new Promise<void>((resolvePromise) => {
+      let settled = false;
+      const resolveOnce = () => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        resolvePromise();
+      };
+
+      try {
+        ctx.compact({
+          customInstructions: CONTINUOUS_COMPACTION_INSTRUCTIONS,
+          onComplete: () => {
+            resolveOnce();
+          },
+          onError: () => {
+            resolveOnce();
+          },
+        });
+      } catch {
+        resolveOnce();
+      }
+    });
+  }
+
+  async function triggerHeartbeatCycle(ctx: ExtensionContext, options: { compactFirst?: boolean } = {}): Promise<void> {
     if (isCycleActive(ctx)) {
       return;
     }
+
+    if (options.compactFirst) {
+      await compactForContinuousCycle(ctx);
+      if (isCycleActive(ctx)) {
+        return;
+      }
+    }
+
     await runCycleCommand(pi, ctx, HEARTBEAT_TRIGGER_ARGS, undefined, { quietBusy: true });
   }
 
@@ -479,7 +516,7 @@ export default function aiesHeartbeatExtension(pi: ExtensionAPI): void {
     clearContinuousTimer();
     continuousTimer = setTimeout(() => {
       continuousTimer = null;
-      void triggerHeartbeatCycle(ctx).finally(() => {
+      void triggerHeartbeatCycle(ctx, { compactFirst: true }).finally(() => {
         reconcileAutomation(ctx);
       });
     }, delayMs);

@@ -277,6 +277,7 @@ function latestMemorySignals(): { devlog: string | null; durable: string | null 
 
 type OperatorControlsSummary = {
   activeSessionPath: string | null;
+  sessionSelectionMode: "auto" | "manual";
   verificationMode: string | null;
   verificationSource: string | null;
   verificationUpdatedAt: string | null;
@@ -287,6 +288,7 @@ type LiveVerificationStatus = {
   currentSessionLabel: string;
   controlSessionLabel: string;
   hasSessionMismatch: boolean;
+  hasModeMismatch: boolean;
   controlModeLabel: string;
   recordedModeLabel: string;
   interpretationLabel: string;
@@ -298,6 +300,30 @@ function toOptionalJsonString(value: unknown): string | null {
   return normalized ? normalized : null;
 }
 
+function latestSessionPath(): string | null {
+  const sessionDir = getAiesPaths().sessionDir;
+  if (!existsSync(sessionDir)) {
+    return null;
+  }
+
+  const candidates = readdirSync(sessionDir)
+    .filter((name) => name.endsWith(".jsonl"))
+    .map((name) => resolve(sessionDir, name))
+    .sort((left, right) => statSync(right).mtimeMs - statSync(left).mtimeMs);
+
+  return candidates[0] ?? null;
+}
+
+function resolveOperatorControlSessionPath(controls: OperatorControlsSummary | null): string | null {
+  if (!controls) {
+    return null;
+  }
+  if (controls.sessionSelectionMode === "manual" && controls.activeSessionPath) {
+    return controls.activeSessionPath;
+  }
+  return latestSessionPath() ?? controls.activeSessionPath;
+}
+
 function readOperatorControls(): OperatorControlsSummary | null {
   const filePath = resolve(getAiesPaths().runtimeRoot, "operator-ui", "controls.json");
   if (!existsSync(filePath)) {
@@ -307,6 +333,7 @@ function readOperatorControls(): OperatorControlsSummary | null {
   try {
     const parsed = JSON.parse(readFileSync(filePath, "utf8")) as {
       activeSessionPath?: unknown;
+      sessionSelectionMode?: unknown;
       verification?: {
         mode?: unknown;
         source?: unknown;
@@ -316,6 +343,7 @@ function readOperatorControls(): OperatorControlsSummary | null {
 
     return {
       activeSessionPath: toOptionalJsonString(parsed.activeSessionPath),
+      sessionSelectionMode: parsed.sessionSelectionMode === "manual" ? "manual" : "auto",
       verificationMode: toOptionalJsonString(parsed.verification?.mode),
       verificationSource: toOptionalJsonString(parsed.verification?.source),
       verificationUpdatedAt: toOptionalJsonString(parsed.verification?.updatedAt),
@@ -329,11 +357,18 @@ function resolveLiveVerificationStatus(ctx: ExtensionContext, modeEntry: Verific
   const controls = readOperatorControls();
   const currentSession = getSessionId(ctx);
   const currentSessionLabel = currentSession === "ephemeral" ? currentSession : basename(currentSession);
-  const controlSessionLabel = controls?.activeSessionPath ? basename(controls.activeSessionPath) : "none";
+  const controlSessionPath = resolveOperatorControlSessionPath(controls);
+  const controlSessionLabel = controlSessionPath ? basename(controlSessionPath) : "none";
   const hasSessionMismatch = Boolean(
-    controls?.activeSessionPath
+    controlSessionPath
     && currentSession !== "ephemeral"
-    && resolve(controls.activeSessionPath) !== resolve(currentSession),
+    && resolve(controlSessionPath) !== resolve(currentSession),
+  );
+  const hasModeMismatch = Boolean(
+    !hasSessionMismatch
+    && controls?.verificationMode
+    && modeEntry
+    && controls.verificationMode !== modeEntry.mode,
   );
   const controlModeLabel = controls?.verificationMode
     ? `${controls.verificationMode}${controls?.verificationSource ? ` (${controls.verificationSource})` : ""}`
@@ -341,13 +376,16 @@ function resolveLiveVerificationStatus(ctx: ExtensionContext, modeEntry: Verific
   const recordedModeLabel = modeEntry ? `${modeEntry.mode} (${modeEntry.source})` : "none";
   const interpretationLabel = hasSessionMismatch
     ? "Operator controls target another session; treat control-derived verification mode as advisory context only for this turn."
-    : "Operator controls align with the current session.";
+    : hasModeMismatch
+      ? "Operator controls align with the current session, but verification mode still differs from the recorded session entry; treat controls as live operator intent and keep the recorded entry visible."
+      : "Operator controls align with the current session.";
 
   return {
     controls,
     currentSessionLabel,
     controlSessionLabel,
     hasSessionMismatch,
+    hasModeMismatch,
     controlModeLabel,
     recordedModeLabel,
     interpretationLabel,
@@ -365,6 +403,7 @@ function renderLiveStatusSection(
 
   return [
     "Live status surfaces:",
+    `- Current session: ${liveStatus.currentSessionLabel}`,
     `- Operator controls session: ${liveStatus.controlSessionLabel}${sessionMismatch}`,
     `- Operator controls verification mode: ${liveStatus.controlModeLabel}`,
     `- Operator controls updated: ${liveStatus.controls?.verificationUpdatedAt ?? "none"}`,
@@ -439,6 +478,10 @@ function renderVerificationSection(
     mode = alignedControlMode;
     modeSource = `aligned operator controls${liveStatus.controls?.verificationSource ? ` (${liveStatus.controls.verificationSource})` : ""}`;
     advisory = "No session verification mode entry is recorded yet; using aligned operator controls as the best live mode surface.";
+  } else if (!entry && modeEntry?.source === "inferred" && alignedControlMode && modeEntry.mode !== alignedControlMode) {
+    mode = alignedControlMode;
+    modeSource = `aligned operator controls${liveStatus.controls?.verificationSource ? ` (${liveStatus.controls.verificationSource})` : ""}`;
+    advisory = `Session verification mode entry is still ${liveStatus.recordedModeLabel}; using aligned operator controls as the effective mode for this turn.`;
   } else if (!entry && modeEntry && alignedControlMode && modeEntry.mode !== alignedControlMode) {
     advisory = `Aligned operator controls show ${liveStatus.controlModeLabel}, while the session mode entry records ${liveStatus.recordedModeLabel}.`;
   } else if (!entry && liveStatus.hasSessionMismatch && liveStatus.controls?.verificationMode) {
@@ -565,6 +608,7 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     "- If you describe verification or recovery status, prefer the actual AIES status surfaces and recorded state over your own optimistic narrative.",
     "- If the slice is docs-only or explanation-only, say that plainly instead of implying code/runtime verification happened.",
     "- If you changed any non-document files, run `./verify-aies-quick.ps1` before finalizing; it covers the standard operator-ui build/typecheck checks plus a local AIES runtime slash-command smoke check. If it cannot run, say so plainly and explain which step was blocked.",
+    "- If all tests pass and the repo is clean, commit with a clear message and include the run ID in the commit message.",
   ];
 
   return {
@@ -574,11 +618,19 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
   };
 }
 
-function formatStatus(entry: CycleRunEntry | null): string {
+function formatStatus(entry: CycleRunEntry | null, ctx: ExtensionContext): string {
+  const verification = restoreVerificationEntry(ctx);
+  const recovery = restoreRecoveryEntry(ctx);
+  const verificationMode = restoreVerificationModeEntry(ctx);
+  const liveStatus = resolveLiveVerificationStatus(ctx, verificationMode);
+  const liveStatusLines = renderLiveStatusSection(liveStatus, verification, recovery);
+
   if (!entry) {
     return [
       "Cycle runner status: idle",
       "Last run: none",
+      "",
+      ...liveStatusLines,
     ].join("\n");
   }
 
@@ -595,6 +647,8 @@ function formatStatus(entry: CycleRunEntry | null): string {
     `Started: ${entry.startedAt}`,
     `Finished: ${entry.finishedAt ?? "in-progress"}`,
     `Failure note: ${entry.failureNote ?? "none"}`,
+    "",
+    ...liveStatusLines,
   ].join("\n");
 }
 
@@ -766,7 +820,7 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
     handler: async (_args, ctx) => {
       activeRun = restoreCycleRunEntry(ctx);
       updateUi(activeRun, ctx);
-      writeLine(ctx, formatStatus(activeRun));
+      writeLine(ctx, formatStatus(activeRun, ctx));
     },
   });
 

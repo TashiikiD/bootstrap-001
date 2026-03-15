@@ -17,7 +17,7 @@ export interface VerificationEntry {
 
 export interface VerificationModeEntry {
   mode: VerificationMode;
-  source: "inferred" | "override";
+  source: "inferred" | "override" | "aligned_operator";
   updatedAt: string;
 }
 

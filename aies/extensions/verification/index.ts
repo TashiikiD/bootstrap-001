@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import { resolve as resolvePath } from "node:path";
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { TextContent } from "@mariozechner/pi-ai";
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
@@ -13,6 +15,7 @@ import type {
 import type { VerificationRecord } from "../../contracts/verification-record.ts";
 import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
+import { getAiesPaths } from "../shared/paths.ts";
 import {
   RECOVERY_ENTRY_TYPE,
   VERIFICATION_ENTRY_TYPE,
@@ -56,6 +59,68 @@ function nowIso(): string {
 
 function createRecordId(): string {
   return `ver-${Date.now()}`;
+}
+
+function getSessionId(ctx: ExtensionContext): string {
+  return ctx.sessionManager.getSessionFile() ?? "ephemeral";
+}
+
+function readAlignedOperatorControlMode(ctx: ExtensionContext): VerificationMode | null {
+  const currentSession = getSessionId(ctx);
+  if (currentSession === "ephemeral") {
+    return null;
+  }
+
+  const filePath = resolvePath(getAiesPaths().runtimeRoot, "operator-ui", "controls.json");
+  if (!existsSync(filePath)) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(readFileSync(filePath, "utf8")) as {
+      activeSessionPath?: unknown;
+      verification?: { mode?: unknown };
+    };
+    const activeSessionPath = typeof parsed.activeSessionPath === "string" ? parsed.activeSessionPath.trim() : "";
+    const mode = typeof parsed.verification?.mode === "string" ? parsed.verification.mode.trim().toLowerCase() : "";
+
+    if (!activeSessionPath || !VERIFICATION_MODES.has(mode as VerificationMode)) {
+      return null;
+    }
+
+    return resolvePath(activeSessionPath) === resolvePath(currentSession)
+      ? mode as VerificationMode
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function adoptAlignedOperatorControlMode(
+  pi: ExtensionAPI,
+  ctx: ExtensionContext,
+  modeEntry: VerificationModeEntry | null,
+): VerificationModeEntry | null {
+  if (modeEntry?.source === "override") {
+    return modeEntry;
+  }
+
+  const alignedControlMode = readAlignedOperatorControlMode(ctx);
+  if (!alignedControlMode) {
+    return modeEntry;
+  }
+
+  if (modeEntry?.source === "aligned_operator" && modeEntry.mode === alignedControlMode) {
+    return modeEntry;
+  }
+
+  const nextEntry: VerificationModeEntry = {
+    mode: alignedControlMode,
+    source: "aligned_operator",
+    updatedAt: nowIso(),
+  };
+  persistModeEntry(pi, nextEntry);
+  return nextEntry;
 }
 
 function createRecoveryId(): string {
@@ -758,7 +823,7 @@ export default function aiesVerificationExtension(pi: ExtensionAPI): void {
   pi.on("session_start", async (_event, ctx) => {
     latestEntry = restoreVerificationEntry(ctx);
     latestRecovery = restoreRecoveryEntry(ctx);
-    const restoredMode = restoreVerificationModeEntry(ctx);
+    const restoredMode = adoptAlignedOperatorControlMode(pi, ctx, restoreVerificationModeEntry(ctx));
     if (restoredMode) {
       currentMode = restoredMode.mode;
       currentModeSource = restoredMode.source;
@@ -769,7 +834,7 @@ export default function aiesVerificationExtension(pi: ExtensionAPI): void {
   pi.on("session_switch", async (_event, ctx) => {
     latestEntry = restoreVerificationEntry(ctx);
     latestRecovery = restoreRecoveryEntry(ctx);
-    const restoredMode = restoreVerificationModeEntry(ctx);
+    const restoredMode = adoptAlignedOperatorControlMode(pi, ctx, restoreVerificationModeEntry(ctx));
     if (restoredMode) {
       currentMode = restoredMode.mode;
       currentModeSource = restoredMode.source;
@@ -780,12 +845,12 @@ export default function aiesVerificationExtension(pi: ExtensionAPI): void {
   pi.on("before_agent_start", async (event: BeforeAgentStartEvent, ctx) => {
     const heartbeat = restoreHeartbeat(ctx);
     const cycle = heartbeat?.currentCycle ?? null;
-    const modeEntry = restoreVerificationModeEntry(ctx);
+    const modeEntry = adoptAlignedOperatorControlMode(pi, ctx, restoreVerificationModeEntry(ctx));
     const openSpecEntry = restoreOpenSpecEntry(ctx);
 
-    if (modeEntry?.source === "override") {
+    if (modeEntry?.source === "override" || modeEntry?.source === "aligned_operator") {
       currentMode = modeEntry.mode;
-      currentModeSource = "override";
+      currentModeSource = modeEntry.source;
     } else {
       currentMode = inferVerificationMode(cycle, event.prompt ?? heartbeat?.lastPromptText ?? "", Boolean(openSpecEntry?.context.activeChangeId));
       currentModeSource = "inferred";
