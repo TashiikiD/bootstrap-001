@@ -6,9 +6,23 @@ import { resolve } from "node:path";
 import type { CycleState } from "../../contracts/cycle-state.ts";
 import type { FocusDecision } from "../../contracts/focus-decision.ts";
 import { runCycleCommand } from "../cycle-runner/index.ts";
+import { EVALUATION_ENTRY_TYPE, restoreEvaluationEntry, type EvaluationEntry } from "../evaluation/state.ts";
 import { restoreOpenSpecEntry } from "../openspec/state.ts";
+import { OPENSPEC_ENTRY_TYPE, type OpenSpecEntry } from "../openspec/state.ts";
+import { POLICY_MODE_ENTRY_TYPE, restorePolicyModeEntry, type PolicyModeEntry } from "../policy/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { getAiesPaths } from "../shared/paths.ts";
+import {
+  RECOVERY_ENTRY_TYPE,
+  restoreRecoveryEntry,
+  restoreVerificationEntry,
+  restoreVerificationModeEntry,
+  VERIFICATION_ENTRY_TYPE,
+  VERIFICATION_MODE_ENTRY_TYPE,
+  type RecoveryEntry,
+  type VerificationEntry,
+  type VerificationModeEntry,
+} from "../verification/state.ts";
 import { getAssistantText, inferFocusDecision, isAssistantMessage } from "./infer.ts";
 
 type HeartbeatEntry = {
@@ -58,9 +72,27 @@ const HEARTBEAT_MIN_INTERVAL_MS = 1000;
 const DEFAULT_HEARTBEAT_INTERVAL_MS = 300_000;
 const CONTINUOUS_RESTART_DELAY_MS = 5000;
 const HEARTBEAT_TRIGGER_ARGS = "--source heartbeat_tui";
+const HANDOFF_MESSAGE_TYPE = "aies-cycle-handoff";
+const AUTOMATION_CHILD_ROLLOVER_THRESHOLD_PERCENT = 45;
 const CONTINUOUS_COMPACTION_INSTRUCTIONS =
   "Compact the session before the next AIES cycle. Preserve the latest cycle outcome, active change context, operator automation state, verification posture, and the most concrete next-step continuity needed for the upcoming cycle.";
 const controlsFile = resolve(getAiesPaths().runtimeRoot, "operator-ui", "controls.json");
+
+type AutomationSnapshot = {
+  heartbeat: HeartbeatEntry;
+  openSpec: OpenSpecEntry | null;
+  evaluation: EvaluationEntry | null;
+  verification: VerificationEntry | null;
+  verificationMode: VerificationModeEntry | null;
+  recovery: RecoveryEntry | null;
+  policyMode: PolicyModeEntry | null;
+  parentSessionPath: string | null;
+};
+
+type CompactionOutcome = {
+  summary: string | null;
+  contextPercent: number | null;
+};
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -221,6 +253,52 @@ function formatAutomationSummary(controls: HeartbeatControlState): string {
     `continuous=${controls.continuousMode ? "on" : "off"}`,
     `cadence=${formatIntervalMs(controls.intervalMs)}`,
   ].join(", ");
+}
+
+function captureAutomationSnapshot(ctx: ExtensionContext, heartbeatState: HeartbeatEntry): AutomationSnapshot {
+  return {
+    heartbeat: {
+      currentCycle: null,
+      lastCycle: heartbeatState.lastCycle,
+      completedCycles: heartbeatState.completedCycles,
+      lastPromptText: heartbeatState.lastPromptText,
+      lastAssistantText: heartbeatState.lastAssistantText,
+      lastCompletedAt: heartbeatState.lastCompletedAt,
+    },
+    openSpec: restoreOpenSpecEntry(ctx),
+    evaluation: restoreEvaluationEntry(ctx),
+    verification: restoreVerificationEntry(ctx),
+    verificationMode: restoreVerificationModeEntry(ctx),
+    recovery: restoreRecoveryEntry(ctx),
+    policyMode: restorePolicyModeEntry(ctx),
+    parentSessionPath: ctx.sessionManager.getSessionFile() ?? null,
+  };
+}
+
+function buildAutomationHandoffText(snapshot: AutomationSnapshot, compactionSummary: string | null): string {
+  const lines: string[] = [
+    "Automation rollover handoff for the next AIES cycle.",
+    `Parent session: ${snapshot.parentSessionPath ?? "unknown"}`,
+    `Last cycle: ${snapshot.heartbeat.lastCycle?.cycleId ?? "none"}`,
+    `Last completed: ${snapshot.heartbeat.lastCompletedAt ?? "never"}`,
+    `Completed cycles: ${snapshot.heartbeat.completedCycles}`,
+    `Active change: ${snapshot.heartbeat.lastCycle?.activeChangeId ?? snapshot.openSpec?.context.activeChangeId ?? "none"}`,
+    `Verification mode: ${snapshot.verificationMode?.mode ?? "none"}`,
+    `Verification result: ${snapshot.verification?.record.result ?? "none"}`,
+    `Recovery status: ${snapshot.recovery?.status ?? "none"}`,
+    `Policy mode: ${snapshot.policyMode?.mode ?? "off"}`,
+  ];
+
+  if (compactionSummary) {
+    lines.push("", "Post-compaction summary:", compactionSummary.trim());
+  }
+
+  const rationale = snapshot.heartbeat.lastCycle?.rationale?.trim();
+  if (rationale) {
+    lines.push("", `Carry forward rationale: ${rationale}`);
+  }
+
+  return lines.join("\n");
 }
 
 function buildWidgetLines(state: HeartbeatEntry): string[] {
@@ -458,21 +536,33 @@ export default function aiesHeartbeatExtension(pi: ExtensionAPI): void {
     return state.currentCycle !== null || !ctx.isIdle() || ctx.hasPendingMessages();
   }
 
-  async function compactForContinuousCycle(ctx: ExtensionContext): Promise<void> {
-    await new Promise<void>((resolvePromise) => {
+  async function compactForAutomatedCycle(ctx: ExtensionContext): Promise<CompactionOutcome> {
+    if (!state.lastCompletedAt) {
+      return {
+        summary: null,
+        contextPercent: null,
+      };
+    }
+
+    return await new Promise<CompactionOutcome>((resolvePromise) => {
       let settled = false;
+      let compactionSummary: string | null = null;
       const resolveOnce = () => {
         if (settled) {
           return;
         }
         settled = true;
-        resolvePromise();
+        resolvePromise({
+          summary: compactionSummary,
+          contextPercent: ctx.getContextUsage()?.percent ?? null,
+        });
       };
 
       try {
         ctx.compact({
           customInstructions: CONTINUOUS_COMPACTION_INSTRUCTIONS,
-          onComplete: () => {
+          onComplete: (result) => {
+            compactionSummary = result.summary;
             resolveOnce();
           },
           onError: () => {
@@ -485,15 +575,71 @@ export default function aiesHeartbeatExtension(pi: ExtensionAPI): void {
     });
   }
 
+  async function rollOverToChildSession(ctx: ExtensionContext, snapshot: AutomationSnapshot, compactionSummary: string | null): Promise<boolean> {
+    const result = await ctx.newSession({
+      parentSession: snapshot.parentSessionPath ?? undefined,
+      setup: async (sessionManager) => {
+        sessionManager.appendCustomEntry(HEARTBEAT_ENTRY_TYPE, snapshot.heartbeat);
+        if (snapshot.openSpec) {
+          sessionManager.appendCustomEntry(OPENSPEC_ENTRY_TYPE, snapshot.openSpec);
+        }
+        if (snapshot.evaluation) {
+          sessionManager.appendCustomEntry(EVALUATION_ENTRY_TYPE, snapshot.evaluation);
+        }
+        if (snapshot.verificationMode) {
+          sessionManager.appendCustomEntry(VERIFICATION_MODE_ENTRY_TYPE, snapshot.verificationMode);
+        }
+        if (snapshot.verification) {
+          sessionManager.appendCustomEntry(VERIFICATION_ENTRY_TYPE, snapshot.verification);
+        }
+        if (snapshot.recovery) {
+          sessionManager.appendCustomEntry(RECOVERY_ENTRY_TYPE, snapshot.recovery);
+        }
+        if (snapshot.policyMode) {
+          sessionManager.appendCustomEntry(POLICY_MODE_ENTRY_TYPE, snapshot.policyMode);
+        }
+        sessionManager.appendCustomMessageEntry(
+          HANDOFF_MESSAGE_TYPE,
+          buildAutomationHandoffText(snapshot, compactionSummary),
+          false,
+          {
+            source: "heartbeat_rollover",
+            parentSessionPath: snapshot.parentSessionPath,
+            lastCycleId: snapshot.heartbeat.lastCycle?.cycleId ?? null,
+          },
+        );
+      },
+    });
+
+    if (result.cancelled) {
+      return false;
+    }
+
+    state = restoreState(ctx);
+    updateUi(state, ctx);
+    return true;
+  }
+
   async function triggerHeartbeatCycle(ctx: ExtensionContext, options: { compactFirst?: boolean } = {}): Promise<void> {
     if (isCycleActive(ctx)) {
       return;
     }
 
     if (options.compactFirst) {
-      await compactForContinuousCycle(ctx);
+      const snapshot = captureAutomationSnapshot(ctx, state);
+      const compaction = await compactForAutomatedCycle(ctx);
       if (isCycleActive(ctx)) {
         return;
+      }
+
+      if (
+        compaction.contextPercent !== null &&
+        compaction.contextPercent > AUTOMATION_CHILD_ROLLOVER_THRESHOLD_PERCENT
+      ) {
+        await rollOverToChildSession(ctx, snapshot, compaction.summary);
+        if (isCycleActive(ctx)) {
+          return;
+        }
       }
     }
 
@@ -506,7 +652,7 @@ export default function aiesHeartbeatExtension(pi: ExtensionAPI): void {
     cadenceTimer = setTimeout(() => {
       cadenceTimer = null;
       cadenceKey = null;
-      void triggerHeartbeatCycle(ctx).finally(() => {
+      void triggerHeartbeatCycle(ctx, { compactFirst: true }).finally(() => {
         reconcileAutomation(ctx);
       });
     }, intervalMs);
