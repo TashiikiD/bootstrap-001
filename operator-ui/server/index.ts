@@ -33,6 +33,7 @@ import {
   type ParsedSession,
   type PiExecutionResult,
 } from "./lib";
+import { listAuditValues, readLatestAuditRadarReport, summarizeAuditRadarReport, trimAuditText } from "./audit-radar";
 
 const port = Number.parseInt(process.env.AIES_OPERATOR_UI_PORT ?? "4320", 10);
 const distRoot = resolve(operatorUiRoot, "dist");
@@ -516,6 +517,7 @@ function buildState() {
   const currentPolicyMode = controls.policy.mode;
   const verificationMode = verification?.record?.mode ?? controls.verification.mode ?? "none";
   const verificationResult = verification?.record?.result ?? "not_run";
+  const auditRadar = readLatestAuditRadarReport();
 
   const panels = {
     cycleRunner: panel(
@@ -635,6 +637,30 @@ function buildState() {
         sourceTimestamp: evaluation?.createdAt ?? null,
         relatedCycleId: evaluation?.cycleId ?? null,
         relatedChangeId: evaluation?.relatedChangeId ?? null,
+        stale: false,
+      },
+    ),
+    auditRadar: panel(
+      "Audit Radar",
+      summarizeAuditRadarReport(auditRadar),
+      [
+        `snapshot=${auditRadar?.snapshot.snapshotId ?? "none"}`,
+        `binding=${auditRadar?.snapshot.bindingConstraint?.dimension ?? "none"}`,
+        `confidence=${auditRadar?.snapshot.confidence ?? "none"}`,
+        `targets=${listAuditValues(auditRadar?.snapshot.recommendedNextStep?.targetDimensions)}`,
+      ],
+      {
+        auditRadar,
+        recommendation: trimAuditText(auditRadar?.snapshot.recommendedNextStep?.summary),
+        drift: trimAuditText(auditRadar?.snapshot.drift?.summary),
+        failurePatterns: auditRadar?.snapshot.failurePatterns ?? [],
+      },
+      {
+        sourceType: auditRadar ? "file-backed" : "inferred",
+        sourceLabel: auditRadar ? auditRadar.relativePath : "memory/knowledge/audit-radar/snapshots (none)",
+        sourceTimestamp: auditRadar?.snapshot.observedAt ?? null,
+        relatedCycleId: null,
+        relatedChangeId: null,
         stale: false,
       },
     ),

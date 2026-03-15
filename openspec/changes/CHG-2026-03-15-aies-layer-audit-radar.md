@@ -22,9 +22,9 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
 - [x] Add binding-constraint and drift detection.
   - `/audit-radar-assess` now persists serialized snapshots under `memory/knowledge/audit-radar/snapshots/` and compares them against prior captures to flag stagnant weak layers, repeated binding constraints, maintenance-loop risk, and theory/runtime divergence.
   - The audit output keeps one explicit highest-leverage next step, and evaluation recommendations now move from persistence toward planning integration once durable snapshot comparison exists.
-- [ ] Surface the audit in AIES runtime tools.
-  - Add a command and/or operator-visible widget/report in the WebUI for the latest audit summary, binding constraint, and suggested change direction.
-  - Make it easy for future cycles to use the audit when choosing work.
+- [x] Surface the audit in AIES runtime tools.
+  - Added `/audit-radar-status`, which reports the latest durable audit summary, binding constraint, drift state, and suggested change direction from a stored snapshot.
+  - Added an operator-visible Audit Radar panel in the WebUI plus prompt-context injection from the latest durable audit snapshot so future cycles can reuse the audit when choosing work.
 - [x] Connect audit output to planning.
   - Added `/audit-radar-propose [dimension]`, which drafts a new `CHG-*.md` file from the latest durable audit snapshot and uses the selected layer's evidence, gaps, drift summary, and recommended paths to seed a multi-step plan.
   - Piloted the flow by generating a real follow-on change from a stored audit snapshot, proving that repeated audit findings can now become operator-visible OpenSpec work instead of staying advisory text.

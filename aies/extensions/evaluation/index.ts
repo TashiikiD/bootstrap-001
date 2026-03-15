@@ -8,6 +8,7 @@ import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
+import { buildAuditRadarPromptBlock, buildAuditRadarWidgetLines, formatAuditRadarStatus } from "./audit-radar-runtime.ts";
 import { formatAuditEvidenceScan, scanAuditEvidence } from "./audit-radar-scanner.ts";
 import { latestAuditSnapshot, loadAuditSnapshotHistory, persistAuditSnapshot } from "./audit-radar-state.ts";
 import { EVALUATION_ENTRY_TYPE, restoreEvaluationEntry, restoreEvaluationHistory, type EvaluationEntry } from "./state.ts";
@@ -375,9 +376,11 @@ function formatHistory(entries: EvaluationEntry[], count: number): string {
 function updateUi(entry: EvaluationEntry | null, ctx: ExtensionContext): void {
   if (!ctx.hasUI) return;
 
+  const auditWidget = buildAuditRadarWidgetLines(latestAuditSnapshot());
+
   if (!entry) {
     ctx.ui.setStatus(AIES_STATUS_KEYS.evaluation, ctx.ui.theme.fg("accent", "eval:none"));
-    ctx.ui.setWidget(AIES_WIDGET_KEYS.evaluation, ["Evaluation active", "snapshot=none", "recommendation=none"]);
+    ctx.ui.setWidget(AIES_WIDGET_KEYS.evaluation, ["Evaluation active", "snapshot=none", "recommendation=none", ...auditWidget]);
     return;
   }
 
@@ -387,6 +390,7 @@ function updateUi(entry: EvaluationEntry | null, ctx: ExtensionContext): void {
     `neglected=${entry.snapshot.neglectedDimensions.slice(0, 2).join(",") || "none"}`,
     `drift=${entry.snapshot.driftMarkers[0] ?? "none"}`,
     `recommend=${entry.snapshot.recommendation}`,
+    ...auditWidget,
   ]);
 }
 
@@ -460,7 +464,23 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
       const history = loadAuditSnapshotHistory();
       const snapshot = createLayerAuditSnapshot(scanAuditEvidence(), history);
       const persistedPath = persistAuditSnapshot(snapshot);
+      updateUi(restoreEvaluationEntry(ctx), ctx);
       writeLine(ctx, `${formatLayerAuditSnapshot(snapshot)}\nPersisted: ${persistedPath}`);
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarStatus, {
+    description: "Show the latest durable audit-radar summary, binding constraint, and recommended change direction",
+    handler: async (_args, ctx) => {
+      const snapshot = latestAuditSnapshot();
+      updateUi(restoreEvaluationEntry(ctx), ctx);
+      if (!snapshot) {
+        writeLine(ctx, "Audit radar: no durable snapshot yet. Run /audit-radar-assess first.", "warning");
+        return;
+      }
+
+      const openSpecEntry = restoreOpenSpecEntry(ctx);
+      writeLine(ctx, formatAuditRadarStatus(snapshot, openSpecEntry?.context.activeChangeId ?? null));
     },
   });
 
@@ -501,11 +521,20 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
   pi.on("before_agent_start", async (event: BeforeAgentStartEvent, ctx) => {
     latestEntry = restoreEvaluationEntry(ctx);
     updateUi(latestEntry, ctx);
-    const promptBlock = buildPromptBlock(latestEntry);
-    if (!promptBlock) return undefined;
+
+    const openSpecEntry = restoreOpenSpecEntry(ctx);
+    const promptBlocks = [
+      buildPromptBlock(latestEntry),
+      (() => {
+        const auditSnapshot = latestAuditSnapshot();
+        return auditSnapshot ? buildAuditRadarPromptBlock(auditSnapshot, openSpecEntry?.context.activeChangeId ?? null) : null;
+      })(),
+    ].filter((block): block is string => Boolean(block));
+
+    if (promptBlocks.length === 0) return undefined;
 
     return {
-      systemPrompt: `${event.systemPrompt}\n\n${promptBlock}`,
+      systemPrompt: `${event.systemPrompt}\n\n${promptBlocks.join("\n\n")}`,
     };
   });
 

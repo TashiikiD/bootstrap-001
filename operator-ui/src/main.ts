@@ -625,6 +625,7 @@ class AiesOperatorApp extends LitElement {
               <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/heartbeat-status"; }}>Heartbeat Status</button>
               <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/openspec-status"; }}>OpenSpec Status</button>
               <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/evaluation-status"; }}>Evaluation Status</button>
+              <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/audit-radar-status"; }}>Audit Radar</button>
               <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/verification-status"; }}>Verification Status</button>
               <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/verification-plan"; }}>Verification Plan</button>
               <button class="button secondary" type="button" @click=${() => { this.promptDraft = "/recovery-status"; }}>Recovery Status</button>

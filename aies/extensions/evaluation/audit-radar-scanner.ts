@@ -273,6 +273,14 @@ function buildRules(): EvidenceRule[] {
     },
     {
       kind: "file",
+      ruleId: "evaluation-audit-radar-runtime-surface",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/index.ts",
+      summary: "The evaluation extension now surfaces the latest durable audit inside runtime command flow and prompt context so future cycles can reuse it during work selection.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "buildAuditRadarPromptBlock", "formatAuditRadarStatus"]),
+    },
+    {
+      kind: "file",
       ruleId: "harness-extension-registry",
       dimension: "harness",
       relativePath: ".pi/settings.json",
@@ -286,6 +294,14 @@ function buildRules(): EvidenceRule[] {
       relativePath: "operator-ui/server/index.ts",
       summary: "The operator UI backend provides the local execution bridge, control surface, and heartbeat orchestration hooks.",
       extractExcerpt: (content) => firstMatchingLine(content, ["const HEARTBEAT_TRIGGER_COMMAND = \"/cycle-run --source operator_ui\";", "function getHeartbeatSnapshot()", "runPiDetached"]),
+    },
+    {
+      kind: "file",
+      ruleId: "harness-audit-radar-operator-report",
+      dimension: "harness",
+      relativePath: "operator-ui/server/index.ts",
+      summary: "The operator UI now includes a dedicated Audit Radar report sourced from durable audit snapshots.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["\"Audit Radar\"", "summarizeAuditRadarReport", "readLatestAuditRadarReport"]),
     },
   ];
 }

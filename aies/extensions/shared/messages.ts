@@ -45,6 +45,7 @@ export const AIES_COMMANDS = {
   evaluationHistory: "evaluation-history",
   auditRadarScan: "audit-radar-scan",
   auditRadarAssess: "audit-radar-assess",
+  auditRadarStatus: "audit-radar-status",
   auditRadarPropose: "audit-radar-propose",
   verificationStatus: "verification-status",
   verificationMode: "verification-mode",
