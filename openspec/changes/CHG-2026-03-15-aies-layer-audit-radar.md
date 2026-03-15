@@ -61,10 +61,15 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Added `aies/extensions/evaluation/audit-radar-guidance-outcomes.ts`, which defines durable guidance-outcome reports that compare a captured audit guidance brief against the focus the harness later chose.
   - Wired `aies/extensions/cycle-runner/index.ts` to carry the captured guidance through `/cycle-run`, persist a `guidance-outcomes/` report after completion, and expose the report path in cycle-runner status.
   - Added `/audit-radar-guidance-review` plus scanner/assessment updates so future audits can distinguish "guidance exists" from "guidance was exercised and compared against real focus selection."
+- [x] Compare whether followed guidance correlated with later audit movement.
+  - Added `aies/extensions/evaluation/audit-radar-guidance-effectiveness.ts` plus `/audit-radar-guidance-effectiveness`, which link durable guidance-outcome reports to the same cycle's post-run audit loop, correction-path outcome comparison, and scope-aware verification floor.
+  - Guidance-effectiveness reports now persist under `memory/knowledge/audit-radar/guidance-effectiveness/` so later cycles can review whether aligned guidance produced supportive, counter, alternative, mixed, or insufficient signals.
+  - Updated audit scanner and assessment rules so future audits can distinguish "guidance aligned with focus" from "guidance alignment correlated with later audit movement."
 - [x] Record the experiment back into memory.
   - Added `memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md` to capture the key observation from this stage of the change: the audit correctly identified an orchestration evidence gap, but forcing proof by launching another autonomous cycle would spend the turn on recursive harness validation.
   - Added `memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md` to record the next harness observation: prompt/focus-inferred verification is weaker than verification floored by the files a cycle actually changed.
-  - Updated `memory/theory-fork/meta/evaluation.md` and `memory/theory-fork/meta/harness.md` with explicit experiment notes distinguishing passive evidence from active orchestration proof and warning against metric-farming the audit loop.
+  - Added `memory/devlog/2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge.md` to capture the next evaluation observation: guidance alignment is not yet guidance effectiveness unless it can be compared against later audit movement.
+  - Updated `memory/theory-fork/meta/evaluation.md` and `memory/theory-fork/meta/harness.md` with explicit experiment notes distinguishing passive evidence from active orchestration proof, warning against metric-farming the audit loop, and separating guidance alignment from guidance effectiveness.
 
 ## Notes
 - This change directly targets the coherence, evaluation, and harness meta-functions while also improving future work selection across all layers.

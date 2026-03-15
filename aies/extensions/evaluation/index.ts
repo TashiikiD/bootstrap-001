@@ -7,6 +7,7 @@ import type { AiesDimension, EvaluationConfidence, FocusType } from "../../contr
 import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
+import { formatAuditGuidanceEffectivenessReport, createAuditGuidanceEffectivenessReport, persistAuditGuidanceEffectivenessReport } from "./audit-radar-guidance-effectiveness.ts";
 import { formatAuditGuidanceOutcomeReport, latestAuditGuidanceOutcomeReport } from "./audit-radar-guidance-outcomes.ts";
 import { createAuditRadarGuidance, buildAuditRadarGuidancePromptBlock, formatAuditRadarGuidance } from "./audit-radar-guidance.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
@@ -525,6 +526,21 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
       }
 
       writeLine(ctx, formatAuditGuidanceOutcomeReport(report));
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceEffectiveness, {
+    description: "Compare guidance-alignment reports against linked post-run audit drift, correction paths, and scope-aware verification floors",
+    handler: async (_args, ctx) => {
+      updateUi(restoreEvaluationEntry(ctx), ctx);
+      const report = createAuditGuidanceEffectivenessReport();
+      if (!report) {
+        writeLine(ctx, "Audit guidance effectiveness needs at least one durable guidance-outcome report. Run a guided /cycle-run first.", "warning");
+        return;
+      }
+
+      const persistedPath = persistAuditGuidanceEffectivenessReport(report);
+      writeLine(ctx, `${formatAuditGuidanceEffectivenessReport(report)}\nPersisted: ${persistedPath}`);
     },
   });
 

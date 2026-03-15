@@ -184,11 +184,25 @@ function preferredGuidanceOutcomeReportPath(): string | null {
   return candidates.length > 0 ? join(paths.auditRadarGuidanceOutcomesRoot, candidates[0]) : null;
 }
 
+function preferredGuidanceEffectivenessReportPath(): string | null {
+  const paths = getAiesPaths();
+  if (!existsSync(paths.auditRadarGuidanceEffectivenessRoot)) {
+    return null;
+  }
+
+  const candidates = readdirSync(paths.auditRadarGuidanceEffectivenessRoot)
+    .filter((name) => name.toLowerCase().endsWith(".json"))
+    .sort((left, right) => right.localeCompare(left));
+
+  return candidates.length > 0 ? join(paths.auditRadarGuidanceEffectivenessRoot, candidates[0]) : null;
+}
+
 function buildRules(): EvidenceRule[] {
   const latestChange = preferredChangePath();
   const latestOutcomeReport = preferredOutcomeReportPath();
   const latestLoopReport = preferredLoopReportPath();
   const latestGuidanceOutcomeReport = preferredGuidanceOutcomeReportPath();
+  const latestGuidanceEffectivenessReport = preferredGuidanceEffectivenessReportPath();
 
   return [
     {
@@ -419,11 +433,29 @@ function buildRules(): EvidenceRule[] {
       : []),
     {
       kind: "file",
+      ruleId: "evaluation-audit-radar-guidance-effectiveness-comparator",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/audit-radar-guidance-effectiveness.ts",
+      summary: "The audit radar can now compare guidance-alignment reports against linked post-run audit drift, correction-path outcomes, and scope-aware verification floors instead of treating alignment as the end of evaluation.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditGuidanceEffectivenessReport(", "chooseLinkedLoop(", "Scope-floor escalations"]),
+    },
+    ...(latestGuidanceEffectivenessReport
+      ? [{
+          kind: "file" as const,
+          ruleId: "evaluation-audit-radar-guidance-effectiveness-report",
+          dimension: "evaluation",
+          relativePath: projectRelativePath(latestGuidanceEffectivenessReport),
+          summary: "A durable guidance-effectiveness report now records whether aligned or diverged guidance correlated with later audit movement, observed correction paths, and verification-floor escalation.",
+          extractExcerpt: (content: string) => firstMatchingLine(content, ["\"verdict\"", "\"bindingConstraintOutcome\"", "\"floorEscalated\""]),
+        }]
+      : []),
+    {
+      kind: "file",
       ruleId: "evaluation-audit-radar-runtime-surface",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/index.ts",
       summary: "The evaluation extension now surfaces the latest durable audit inside runtime command flow, prompt context, next-cycle guidance, and guidance-outcome review so future cycles can reuse it during work selection.",
-      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "AIES_COMMANDS.auditRadarNext", "AIES_COMMANDS.auditRadarGuidanceReview", "buildAuditRadarGuidancePromptBlock"]),
+      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "AIES_COMMANDS.auditRadarNext", "AIES_COMMANDS.auditRadarGuidanceReview", "AIES_COMMANDS.auditRadarGuidanceEffectiveness", "buildAuditRadarGuidancePromptBlock"]),
     },
     {
       kind: "file",

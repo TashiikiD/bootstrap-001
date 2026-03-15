@@ -24,6 +24,14 @@ That suggests evaluation should usually terminate in a compact planning aid, not
 
 A practical consequence is that the harness should capture a small comparison record whenever guided work runs: what the audit recommended, what focus was actually chosen, and whether they aligned. This is still not proof of improvement, but it is a cheaper bridge between descriptive evaluation and later outcome analysis.
 
+## Experiment Note — Guidance Alignment Is Not Guidance Effectiveness
+
+A later failure mode appeared once guidance-alignment reports existed: the system could prove that a cycle followed the advice without proving that the advice helped.
+
+That suggests a second evaluation bridge. Guidance should be compared not only against chosen focus, but also against the next post-run audit movement: did the targeted weak layers improve, stagnate, or regress; did the binding constraint move; what correction paths were actually observed; and did the verification floor rise because the change surface was riskier than the prompt implied?
+
+This is still correlational, not causal. But it is meaningfully better than stopping at "alignment achieved," because it lets future cycles distinguish between guidance that is being obeyed and guidance that is earning trust.
+
 ## Open Questions
 
 - What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?

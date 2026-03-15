@@ -195,52 +195,62 @@ function buildRules(): DimensionRule[] {
         "audit-evaluation-audit-radar-guidance-outcome-tracker",
         "audit-evaluation-audit-radar-guidance-outcome-cycle-bridge",
         "audit-evaluation-audit-radar-guidance-outcome-report",
+        "audit-evaluation-audit-radar-guidance-effectiveness-comparator",
+        "audit-evaluation-audit-radar-guidance-effectiveness-report",
       ],
-      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, scope-aware verification planning, historical comparison, plan reconciliation, correction-path outcome reports, native audit-loop execution, cycle-orchestrated evaluation, recorded verification/recovery results tied to the same run, and explicit guidance-alignment evidence about whether audit advice changed later focus selection.",
-      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, scope-aware verification planning, durable audit snapshots, audit-driven proposal drafting, active-change reconciliation, correction-path comparison, a native audit-loop command, cycle-runner orchestration, next-cycle audit guidance, and guidance-alignment tracking, but attribution is still coarse once multiple interventions overlap and guidance impact is not yet measured longitudinally.",
+      strongSummary: "Evaluation engineering is multi-layer, automated, and able to diagnose failures by originating layer with durable audit evidence, scope-aware verification planning, historical comparison, plan reconciliation, correction-path outcome reports, native audit-loop execution, cycle-orchestrated evaluation, recorded verification/recovery results tied to the same run, explicit guidance-alignment evidence about whether audit advice changed later focus selection, and longitudinal guidance-effectiveness comparison against later audit movement.",
+      partialSummary: "Evaluation engineering now has structural scoring, verification surfaces, scope-aware verification planning, durable audit snapshots, audit-driven proposal drafting, active-change reconciliation, correction-path comparison, a native audit-loop command, cycle-runner orchestration, next-cycle audit guidance, guidance-alignment tracking, and a guidance-effectiveness comparator, but attribution is still coarse once multiple interventions overlap and the new comparator still needs repeated longitudinal history to tune future guidance generation confidently.",
       missingSummary: "The audit found no explicit evaluation-engineering artifacts in the curated scan roots.",
       strengthTemplates: [
         "The runtime already records structured evaluation snapshots rather than relying only on narrative self-report.",
         "Verification and recovery are tracked as explicit state surfaces that can be inspected by later cycles.",
       ],
-      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-report")
-        ? ["The audit now records whether guidance aligned with a real cycle's chosen focus and can floor verification by actual change surface, but it still needs longitudinal comparison against later audit drift and correction-path outcomes to know whether that alignment actually improved the system."]
-        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-tracker")
-          && evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-cycle-bridge")
-          ? ["The audit can now persist guidance-alignment reports from the cycle runner, but it does not yet have a durable guidance-outcome report proving the tracker has been exercised on a real guided cycle."]
-          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-orchestrated-loop-report")
-            && evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-bridge")
-            ? ["The audit now observes, records, and guides future cycles, but it still needs longitudinal proof that audit guidance changes focus selection or correction-path outcomes instead of only producing better advisory text."]
-            : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-orchestrated-loop-report")
-              ? ["Cycle orchestration now runs the audit loop, but attribution is still coarse when multiple interventions overlap and the experiment still needs durable reflection in memory so future cycles can tell what the audit got right or wrong."]
-        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-cycle-orchestration")
-          ? ["Cycle orchestration is wired to invoke the audit loop, but the audit does not yet have a durable orchestrated loop report proving the hook has been exercised on a real cycle."]
-          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-loop-report")
-            ? ["A native audit loop now runs assessment, outcome comparison, and quick verification together, but attribution is still coarse when multiple interventions overlap and the loop still depends on explicit invocation rather than cycle-level orchestration."]
-            : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-loop-command")
-              ? ["A native audit loop command exists, but the audit does not yet have a durable loop report proving it has been exercised on real sessions."]
-              : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-outcome-report")
-                ? ["A correction-path comparison loop now exists, but attribution is still correlational when multiple interventions overlap and the harness does not yet run the loop automatically."]
-                : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-outcome-comparator")
-                  ? ["The audit can now compare correction paths in principle, but no durable outcome report has been generated yet to prove the loop is operating across real audit intervals."]
-                  : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-reconciliation-bridge")
-                    ? ["Audit findings can now reconcile into active OpenSpec plans, but evaluation still does not compare which correction path — reconciled change work, verification follow-up, or operator intervention — actually improved later audit outcomes."]
-                    : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-proposal-bridge")
-                      ? ["The audit can now draft follow-on OpenSpec changes, but repeated findings still do not automatically reconcile against existing plans or task queues."]
-                      : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-persistence")
-                        ? ["The audit can now persist and compare snapshots, but findings still do not automatically draft or update planning artifacts when a binding constraint repeats."]
-                        : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
-      highestLeverageNextStep: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-report")
-        ? "Compare guidance-alignment reports and scope-aware verification floors against later audit drift and correction-path outcomes so evaluation can tell whether following the guidance actually helped."
-        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-tracker")
-          && evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-cycle-bridge")
-          ? "Exercise the guidance-outcome tracker on a real guided cycle so evaluation can observe whether the harness followed its own audit advice."
-          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-orchestrated-loop-report")
-            && evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-bridge")
-            ? "Compare future cycle focus choices against audit guidance so the audit can prove it is steering evolution rather than only describing it."
-            : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-orchestrated-loop-report")
-              ? "Record the orchestrated audit experiment back into devlog and theory-fork so future cycles can reuse what the audit loop caught, missed, and still cannot attribute cleanly."
-              : "Integrate the audit loop into cycle orchestration so audit assessment, outcome comparison, and proportionate verification happen consistently instead of only by manual command use.",
+      protocolGapChecks: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-report")
+        ? ["The audit can now compare guidance alignment against immediate post-run audit movement, correction paths, and scope-aware verification floors, but attribution is still short-horizon and the comparator still needs repeated history before it should tune guidance generation aggressively."]
+        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-comparator")
+          ? ["The audit now has a longitudinal guidance-effectiveness comparator, but it does not yet have a durable guidance-effectiveness report proving the comparator has been exercised on real guided history."]
+          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-report")
+            ? ["The audit now records whether guidance aligned with a real cycle's chosen focus and can floor verification by actual change surface, but it still needs longitudinal comparison against later audit drift and correction-path outcomes to know whether that alignment actually improved the system."]
+            : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-tracker")
+              && evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-cycle-bridge")
+              ? ["The audit can now persist guidance-alignment reports from the cycle runner, but it does not yet have a durable guidance-outcome report proving the tracker has been exercised on a real guided cycle."]
+              : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-orchestrated-loop-report")
+                && evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-bridge")
+                ? ["The audit now observes, records, and guides future cycles, but it still needs longitudinal proof that audit guidance changes focus selection or correction-path outcomes instead of only producing better advisory text."]
+                : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-orchestrated-loop-report")
+                  ? ["Cycle orchestration now runs the audit loop, but attribution is still coarse when multiple interventions overlap and the experiment still needs durable reflection in memory so future cycles can tell what the audit got right or wrong."]
+                  : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-cycle-orchestration")
+                    ? ["Cycle orchestration is wired to invoke the audit loop, but the audit does not yet have a durable orchestrated loop report proving the hook has been exercised on a real cycle."]
+                    : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-loop-report")
+                      ? ["A native audit loop now runs assessment, outcome comparison, and quick verification together, but attribution is still coarse when multiple interventions overlap and the loop still depends on explicit invocation rather than cycle-level orchestration."]
+                      : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-loop-command")
+                        ? ["A native audit loop command exists, but the audit does not yet have a durable loop report proving it has been exercised on real sessions."]
+                        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-outcome-report")
+                          ? ["A correction-path comparison loop now exists, but attribution is still correlational when multiple interventions overlap and the harness does not yet run the loop automatically."]
+                          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-outcome-comparator")
+                            ? ["The audit can now compare correction paths in principle, but no durable outcome report has been generated yet to prove the loop is operating across real audit intervals."]
+                            : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-reconciliation-bridge")
+                              ? ["Audit findings can now reconcile into active OpenSpec plans, but evaluation still does not compare which correction path — reconciled change work, verification follow-up, or operator intervention — actually improved later audit outcomes."]
+                              : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-proposal-bridge")
+                                ? ["The audit can now draft follow-on OpenSpec changes, but repeated findings still do not automatically reconcile against existing plans or task queues."]
+                                : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-persistence")
+                                  ? ["The audit can now persist and compare snapshots, but findings still do not automatically draft or update planning artifacts when a binding constraint repeats."]
+                                  : ["Current evidence is still stronger at structural evaluation than at durable cross-layer diagnosis and correction-path comparison."],
+      highestLeverageNextStep: (evidence) => evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-report")
+        ? "Use repeated guidance-effectiveness reports to tune how audit guidance is synthesized, especially when aligned guidance keeps producing stagnant weak layers or when divergent choices outperform it."
+        : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-effectiveness-comparator")
+          ? "Exercise the guidance-effectiveness comparator on durable guided history so evaluation can compare aligned guidance against later audit movement instead of stopping at focus alignment."
+          : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-report")
+            ? "Compare guidance-alignment reports and scope-aware verification floors against later audit drift and correction-path outcomes so evaluation can tell whether following the guidance actually helped."
+            : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-tracker")
+              && evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-outcome-cycle-bridge")
+              ? "Exercise the guidance-outcome tracker on a real guided cycle so evaluation can observe whether the harness followed its own audit advice."
+              : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-orchestrated-loop-report")
+                && evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-guidance-bridge")
+                ? "Compare future cycle focus choices against audit guidance so the audit can prove it is steering evolution rather than only describing it."
+                : evidence.some((item) => item.evidenceId === "audit-evaluation-audit-radar-orchestrated-loop-report")
+                  ? "Record the orchestrated audit experiment back into devlog and theory-fork so future cycles can reuse what the audit loop caught, missed, and still cannot attribute cleanly."
+                  : "Integrate the audit loop into cycle orchestration so audit assessment, outcome comparison, and proportionate verification happen consistently instead of only by manual command use.",
       recommendationActionType: "tool",
       suggestedPaths: ["aies/extensions/evaluation/", "aies/extensions/cycle-runner/", "verify-aies-quick.ps1"],
     },

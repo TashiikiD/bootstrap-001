@@ -12,6 +12,7 @@ Planned layout:
 - `outcomes/` — durable correction-path comparison reports showing which interventions appeared between audits and whether weak layers improved
 - `loops/` — durable end-to-end loop reports tying one audit run to its linked outcome comparison plus verification/recovery result
 - `guidance-outcomes/` — durable reports comparing an audit guidance brief against the focus the harness actually chose on a later guided cycle
+- `guidance-effectiveness/` — durable reports joining guidance alignment with linked post-run audit drift, observed correction paths, and scope-aware verification floors
 - optional human-readable reports can live alongside the structured snapshots later if the runtime needs them
 
 Loop report notes:
