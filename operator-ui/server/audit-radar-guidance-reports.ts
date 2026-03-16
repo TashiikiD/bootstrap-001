@@ -1,10 +1,13 @@
-import { existsSync, readFileSync } from "node:fs";
-import { relative, resolve } from "node:path";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
+import { getAiesPaths } from "../../aies/extensions/shared/paths.ts";
 import { projectRoot } from "./lib";
 
 interface MinimalAuditGuidanceOutcomeReport {
   reportId: string;
   generatedAt: string;
+  relatedCycleId?: string | null;
+  relatedChangeId?: string | null;
   alignment: {
     status: string;
     summary: string;
@@ -20,6 +23,9 @@ interface MinimalAuditGuidanceEffectivenessItem {
 interface MinimalAuditGuidanceEffectivenessReport {
   reportId: string;
   generatedAt: string;
+  guidanceOutcomeCount?: number;
+  analyzedCount?: number;
+  linkedPostRunAuditCount?: number;
   summary: string;
   items: MinimalAuditGuidanceEffectivenessItem[];
 }
@@ -30,6 +36,8 @@ interface MinimalAuditGuidanceAdaptationReport {
   status: string;
   note: string;
   summary: string;
+  recommendedAdjustment?: string;
+  missingThresholds?: string[];
 }
 
 export interface AuditGuidanceOutcomeReportRecord {
@@ -62,6 +70,21 @@ function resolveRelativeProjectPath(relativePath: string | null | undefined): st
 
   const fullPath = resolve(projectRoot, normalized);
   return existsSync(fullPath) ? fullPath : null;
+}
+
+function listJsonFiles(directory: string): string[] {
+  if (!existsSync(directory)) {
+    return [];
+  }
+
+  return readdirSync(directory)
+    .filter((name) => name.toLowerCase().endsWith(".json"))
+    .sort((left, right) => right.localeCompare(left))
+    .map((name) => join(directory, name));
+}
+
+function takeNewest<T>(items: T[], limit: number): T[] {
+  return limit > 0 ? items.slice(0, limit) : items;
 }
 
 function isAuditGuidanceOutcomeReport(value: unknown): value is MinimalAuditGuidanceOutcomeReport {
@@ -183,4 +206,31 @@ export function readAuditGuidanceAdaptationReportByRelativePath(
 ): AuditGuidanceAdaptationReportRecord | null {
   const fullPath = resolveRelativeProjectPath(relativePath);
   return fullPath ? toAdaptationRecord(fullPath) : null;
+}
+
+export function readAuditGuidanceOutcomeReportHistory(limit = 10): AuditGuidanceOutcomeReportRecord[] {
+  return takeNewest(
+    listJsonFiles(getAiesPaths().auditRadarGuidanceOutcomesRoot)
+      .map((fullPath) => toOutcomeRecord(fullPath))
+      .filter((record): record is AuditGuidanceOutcomeReportRecord => record !== null),
+    limit,
+  );
+}
+
+export function readAuditGuidanceEffectivenessReportHistory(limit = 10): AuditGuidanceEffectivenessReportRecord[] {
+  return takeNewest(
+    listJsonFiles(getAiesPaths().auditRadarGuidanceEffectivenessRoot)
+      .map((fullPath) => toEffectivenessRecord(fullPath))
+      .filter((record): record is AuditGuidanceEffectivenessReportRecord => record !== null),
+    limit,
+  );
+}
+
+export function readAuditGuidanceAdaptationReportHistory(limit = 10): AuditGuidanceAdaptationReportRecord[] {
+  return takeNewest(
+    listJsonFiles(getAiesPaths().auditRadarGuidanceAdaptationRoot)
+      .map((fullPath) => toAdaptationRecord(fullPath))
+      .filter((record): record is AuditGuidanceAdaptationReportRecord => record !== null),
+    limit,
+  );
 }

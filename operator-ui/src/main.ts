@@ -1050,6 +1050,75 @@ class AiesOperatorApp extends LitElement {
             </div>
           </section>
           <section class="card stack">
+            <h2>Guidance Outcome Reports</h2>
+            <div class="history-list">
+              ${observatory.guidanceOutcomeReports.length === 0
+                ? html`<div class="empty">No durable guidance outcome reports yet.</div>`
+                : observatory.guidanceOutcomeReports.map((item) => html`
+                    <div class="artifact-item">
+                      <div class="row wrap">
+                        <strong>${item.reportId}</strong>
+                        <div class="pill-summary">
+                          <span class="chip">${item.alignmentStatus}</span>
+                        </div>
+                      </div>
+                      <div>${item.summary}</div>
+                      <div class="artifact-meta">
+                        change=${item.relatedChangeId ?? "none"} · cycle=${item.relatedCycleId ?? "none"} · generated=${formatTimestamp(item.generatedAt)}
+                      </div>
+                      <div class="artifact-meta">${item.path}</div>
+                    </div>
+                  `)}
+            </div>
+          </section>
+          <section class="card stack">
+            <h2>Guidance Effectiveness Reports</h2>
+            <div class="history-list">
+              ${observatory.guidanceEffectivenessReports.length === 0
+                ? html`<div class="empty">No durable guidance effectiveness reports yet.</div>`
+                : observatory.guidanceEffectivenessReports.map((item) => html`
+                    <div class="artifact-item">
+                      <div class="row wrap">
+                        <strong>${item.reportId}</strong>
+                        <div class="pill-summary">
+                          <span class="chip">${item.dominantVerdict}</span>
+                          <span class="chip">${item.analyzedCount}/${item.guidanceOutcomeCount}</span>
+                        </div>
+                      </div>
+                      <div>${item.summary}</div>
+                      <div class="artifact-meta">
+                        linkedAudits=${item.linkedPostRunAuditCount} · generated=${formatTimestamp(item.generatedAt)}
+                      </div>
+                      <div class="artifact-meta">${item.path}</div>
+                    </div>
+                  `)}
+            </div>
+          </section>
+          <section class="card stack">
+            <h2>Guidance Adaptation Reports</h2>
+            <div class="history-list">
+              ${observatory.guidanceAdaptationReports.length === 0
+                ? html`<div class="empty">No durable guidance adaptation reports yet.</div>`
+                : observatory.guidanceAdaptationReports.map((item) => html`
+                    <div class="artifact-item">
+                      <div class="row wrap">
+                        <strong>${item.reportId}</strong>
+                        <div class="pill-summary">
+                          <span class="chip">${item.status}</span>
+                          ${item.missingThresholds.length > 0
+                            ? html`<span class="chip">missing:${item.missingThresholds.length}</span>`
+                            : nothing}
+                        </div>
+                      </div>
+                      <div>${item.summary}</div>
+                      <div class="artifact-meta">${item.note}</div>
+                      <div class="artifact-meta">adjustment=${item.recommendedAdjustment}</div>
+                      <div class="artifact-meta">${item.path}</div>
+                    </div>
+                  `)}
+            </div>
+          </section>
+          <section class="card stack">
             <h2>Cycle-run Audit Trails</h2>
             <div class="history-list">
               ${observatory.cycleRunAudits.length === 0

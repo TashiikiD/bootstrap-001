@@ -33,7 +33,13 @@ import {
   type ParsedSession,
   type PiExecutionResult,
 } from "./lib";
+import { latestAuditRadarGuidance } from "../../aies/extensions/evaluation/audit-radar-guidance.ts";
 import { listAuditValues, readLatestAuditRadarReport, summarizeAuditRadarReport, trimAuditText } from "./audit-radar";
+import {
+  readAuditGuidanceAdaptationReportHistory,
+  readAuditGuidanceEffectivenessReportHistory,
+  readAuditGuidanceOutcomeReportHistory,
+} from "./audit-radar-guidance-reports";
 import {
   readAuditLoopHistory,
   readAuditLoopReportByRelativePath,
@@ -526,6 +532,10 @@ function buildState() {
   const verificationMode = verification?.record?.mode ?? controls.verification.mode ?? "none";
   const verificationResult = verification?.record?.result ?? "not_run";
   const auditRadar = readLatestAuditRadarReport();
+  const auditGuidance = latestAuditRadarGuidance(openspec?.context?.activeChangeId ?? null);
+  const auditGuidanceOutcomeHistory = readAuditGuidanceOutcomeReportHistory(10);
+  const auditGuidanceEffectivenessHistory = readAuditGuidanceEffectivenessReportHistory(10);
+  const auditGuidanceAdaptationHistory = readAuditGuidanceAdaptationReportHistory(10);
   const auditLoopHistory = readAuditLoopHistory(12);
   const latestAuditLoop = auditLoopHistory[0] ?? null;
   const cycleRunAuditHistory = readCycleRunAuditHistory(sessions, 12);
@@ -534,6 +544,15 @@ function buildState() {
   const cycleRunnerAuditVerification = cycleRunner?.postRunAudit?.verificationMode && cycleRunner?.postRunAudit?.verificationResult
     ? `${cycleRunner.postRunAudit.verificationMode}/${cycleRunner.postRunAudit.verificationResult}`
     : "none";
+  const latestGuidanceOutcome = auditGuidanceOutcomeHistory[0] ?? null;
+  const latestGuidanceEffectiveness = auditGuidanceEffectivenessHistory[0] ?? null;
+  const latestGuidanceEffectivenessVerdict = latestGuidanceEffectiveness
+    ? Object.entries(latestGuidanceEffectiveness.report.items.reduce<Record<string, number>>((counts, item) => {
+      counts[item.verdict] = (counts[item.verdict] ?? 0) + 1;
+      return counts;
+    }, {})).sort((left, right) => right[1] - left[1])[0]?.[0] ?? "none"
+    : "none";
+  const latestGuidanceAdaptation = auditGuidanceAdaptationHistory[0] ?? null;
   const evolutionEvidenceRecord = readLatestEvolutionEvidenceIndexRecord();
   const evolutionEvidencePanel = buildEvolutionEvidencePanelData(evolutionEvidenceRecord);
 
@@ -701,6 +720,40 @@ function buildState() {
         sourceTimestamp: auditRadar?.snapshot.observedAt ?? null,
         relatedCycleId: null,
         relatedChangeId: null,
+        stale: false,
+      },
+    ),
+    auditGuidance: panel(
+      "Audit Guidance",
+      auditGuidance?.summary ?? "No synthesized audit guidance available",
+      [
+        `focus=${auditGuidance?.recommendedFocusType ?? "none"}`,
+        `action=${auditGuidance?.actionType ?? "none"}`,
+        `binding=${auditGuidance?.bindingConstraint ?? "none"}`,
+        `targets=${listAuditValues(auditGuidance?.targetDimensions)}`,
+        `adaptation=${auditGuidance?.adaptationStatus ?? latestGuidanceAdaptation?.report.status ?? "none"}`,
+        `latestOutcome=${latestGuidanceOutcome?.report.alignment.status ?? "none"}`,
+        `latestEffect=${latestGuidanceEffectivenessVerdict}`,
+        `latestLoop=${auditGuidance?.latestLoopVerification ?? "none"}`,
+      ],
+      {
+        auditGuidance,
+        latestGuidanceOutcome,
+        latestGuidanceEffectiveness,
+        latestGuidanceAdaptation,
+        recentGuidanceOutcomes: auditGuidanceOutcomeHistory.slice(0, 6),
+        recentGuidanceEffectiveness: auditGuidanceEffectivenessHistory.slice(0, 6),
+        recentGuidanceAdaptation: auditGuidanceAdaptationHistory.slice(0, 6),
+        rationale: trimAuditText(auditGuidance?.rationale),
+        drift: trimAuditText(auditGuidance?.driftSummary),
+        adaptationNote: trimAuditText(auditGuidance?.adaptationNote ?? latestGuidanceAdaptation?.report.note),
+      },
+      {
+        sourceType: auditGuidance ? "runtime" : "inferred",
+        sourceLabel: auditGuidance ? "audit-radar guidance synthesis + durable guidance reports" : "audit-radar guidance unavailable",
+        sourceTimestamp: auditGuidance?.observedAt ?? latestGuidanceAdaptation?.report.generatedAt ?? null,
+        relatedCycleId: null,
+        relatedChangeId: auditGuidance?.activeChangeId ?? openspec?.context?.activeChangeId ?? null,
         stale: false,
       },
     ),
@@ -883,6 +936,43 @@ function buildState() {
         relatedChangeId: record.report.relatedChangeId ?? null,
         path: record.relativePath,
         summary: record.report.summary,
+      })),
+      guidanceOutcomeReports: auditGuidanceOutcomeHistory.map((record) => ({
+        reportId: record.report.reportId,
+        generatedAt: record.report.generatedAt,
+        alignmentStatus: record.report.alignment.status,
+        relatedCycleId: record.report.relatedCycleId ?? null,
+        relatedChangeId: record.report.relatedChangeId ?? null,
+        summary: record.report.alignment.summary,
+        path: record.relativePath,
+      })),
+      guidanceEffectivenessReports: auditGuidanceEffectivenessHistory.map((record) => {
+        const verdictCounts = record.report.items.reduce<Record<string, number>>((counts, item) => {
+          counts[item.verdict] = (counts[item.verdict] ?? 0) + 1;
+          return counts;
+        }, {});
+        const dominantVerdict = Object.entries(verdictCounts)
+          .sort((left, right) => right[1] - left[1])[0]?.[0] ?? "none";
+        return {
+          reportId: record.report.reportId,
+          generatedAt: record.report.generatedAt,
+          guidanceOutcomeCount: record.report.guidanceOutcomeCount ?? record.report.items.length,
+          analyzedCount: record.report.analyzedCount ?? record.report.items.length,
+          linkedPostRunAuditCount: record.report.linkedPostRunAuditCount ?? 0,
+          dominantVerdict,
+          summary: record.report.summary,
+          path: record.relativePath,
+        };
+      }),
+      guidanceAdaptationReports: auditGuidanceAdaptationHistory.map((record) => ({
+        reportId: record.report.reportId,
+        generatedAt: record.report.generatedAt,
+        status: record.report.status,
+        summary: record.report.summary,
+        note: record.report.note,
+        recommendedAdjustment: record.report.recommendedAdjustment ?? "none",
+        missingThresholds: record.report.missingThresholds ?? [],
+        path: record.relativePath,
       })),
       cycleRunAudits: cycleRunAuditHistory,
       cycleThoughtArchives: cycleThoughtEntries
