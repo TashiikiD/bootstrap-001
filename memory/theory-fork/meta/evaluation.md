@@ -72,6 +72,18 @@ That leaves evaluation one step short of steering action. A useful posture revie
 
 This keeps posture learning honest. The planner should not treat correlational review as settled truth; it should only narrow the next experiment enough that future cycles stop guessing blindly.
 
+## Experiment Note — Experiment Planning Should End in Execution Review
+
+Once the system can propose a bounded next posture experiment, another failure mode appears: it still may not know whether that experiment is actually being exercised across later relevant cycles.
+
+That leaves evaluation stuck between planning and evidence. A useful experiment planner should gain a paired execution review that can answer:
+- not started yet
+- in progress but sample-thin
+- completed against its planned cycle count
+- early supportive, counter, mixed, or insufficient signal
+
+This keeps planned experiments from becoming another advisory artifact. The review does not need to prove causality; it only needs to tell future cycles whether the planned probe is actually underway and whether it is already showing reason for caution or reinforcement.
+
 ## Open Questions
 
 - What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?

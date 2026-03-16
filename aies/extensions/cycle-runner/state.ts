@@ -73,6 +73,9 @@ export interface CycleRunEntry {
   guidanceEffectivenessSummary: string | null;
   guidanceLearningReviewReportPath: string | null;
   guidanceLearningReviewSummary: string | null;
+  guidanceExperimentReviewReportPath: string | null;
+  guidanceExperimentReviewStatus: string | null;
+  guidanceExperimentReviewSummary: string | null;
   guidanceExperimentReportPath: string | null;
   guidanceExperimentSummary: string | null;
   postRunAudit: CycleRunAuditTrail | null;
@@ -123,6 +126,9 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     guidanceEffectivenessSummary: entry.guidanceEffectivenessSummary ?? null,
     guidanceLearningReviewReportPath: entry.guidanceLearningReviewReportPath ?? null,
     guidanceLearningReviewSummary: entry.guidanceLearningReviewSummary ?? null,
+    guidanceExperimentReviewReportPath: entry.guidanceExperimentReviewReportPath ?? null,
+    guidanceExperimentReviewStatus: entry.guidanceExperimentReviewStatus ?? null,
+    guidanceExperimentReviewSummary: entry.guidanceExperimentReviewSummary ?? null,
     guidanceExperimentReportPath: entry.guidanceExperimentReportPath ?? null,
     guidanceExperimentSummary: entry.guidanceExperimentSummary ?? null,
     postRunAudit: entry.postRunAudit ?? null,

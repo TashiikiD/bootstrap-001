@@ -10,6 +10,7 @@ import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-rada
 import { formatAuditGuidanceEffectivenessReport, createAuditGuidanceEffectivenessReport, persistAuditGuidanceEffectivenessReport } from "./audit-radar-guidance-effectiveness.ts";
 import { formatAuditGuidanceLearningReviewReport, createAuditGuidanceLearningReviewReport, persistAuditGuidanceLearningReviewReport } from "./audit-radar-guidance-learning-review.ts";
 import { formatAuditGuidanceExperimentReport, createAuditGuidanceExperimentReport, persistAuditGuidanceExperimentReport } from "./audit-radar-guidance-experiment.ts";
+import { formatAuditGuidanceExperimentReviewReport, createAuditGuidanceExperimentReviewReport, persistAuditGuidanceExperimentReviewReport } from "./audit-radar-guidance-experiment-review.ts";
 import { formatAuditGuidanceOutcomeReport, latestAuditGuidanceOutcomeReport } from "./audit-radar-guidance-outcomes.ts";
 import { createAuditRadarGuidance, buildAuditRadarGuidancePromptBlock, formatAuditRadarGuidance } from "./audit-radar-guidance.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
@@ -574,6 +575,21 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
       const report = createAuditGuidanceExperimentReport(snapshot.bindingConstraint.dimension, snapshot.recommendedNextStep.targetDimensions);
       const persistedPath = persistAuditGuidanceExperimentReport(report);
       writeLine(ctx, `${formatAuditGuidanceExperimentReport(report)}\nPersisted: ${persistedPath}`);
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceExperimentReview, {
+    description: "Review whether a bounded guidance experiment has actually been exercised across its planned relevant cycles and what early signal it is producing",
+    handler: async (_args, ctx) => {
+      updateUi(restoreEvaluationEntry(ctx), ctx);
+      const report = createAuditGuidanceExperimentReviewReport();
+      if (!report) {
+        writeLine(ctx, "Audit guidance experiment review needs either a durable experiment report or captured guided-cycle experiment evidence.", "warning");
+        return;
+      }
+
+      const persistedPath = persistAuditGuidanceExperimentReviewReport(report);
+      writeLine(ctx, `${formatAuditGuidanceExperimentReviewReport(report)}\nPersisted: ${persistedPath}`);
     },
   });
 

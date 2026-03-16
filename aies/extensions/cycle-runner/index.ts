@@ -15,6 +15,10 @@ import {
   createAuditGuidanceExperimentReport,
   persistAuditGuidanceExperimentReport,
 } from "../evaluation/audit-radar-guidance-experiment.ts";
+import {
+  createAuditGuidanceExperimentReviewReport,
+  persistAuditGuidanceExperimentReviewReport,
+} from "../evaluation/audit-radar-guidance-experiment-review.ts";
 import { createAuditGuidanceOutcomeReport, captureAuditGuidanceBrief, persistAuditGuidanceOutcomeReport } from "../evaluation/audit-radar-guidance-outcomes.ts";
 import { latestAuditRadarGuidance, type AuditRadarGuidance } from "../evaluation/audit-radar-guidance.ts";
 import { restoreEvaluationEntry, type EvaluationEntry } from "../evaluation/state.ts";
@@ -193,7 +197,7 @@ function updateUi(entry: CycleRunEntry | null, ctx: ExtensionContext): void {
         `audit=${entry.postRunAudit?.verificationMode && entry.postRunAudit?.verificationResult
           ? `${entry.postRunAudit.verificationMode}/${entry.postRunAudit.verificationResult}`
           : entry.postRunAudit?.status ?? "pending"}`,
-        `guide=${entry.guidanceExperimentReportPath ? `experiment:${entry.auditGuidance?.experimentNextPosture ?? "planned"}` : entry.guidanceLearningReviewReportPath ? `reviewed:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceEffectivenessReportPath ? `effective:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
+        `guide=${entry.guidanceExperimentReviewReportPath ? `experiment-review:${entry.guidanceExperimentReviewStatus ?? "recorded"}` : entry.guidanceExperimentReportPath ? `experiment:${entry.auditGuidance?.experimentNextPosture ?? "planned"}` : entry.guidanceLearningReviewReportPath ? `reviewed:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceEffectivenessReportPath ? `effective:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
         `scope=${entry.verificationScope?.recommendedMode ?? (entry.verificationScopeBaseline ? "capturing" : "none")}`,
         `prompt=${entry.promptSummary}`,
       ]
@@ -725,6 +729,9 @@ function formatGuidanceSection(entry: CycleRunEntry): string[] {
     `Audit guidance effectiveness summary: ${entry.guidanceEffectivenessSummary ?? "none"}`,
     `Audit guidance learning review report: ${entry.guidanceLearningReviewReportPath ?? "none"}`,
     `Audit guidance learning review summary: ${entry.guidanceLearningReviewSummary ?? "none"}`,
+    `Audit guidance experiment review report: ${entry.guidanceExperimentReviewReportPath ?? "none"}`,
+    `Audit guidance experiment review status: ${entry.guidanceExperimentReviewStatus ?? "none"}`,
+    `Audit guidance experiment review summary: ${entry.guidanceExperimentReviewSummary ?? "none"}`,
     `Audit guidance experiment report: ${entry.guidanceExperimentReportPath ?? "none"}`,
     `Audit guidance experiment summary: ${entry.guidanceExperimentSummary ?? "none"}`,
   ];
@@ -809,6 +816,9 @@ function buildRunEntry(
   guidanceExperimentReportPath: string | null = null,
   guidanceExperimentSummary: string | null = null,
   postRunAudit: CycleRunAuditTrail | null = null,
+  guidanceExperimentReviewReportPath: string | null = null,
+  guidanceExperimentReviewStatus: string | null = null,
+  guidanceExperimentReviewSummary: string | null = null,
 ): CycleRunEntry {
   return {
     runId,
@@ -831,6 +841,9 @@ function buildRunEntry(
     guidanceEffectivenessSummary,
     guidanceLearningReviewReportPath,
     guidanceLearningReviewSummary,
+    guidanceExperimentReviewReportPath,
+    guidanceExperimentReviewStatus,
+    guidanceExperimentReviewSummary,
     guidanceExperimentReportPath,
     guidanceExperimentSummary,
     postRunAudit,
@@ -1110,6 +1123,12 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
     const guidanceLearningReviewReportPath = guidanceLearningReviewReport
       ? persistAuditGuidanceLearningReviewReport(guidanceLearningReviewReport)
       : null;
+    const guidanceExperimentReviewReport = activeRun.auditGuidance
+      ? createAuditGuidanceExperimentReviewReport(activeRun.auditGuidance)
+      : null;
+    const guidanceExperimentReviewReportPath = guidanceExperimentReviewReport
+      ? persistAuditGuidanceExperimentReviewReport(guidanceExperimentReviewReport)
+      : null;
     const guidanceExperimentReport = activeRun.auditGuidance
       ? createAuditGuidanceExperimentReport(activeRun.auditGuidance.bindingConstraint, activeRun.auditGuidance.targetDimensions)
       : null;
@@ -1141,6 +1160,9 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       guidanceExperimentReportPath,
       guidanceExperimentReport?.summary ?? null,
       postRunAudit,
+      guidanceExperimentReviewReportPath,
+      guidanceExperimentReviewReport?.executionStatus ?? null,
+      guidanceExperimentReviewReport?.summary ?? null,
     );
     const thoughtEntry: CycleThoughtEntry = {
       runId: activeRun.runId,

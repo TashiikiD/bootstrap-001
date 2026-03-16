@@ -889,6 +889,9 @@ class AiesOperatorApp extends LitElement {
                           ${item.guidanceEffectivenessVerdict
                             ? html`<span class="chip">effect:${item.guidanceEffectivenessVerdict}</span>`
                             : nothing}
+                          ${item.guidanceExperimentReviewStatus
+                            ? html`<span class="chip">experiment-review:${item.guidanceExperimentReviewStatus}</span>`
+                            : nothing}
                           ${item.guidanceExperimentType
                             ? html`<span class="chip">experiment:${item.guidanceExperimentType}</span>`
                             : nothing}
@@ -914,11 +917,15 @@ class AiesOperatorApp extends LitElement {
                         learningReview=${item.guidanceLearningReviewReportPath ?? "none"} · durable=${item.hasDurableGuidanceLearningReviewReport ? "yes" : "no"}
                       </div>
                       <div class="artifact-meta">
+                        experimentReview=${item.guidanceExperimentReviewReportPath ?? "none"} · durable=${item.hasDurableGuidanceExperimentReviewReport ? "yes" : "no"} · signal=${item.guidanceExperimentReviewSignal ?? "none"}
+                      </div>
+                      <div class="artifact-meta">
                         experiment=${item.guidanceExperimentReportPath ?? "none"} · durable=${item.hasDurableGuidanceExperimentReport ? "yes" : "no"}
                       </div>
                       <div class="artifact-meta">${item.guidanceOutcomeSummary}</div>
                       <div class="artifact-meta">${item.guidanceEffectivenessSummary}</div>
                       <div class="artifact-meta">${item.guidanceLearningReviewSummary}</div>
+                      <div class="artifact-meta">${item.guidanceExperimentReviewSummary}</div>
                       <div class="artifact-meta">${item.guidanceExperimentSummary}</div>
                       <div class="artifact-meta">${item.auditFailure ?? item.auditSummary}</div>
                     </div>

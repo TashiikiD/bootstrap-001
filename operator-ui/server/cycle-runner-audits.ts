@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import {
   readAuditGuidanceEffectivenessReportByRelativePath,
   readAuditGuidanceExperimentReportByRelativePath,
+  readAuditGuidanceExperimentReviewReportByRelativePath,
   readAuditGuidanceLearningReviewReportByRelativePath,
   readAuditGuidanceOutcomeReportByRelativePath,
 } from "./audit-radar-guidance-reports";
@@ -37,6 +38,11 @@ export interface CycleRunAuditHistoryItem {
   guidanceLearningReviewSummary: string;
   guidanceLearningReviewReportPath: string | null;
   hasDurableGuidanceLearningReviewReport: boolean;
+  guidanceExperimentReviewStatus: string | null;
+  guidanceExperimentReviewSignal: string | null;
+  guidanceExperimentReviewSummary: string;
+  guidanceExperimentReviewReportPath: string | null;
+  hasDurableGuidanceExperimentReviewReport: boolean;
   guidanceExperimentType: string | null;
   guidanceExperimentSummary: string;
   guidanceExperimentReportPath: string | null;
@@ -72,12 +78,16 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
       const guidanceLearningReviewReportPath = typeof data.guidanceLearningReviewReportPath === "string"
         ? data.guidanceLearningReviewReportPath
         : null;
+      const guidanceExperimentReviewReportPath = typeof data.guidanceExperimentReviewReportPath === "string"
+        ? data.guidanceExperimentReviewReportPath
+        : null;
       const guidanceExperimentReportPath = typeof data.guidanceExperimentReportPath === "string"
         ? data.guidanceExperimentReportPath
         : null;
       const guidanceOutcomeRecord = readAuditGuidanceOutcomeReportByRelativePath(guidanceOutcomeReportPath);
       const guidanceEffectivenessRecord = readAuditGuidanceEffectivenessReportByRelativePath(guidanceEffectivenessReportPath);
       const guidanceLearningReviewRecord = readAuditGuidanceLearningReviewReportByRelativePath(guidanceLearningReviewReportPath);
+      const guidanceExperimentReviewRecord = readAuditGuidanceExperimentReviewReportByRelativePath(guidanceExperimentReviewReportPath);
       const guidanceExperimentRecord = readAuditGuidanceExperimentReportByRelativePath(guidanceExperimentReportPath);
       const matchingGuidanceEffectivenessItem = guidanceEffectivenessRecord?.report.items.find((item) =>
         guidanceOutcomeRecord ? item.guidanceOutcomeReportId === guidanceOutcomeRecord.report.reportId : true)
@@ -131,6 +141,17 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
             : "No guidance-learning review recorded."),
         guidanceLearningReviewReportPath,
         hasDurableGuidanceLearningReviewReport: Boolean(guidanceLearningReviewRecord),
+        guidanceExperimentReviewStatus: guidanceExperimentReviewRecord?.report.executionStatus
+          ?? (typeof data.guidanceExperimentReviewStatus === "string" ? data.guidanceExperimentReviewStatus : null),
+        guidanceExperimentReviewSignal: guidanceExperimentReviewRecord?.report.signalDirection ?? null,
+        guidanceExperimentReviewSummary: guidanceExperimentReviewRecord?.report.summary
+          ?? (typeof data.guidanceExperimentReviewSummary === "string"
+            ? data.guidanceExperimentReviewSummary
+            : guidanceExperimentReviewReportPath
+              ? `Guidance-experiment review report path was recorded but could not be loaded: ${guidanceExperimentReviewReportPath}`
+              : "No guidance experiment review recorded."),
+        guidanceExperimentReviewReportPath,
+        hasDurableGuidanceExperimentReviewReport: Boolean(guidanceExperimentReviewRecord),
         guidanceExperimentType: guidanceExperimentRecord?.report.experimentType
           ?? (typeof data.auditGuidance?.experimentType === "string" ? data.auditGuidance.experimentType : null),
         guidanceExperimentSummary: guidanceExperimentRecord?.report.summary
