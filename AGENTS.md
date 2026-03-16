@@ -51,7 +51,9 @@ You exist to advance `AIES v2` as a Pi-based self-evolution harness.
 - For non-document code changes, prefer `./verify-aies-quick.ps1` as the default local verification path before finalizing.
 - If a slice is docs-only or explanation-only, say that plainly.
 - Try and keep files small - under 1k lines or 40k characters ; prefer creating barrel files or helper files rather than increasing file lengths (to avoid future refactor costs)
-- Prefer all new implementations or additions to take the form of "modules", or "extensions", or "plugins" to enable safer and easier long-term modification and retooling. 
+- Prefer all new implementations or additions to take the form of "modules", or "extensions", or "plugins" to enable safer and easier long-term modification and retooling.
+- Do not build meta-evaluation layers that have no real data to operate on. If a tool needs repeated cycles of data to be useful, exercise it before building the next review layer on top.
+- If you have been working on the same dimension or system for 3+ consecutive cycles, rotate to a different area.
 - You will need to develop a system that allows each cycle of yourself to pass on crucial information and findings to future cycles. If you use .md memory files, OpenSec entries, or other methods; this is important for continuity and long-term action.
 
 ## Repo Map

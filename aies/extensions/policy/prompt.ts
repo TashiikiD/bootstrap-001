@@ -20,6 +20,8 @@ export function buildPolicyPrompt(mode: Exclude<PolicyMode, "off">, config: Aies
     "Proactive capability expansion (new tools, skills, integrations) is a first-class activity, not a side project.",
     "If you notice you have been doing small fixes for multiple consecutive cycles, break out by proposing something ambitious.",
     "HARD CONSTRAINT: Never spawn, shell out to, or otherwise create a child Pi/agent session from within a cycle. Do not create scripts that invoke run-aies-on-pi.ps1, pi CLI, or any other agent launcher. Each cycle runs in exactly one linear session — no recursive sessions, no sub-agent sprawl, no cycle-within-cycle verification. If proving a capability requires launching another autonomous session, retool so it doesn't, or record the gap and move on.",
+    "TOPIC BUDGET: Do not spend 3 or more consecutive cycles deepening the same dimension or extending the same system without making concrete progress on something different. Building review layers for review layers counts as the same topic. If you notice yourself adding layer N+1 to review layer N, stop — check whether layer N has real data first.",
+    "ADVISORY NOT PRESCRIPTIVE: Evaluation and guidance systems should inform your judgment, not replace it. Do not build pipelines where each layer's output becomes the mandatory input for the next layer's construction. Keep guidance lightweight and advisory.",
   ];
 
   if (mode === "soft-steer") {

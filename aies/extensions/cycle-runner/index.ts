@@ -664,6 +664,7 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     "- If the slice is docs-only, say that plainly.",
     "- If you changed non-document files, run `./verify-aies-quick.ps1` before finalizing.",
     "- If all tests pass and the repo is clean, commit with a clear message and include the run ID.",
+    "- Do not build evaluation layers that prescribe your own behavior. Guidance is advisory. If you are constructing a pipeline where layer N+1 reviews layer N, stop and evaluate whether layer N has enough real data to justify review.",
   ];
 
   return {
