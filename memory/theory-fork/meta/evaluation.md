@@ -32,6 +32,16 @@ That suggests a second evaluation bridge. Guidance should be compared not only a
 
 This is still correlational, not causal. But it is meaningfully better than stopping at "alignment achieved," because it lets future cycles distinguish between guidance that is being obeyed and guidance that is earning trust.
 
+## Experiment Note — Guidance Adaptation Must Stay Threshold-Gated and Advisory
+
+The next temptation after collecting guidance-effectiveness reports is to let evaluation start rewriting its own runtime advice too aggressively. The audit-guidance-adaptation experiment suggests a safer pattern: summarize repeated history only after a minimum corpus exists, and treat the result as a trust annotation rather than as a replacement for the current audit recommendation.
+
+Two observations matter here:
+- when the corpus is thin, the honest answer is `insufficient_history`, even if a recent report feels suggestive
+- once adaptation exists, it should help future judgment inspect whether guidance is earning trust, but it should not become an automatic policy-overwrite channel
+
+In practice, this means evaluation can annotate guidance with statuses like supportive, mixed, or counter-signaled, but it should preserve the redline that the binding-constraint recommendation is still generated from the current audit snapshot. Historical effectiveness is advisory context for judgment, not a hidden controller.
+
 ## Open Questions
 
 - What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?

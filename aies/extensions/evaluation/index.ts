@@ -7,6 +7,7 @@ import type { AiesDimension, EvaluationConfidence, FocusType } from "../../contr
 import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
+import { formatAuditGuidanceAdaptationReport, createAuditGuidanceAdaptationReport, persistAuditGuidanceAdaptationReport } from "./audit-radar-guidance-adaptation.ts";
 import { formatAuditGuidanceEffectivenessReport, createAuditGuidanceEffectivenessReport, persistAuditGuidanceEffectivenessReport } from "./audit-radar-guidance-effectiveness.ts";
 import { formatAuditGuidanceOutcomeReport, latestAuditGuidanceOutcomeReport } from "./audit-radar-guidance-outcomes.ts";
 import { createAuditRadarGuidance, buildAuditRadarGuidancePromptBlock, formatAuditRadarGuidance } from "./audit-radar-guidance.ts";
@@ -541,6 +542,16 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
 
       const persistedPath = persistAuditGuidanceEffectivenessReport(report);
       writeLine(ctx, `${formatAuditGuidanceEffectivenessReport(report)}\nPersisted: ${persistedPath}`);
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceAdaptation, {
+    description: "Summarize repeated guidance-effectiveness history into an advisory trust note for current audit guidance",
+    handler: async (_args, ctx) => {
+      updateUi(restoreEvaluationEntry(ctx), ctx);
+      const report = createAuditGuidanceAdaptationReport();
+      const persistedPath = persistAuditGuidanceAdaptationReport(report);
+      writeLine(ctx, `${formatAuditGuidanceAdaptationReport(report)}\nPersisted: ${persistedPath}`);
     },
   });
 

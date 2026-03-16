@@ -7,6 +7,10 @@ import {
   createAuditGuidanceEffectivenessReport,
   persistAuditGuidanceEffectivenessReport,
 } from "../evaluation/audit-radar-guidance-effectiveness.ts";
+import {
+  createAuditGuidanceAdaptationReport,
+  persistAuditGuidanceAdaptationReport,
+} from "../evaluation/audit-radar-guidance-adaptation.ts";
 import { createAuditGuidanceOutcomeReport, captureAuditGuidanceBrief, persistAuditGuidanceOutcomeReport } from "../evaluation/audit-radar-guidance-outcomes.ts";
 import { latestAuditRadarGuidance, type AuditRadarGuidance } from "../evaluation/audit-radar-guidance.ts";
 import { buildAuditJudgmentPromptBlock } from "../evaluation/audit-judgment-gate.ts";
@@ -186,7 +190,15 @@ function updateUi(entry: CycleRunEntry | null, ctx: ExtensionContext): void {
         `audit=${entry.postRunAudit?.verificationMode && entry.postRunAudit?.verificationResult
           ? `${entry.postRunAudit.verificationMode}/${entry.postRunAudit.verificationResult}`
           : entry.postRunAudit?.status ?? "pending"}`,
-        `guide=${entry.guidanceEffectivenessReportPath ? `effective:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
+        `guide=${entry.guidanceAdaptationReportPath
+          ? `adapt:${entry.guidanceAdaptationStatus ?? "recorded"}`
+          : entry.guidanceEffectivenessReportPath
+            ? `effective:${entry.guidanceEffectivenessVerdict ?? "recorded"}`
+            : entry.guidanceOutcomeReportPath
+              ? "tracked"
+              : entry.auditGuidance
+                ? `captured:${entry.auditGuidance.adaptationStatus ?? "none"}`
+                : "none"}`,
         `scope=${entry.verificationScope?.recommendedMode ?? (entry.verificationScopeBaseline ? "capturing" : "none")}`,
         `prompt=${entry.promptSummary}`,
       ]
@@ -713,10 +725,15 @@ function formatGuidanceSection(entry: CycleRunEntry): string[] {
     `Audit guidance snapshot: ${entry.auditGuidance.snapshotId}`,
     `Audit guidance focus: ${entry.auditGuidance.recommendedFocusType}`,
     `Audit guidance binding constraint: ${entry.auditGuidance.bindingConstraint}`,
+    `Audit guidance adaptation trust: ${entry.auditGuidance.adaptationStatus ?? "none"}`,
+    `Audit guidance adaptation note: ${entry.auditGuidance.adaptationNote ?? "none"}`,
     `Audit guidance outcome report: ${entry.guidanceOutcomeReportPath ?? "none"}`,
     `Audit guidance effectiveness report: ${entry.guidanceEffectivenessReportPath ?? "none"}`,
     `Audit guidance effectiveness verdict: ${entry.guidanceEffectivenessVerdict ?? "none"}`,
     `Audit guidance effectiveness summary: ${entry.guidanceEffectivenessSummary ?? "none"}`,
+    `Audit guidance adaptation report: ${entry.guidanceAdaptationReportPath ?? "none"}`,
+    `Audit guidance adaptation status: ${entry.guidanceAdaptationStatus ?? "none"}`,
+    `Audit guidance adaptation note after run: ${entry.guidanceAdaptationNote ?? "none"}`,
   ];
 }
 
@@ -794,6 +811,9 @@ function buildRunEntry(
   guidanceEffectivenessReportPath: string | null = null,
   guidanceEffectivenessVerdict: string | null = null,
   guidanceEffectivenessSummary: string | null = null,
+  guidanceAdaptationReportPath: string | null = null,
+  guidanceAdaptationStatus: string | null = null,
+  guidanceAdaptationNote: string | null = null,
   postRunAudit: CycleRunAuditTrail | null = null,
 ): CycleRunEntry {
   return {
@@ -815,6 +835,9 @@ function buildRunEntry(
     guidanceEffectivenessReportPath,
     guidanceEffectivenessVerdict,
     guidanceEffectivenessSummary,
+    guidanceAdaptationReportPath,
+    guidanceAdaptationStatus,
+    guidanceAdaptationNote,
     postRunAudit,
   };
 }
@@ -857,6 +880,9 @@ export async function runCycleCommand(
       activeRun?.guidanceEffectivenessReportPath ?? null,
       activeRun?.guidanceEffectivenessVerdict ?? null,
       activeRun?.guidanceEffectivenessSummary ?? null,
+      activeRun?.guidanceAdaptationReportPath ?? null,
+      activeRun?.guidanceAdaptationStatus ?? null,
+      activeRun?.guidanceAdaptationNote ?? null,
     );
     activeRun = blocked;
     if (activeRunRef) {
@@ -1014,6 +1040,9 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
         activeRun.guidanceEffectivenessReportPath,
         activeRun.guidanceEffectivenessVerdict,
         activeRun.guidanceEffectivenessSummary,
+        activeRun.guidanceAdaptationReportPath,
+        activeRun.guidanceAdaptationStatus,
+        activeRun.guidanceAdaptationNote,
       );
       activeRun = aborted;
       persistRun(pi, aborted);
@@ -1079,6 +1108,12 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       ? persistAuditGuidanceEffectivenessReport(guidanceEffectivenessReport)
       : null;
     const guidanceEffectivenessItem = guidanceEffectivenessReport?.items[0] ?? null;
+    const guidanceAdaptationReport = guidanceEffectivenessReport
+      ? createAuditGuidanceAdaptationReport()
+      : null;
+    const guidanceAdaptationReportPath = guidanceAdaptationReport
+      ? persistAuditGuidanceAdaptationReport(guidanceAdaptationReport)
+      : null;
     const completed = buildRunEntry(
       activeRun.runId,
       assistantText ? "completed" : "failed",
@@ -1098,6 +1133,9 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       guidanceEffectivenessReportPath,
       guidanceEffectivenessItem?.verdict ?? null,
       guidanceEffectivenessItem?.summary ?? null,
+      guidanceAdaptationReportPath,
+      guidanceAdaptationReport?.status ?? null,
+      guidanceAdaptationReport?.note ?? null,
       postRunAudit,
     );
     const thoughtEntry: CycleThoughtEntry = {

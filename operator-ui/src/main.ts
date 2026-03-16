@@ -889,6 +889,9 @@ class AiesOperatorApp extends LitElement {
                           ${item.guidanceEffectivenessVerdict
                             ? html`<span class="chip">effect:${item.guidanceEffectivenessVerdict}</span>`
                             : nothing}
+                          ${item.guidanceAdaptationStatus
+                            ? html`<span class="chip">adapt:${item.guidanceAdaptationStatus}</span>`
+                            : nothing}
                         </div>
                       </div>
                       <div>${item.promptSummary}</div>
@@ -907,8 +910,12 @@ class AiesOperatorApp extends LitElement {
                       <div class="artifact-meta">
                         effectReport=${item.guidanceEffectivenessReportPath ?? "none"} · durable=${item.hasDurableGuidanceEffectivenessReport ? "yes" : "no"}
                       </div>
+                      <div class="artifact-meta">
+                        adaptationReport=${item.guidanceAdaptationReportPath ?? "none"} · durable=${item.hasDurableGuidanceAdaptationReport ? "yes" : "no"}
+                      </div>
                       <div class="artifact-meta">${item.guidanceOutcomeSummary}</div>
                       <div class="artifact-meta">${item.guidanceEffectivenessSummary}</div>
+                      <div class="artifact-meta">${item.guidanceAdaptationNote}</div>
                       <div class="artifact-meta">${item.auditFailure ?? item.auditSummary}</div>
                     </div>
                   `)}

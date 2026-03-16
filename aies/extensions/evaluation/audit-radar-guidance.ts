@@ -2,6 +2,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import type { AiesAuditRecommendedActionType, LayerAuditSnapshot } from "../../contracts/layer-audit-snapshot.ts";
 import type { AiesDimension, FocusType, IsoTimestamp } from "../../contracts/primitives.ts";
+import type { AuditGuidanceAdaptationStatus } from "./audit-radar-guidance-adaptation.ts";
+import { buildAuditGuidanceAdaptationNote, createAuditGuidanceAdaptationReport } from "./audit-radar-guidance-adaptation.ts";
 import type { AuditLoopReport } from "./audit-radar-loop.ts";
 import { getAiesPaths } from "../shared/paths.ts";
 import { latestAuditSnapshot } from "./audit-radar-state.ts";
@@ -23,6 +25,8 @@ export interface AuditRadarGuidance {
   latestLoopSource: string | null;
   latestLoopVerification: string;
   latestLoopReportPath: string | null;
+  adaptationStatus: AuditGuidanceAdaptationStatus;
+  adaptationNote: string;
 }
 
 function compact(text: string | null | undefined, maxLength = 220): string {
@@ -115,6 +119,7 @@ function latestLoopVerification(report: Partial<AuditLoopReport> | null): string
 
 export function createAuditRadarGuidance(snapshot: LayerAuditSnapshot, activeChangeId: string | null): AuditRadarGuidance {
   const latestLoop = readLatestLoopReport();
+  const adaptation = createAuditGuidanceAdaptationReport();
   const continueActiveChange = Boolean(activeChangeId);
   const recommendedFocusType = mapActionTypeToFocus(snapshot.recommendedNextStep.actionType, activeChangeId);
   const targetDimensions = snapshot.recommendedNextStep.targetDimensions;
@@ -152,6 +157,8 @@ export function createAuditRadarGuidance(snapshot: LayerAuditSnapshot, activeCha
     latestLoopSource: typeof latestLoop?.report.orchestrationSource === "string" ? latestLoop.report.orchestrationSource : null,
     latestLoopVerification: latestLoopVerification(latestLoop?.report ?? null),
     latestLoopReportPath: latestLoop?.relativePath ?? null,
+    adaptationStatus: adaptation.status,
+    adaptationNote: buildAuditGuidanceAdaptationNote(adaptation),
   };
 }
 
@@ -173,6 +180,8 @@ export function formatAuditRadarGuidance(guidance: AuditRadarGuidance): string {
     `Drift pressure: ${guidance.driftSummary}`,
     `Latest loop evidence: ${guidance.latestLoopSource ?? "none"} · ${guidance.latestLoopVerification} · ${guidance.latestLoopGeneratedAt ?? "none"}`,
     `Latest loop report: ${guidance.latestLoopReportPath ?? "none"}`,
+    `Adaptation trust: ${guidance.adaptationStatus}`,
+    `Adaptation note: ${guidance.adaptationNote}`,
     `Rationale: ${guidance.rationale}`,
   ].join("\n");
 }
@@ -188,6 +197,8 @@ export function buildAuditRadarGuidancePromptBlock(guidance: AuditRadarGuidance)
     `Suggested paths: ${listOrNone(guidance.suggestedPaths)}`,
     `Drift pressure: ${guidance.driftSummary}`,
     `Latest loop evidence: ${guidance.latestLoopSource ?? "none"} · ${guidance.latestLoopVerification}`,
+    `Adaptation trust: ${guidance.adaptationStatus}`,
+    `Adaptation note: ${guidance.adaptationNote}`,
     `Why now: ${guidance.rationale}`,
     "Use this as a judgment aid for the next step. Prefer continuing the active change when justified, but explain any stronger reason to diverge.",
   ].join("\n");

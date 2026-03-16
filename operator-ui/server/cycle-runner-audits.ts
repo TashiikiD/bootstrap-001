@@ -1,6 +1,7 @@
 import { basename, resolve } from "node:path";
 import { existsSync } from "node:fs";
 import {
+  readAuditGuidanceAdaptationReportByRelativePath,
   readAuditGuidanceEffectivenessReportByRelativePath,
   readAuditGuidanceOutcomeReportByRelativePath,
 } from "./audit-radar-guidance-reports";
@@ -32,6 +33,10 @@ export interface CycleRunAuditHistoryItem {
   guidanceEffectivenessSummary: string;
   guidanceEffectivenessReportPath: string | null;
   hasDurableGuidanceEffectivenessReport: boolean;
+  guidanceAdaptationStatus: string | null;
+  guidanceAdaptationNote: string;
+  guidanceAdaptationReportPath: string | null;
+  hasDurableGuidanceAdaptationReport: boolean;
 }
 
 function cycleAuditVerificationLabel(audit: Record<string, unknown> | null | undefined): string {
@@ -60,8 +65,12 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
       const guidanceEffectivenessReportPath = typeof data.guidanceEffectivenessReportPath === "string"
         ? data.guidanceEffectivenessReportPath
         : null;
+      const guidanceAdaptationReportPath = typeof data.guidanceAdaptationReportPath === "string"
+        ? data.guidanceAdaptationReportPath
+        : null;
       const guidanceOutcomeRecord = readAuditGuidanceOutcomeReportByRelativePath(guidanceOutcomeReportPath);
       const guidanceEffectivenessRecord = readAuditGuidanceEffectivenessReportByRelativePath(guidanceEffectivenessReportPath);
+      const guidanceAdaptationRecord = readAuditGuidanceAdaptationReportByRelativePath(guidanceAdaptationReportPath);
       const matchingGuidanceEffectivenessItem = guidanceEffectivenessRecord?.report.items.find((item) =>
         guidanceOutcomeRecord ? item.guidanceOutcomeReportId === guidanceOutcomeRecord.report.reportId : true)
         ?? guidanceEffectivenessRecord?.report.items[0]
@@ -71,6 +80,12 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
         : null;
       const fallbackGuidanceEffectivenessSummary = typeof data.guidanceEffectivenessSummary === "string"
         ? data.guidanceEffectivenessSummary
+        : null;
+      const fallbackGuidanceAdaptationStatus = typeof data.guidanceAdaptationStatus === "string"
+        ? data.guidanceAdaptationStatus
+        : null;
+      const fallbackGuidanceAdaptationNote = typeof data.guidanceAdaptationNote === "string"
+        ? data.guidanceAdaptationNote
         : null;
 
       return {
@@ -108,6 +123,14 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
             : "No guidance-effectiveness report recorded."),
         guidanceEffectivenessReportPath,
         hasDurableGuidanceEffectivenessReport: Boolean(guidanceEffectivenessRecord),
+        guidanceAdaptationStatus: guidanceAdaptationRecord?.report.status ?? fallbackGuidanceAdaptationStatus,
+        guidanceAdaptationNote: guidanceAdaptationRecord?.report.note
+          ?? fallbackGuidanceAdaptationNote
+          ?? (guidanceAdaptationReportPath
+            ? `Guidance-adaptation report path was recorded but could not be loaded: ${guidanceAdaptationReportPath}`
+            : "No guidance-adaptation report recorded."),
+        guidanceAdaptationReportPath,
+        hasDurableGuidanceAdaptationReport: Boolean(guidanceAdaptationRecord),
       } satisfies CycleRunAuditHistoryItem;
     }))
     .filter((item) => item.auditStatus !== "none");

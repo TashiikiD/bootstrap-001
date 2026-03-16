@@ -24,6 +24,14 @@ interface MinimalAuditGuidanceEffectivenessReport {
   items: MinimalAuditGuidanceEffectivenessItem[];
 }
 
+interface MinimalAuditGuidanceAdaptationReport {
+  reportId: string;
+  generatedAt: string;
+  status: string;
+  note: string;
+  summary: string;
+}
+
 export interface AuditGuidanceOutcomeReportRecord {
   report: MinimalAuditGuidanceOutcomeReport;
   fullPath: string;
@@ -32,6 +40,12 @@ export interface AuditGuidanceOutcomeReportRecord {
 
 export interface AuditGuidanceEffectivenessReportRecord {
   report: MinimalAuditGuidanceEffectivenessReport;
+  fullPath: string;
+  relativePath: string;
+}
+
+export interface AuditGuidanceAdaptationReportRecord {
+  report: MinimalAuditGuidanceAdaptationReport;
   fullPath: string;
   relativePath: string;
 }
@@ -86,6 +100,19 @@ function isAuditGuidanceEffectivenessReport(value: unknown): value is MinimalAud
     && candidate.items.every((item) => isAuditGuidanceEffectivenessItem(item));
 }
 
+function isAuditGuidanceAdaptationReport(value: unknown): value is MinimalAuditGuidanceAdaptationReport {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<MinimalAuditGuidanceAdaptationReport>;
+  return typeof candidate.reportId === "string"
+    && typeof candidate.generatedAt === "string"
+    && typeof candidate.status === "string"
+    && typeof candidate.note === "string"
+    && typeof candidate.summary === "string";
+}
+
 function toOutcomeRecord(fullPath: string): AuditGuidanceOutcomeReportRecord | null {
   try {
     const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as unknown;
@@ -120,6 +147,23 @@ function toEffectivenessRecord(fullPath: string): AuditGuidanceEffectivenessRepo
   }
 }
 
+function toAdaptationRecord(fullPath: string): AuditGuidanceAdaptationReportRecord | null {
+  try {
+    const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as unknown;
+    if (!isAuditGuidanceAdaptationReport(parsed)) {
+      return null;
+    }
+
+    return {
+      report: parsed,
+      fullPath,
+      relativePath: projectRelativePath(fullPath),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function readAuditGuidanceOutcomeReportByRelativePath(
   relativePath: string | null | undefined,
 ): AuditGuidanceOutcomeReportRecord | null {
@@ -132,4 +176,11 @@ export function readAuditGuidanceEffectivenessReportByRelativePath(
 ): AuditGuidanceEffectivenessReportRecord | null {
   const fullPath = resolveRelativeProjectPath(relativePath);
   return fullPath ? toEffectivenessRecord(fullPath) : null;
+}
+
+export function readAuditGuidanceAdaptationReportByRelativePath(
+  relativePath: string | null | undefined,
+): AuditGuidanceAdaptationReportRecord | null {
+  const fullPath = resolveRelativeProjectPath(relativePath);
+  return fullPath ? toAdaptationRecord(fullPath) : null;
 }

@@ -34,6 +34,8 @@ export interface AuditGuidanceCapturedBrief {
   latestLoopSource: string | null;
   latestLoopVerification: string;
   latestLoopReportPath: string | null;
+  adaptationStatus: string | null;
+  adaptationNote: string | null;
 }
 
 export interface AuditGuidanceOutcomeReport {
@@ -153,6 +155,8 @@ export function captureAuditGuidanceBrief(guidance: AuditRadarGuidance): AuditGu
     latestLoopSource: guidance.latestLoopSource,
     latestLoopVerification: guidance.latestLoopVerification,
     latestLoopReportPath: guidance.latestLoopReportPath,
+    adaptationStatus: guidance.adaptationStatus,
+    adaptationNote: guidance.adaptationNote,
   };
 }
 
@@ -300,6 +304,8 @@ export function formatAuditGuidanceOutcomeReport(report: AuditGuidanceOutcomeRep
     `Guidance focus: ${report.guidance.recommendedFocusType}`,
     `Guidance action: ${report.guidance.actionType}`,
     `Guidance targets: ${report.guidance.targetDimensions.join(", ") || "none"}`,
+    `Guidance adaptation trust: ${report.guidance.adaptationStatus ?? "none"}`,
+    `Guidance adaptation note: ${report.guidance.adaptationNote ?? "none"}`,
     `Observed focus: ${report.actual.cycleFocusType ?? "none"}`,
     `Observed dimensions: ${report.actual.cycleLinkedDimensions.join(", ") || "none"}`,
     `Observed linked change: ${report.actual.cycleLinkedChangeId ?? "none"}`,

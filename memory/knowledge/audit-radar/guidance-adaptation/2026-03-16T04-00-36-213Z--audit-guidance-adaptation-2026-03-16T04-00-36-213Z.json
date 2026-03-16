@@ -1,0 +1,53 @@
+{
+  "reportId": "audit-guidance-adaptation-2026-03-16T04-00-36-213Z",
+  "generatedAt": "2026-03-16T04:00:36.213Z",
+  "status": "insufficient_history",
+  "advisoryOnly": true,
+  "autoOverrideProhibited": true,
+  "thresholds": {
+    "minimumPersistedEffectivenessReports": 2,
+    "minimumGuidanceOutcomes": 2,
+    "minimumComparableItems": 2,
+    "minimumLinkedPostRunAudits": 2
+  },
+  "corpus": {
+    "persistedEffectivenessReports": 1,
+    "guidanceOutcomes": 1,
+    "comparableItems": 1,
+    "linkedPostRunAudits": 1,
+    "alignedOutcomes": 1,
+    "partiallyAlignedOutcomes": 0,
+    "divergedOutcomes": 0,
+    "floorEscalations": 1,
+    "recentSnapshotCount": 5
+  },
+  "signals": {
+    "dominantVerdict": "counter_signal",
+    "supportiveSignals": 0,
+    "counterSignals": 1,
+    "alternativeSignals": 0,
+    "mixedSignals": 0,
+    "insufficientEvidence": 0,
+    "alignedCounterSignals": 1,
+    "divergedAlternativeSignals": 0
+  },
+  "latestContext": {
+    "snapshotId": "audit-2026-03-16T03-09-45-963Z",
+    "bindingConstraint": "evaluation",
+    "effectivenessReportId": "audit-guidance-effectiveness-2026-03-16T04-00-36-199Z"
+  },
+  "summary": "Guidance adaptation remains insufficient_history because the durable corpus is still too small to treat effectiveness patterns as more than anecdotal (1/2 reports, 1/2 outcomes, 1/2 linked audits). Current dominant signal: counter_signal.",
+  "note": "insufficient_history: keep current audit guidance advisory and unchanged except for a low-confidence trust note. The corpus has 1/2 persisted effectiveness reports, 1/2 guidance outcomes, 1/2 comparable items, and 1/2 linked post-run audits. Current dominant…",
+  "recommendedAdjustment": "Do not tune guidance synthesis yet; keep collecting guided-cycle history and surface the thin-history warning explicitly.",
+  "missingThresholds": [
+    "persisted effectiveness reports 1/2",
+    "guidance outcomes 1/2",
+    "comparable items 1/2",
+    "linked post-run audits 1/2"
+  ],
+  "limitations": [
+    "History is below the minimum threshold for repeated-pattern claims.",
+    "Any current supportive or counter signal is still correlational and anecdotal.",
+    "This report may annotate guidance trust, but it may not auto-overwrite the current audit recommendation."
+  ]
+}

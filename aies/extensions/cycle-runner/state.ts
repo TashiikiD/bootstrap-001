@@ -38,6 +38,8 @@ export interface CycleRunGuidanceTrail {
   latestLoopSource: string | null;
   latestLoopVerification: string;
   latestLoopReportPath: string | null;
+  adaptationStatus: string | null;
+  adaptationNote: string | null;
 }
 
 export interface CycleRunEntry {
@@ -59,6 +61,9 @@ export interface CycleRunEntry {
   guidanceEffectivenessReportPath: string | null;
   guidanceEffectivenessVerdict: string | null;
   guidanceEffectivenessSummary: string | null;
+  guidanceAdaptationReportPath: string | null;
+  guidanceAdaptationStatus: string | null;
+  guidanceAdaptationNote: string | null;
   postRunAudit: CycleRunAuditTrail | null;
 }
 
@@ -105,6 +110,9 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     guidanceEffectivenessReportPath: entry.guidanceEffectivenessReportPath ?? null,
     guidanceEffectivenessVerdict: entry.guidanceEffectivenessVerdict ?? null,
     guidanceEffectivenessSummary: entry.guidanceEffectivenessSummary ?? null,
+    guidanceAdaptationReportPath: entry.guidanceAdaptationReportPath ?? null,
+    guidanceAdaptationStatus: entry.guidanceAdaptationStatus ?? null,
+    guidanceAdaptationNote: entry.guidanceAdaptationNote ?? null,
     postRunAudit: entry.postRunAudit ?? null,
   };
 }
