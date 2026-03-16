@@ -2,10 +2,6 @@ import { basename, resolve } from "node:path";
 import { existsSync } from "node:fs";
 import {
   readAuditGuidanceEffectivenessReportByRelativePath,
-  readAuditGuidanceExperimentDecisionReportByRelativePath,
-  readAuditGuidanceExperimentReportByRelativePath,
-  readAuditGuidanceExperimentReviewReportByRelativePath,
-  readAuditGuidanceLearningReviewReportByRelativePath,
   readAuditGuidanceOutcomeReportByRelativePath,
 } from "./audit-radar-guidance-reports";
 import { projectRoot, type ParsedSession } from "./lib";
@@ -36,23 +32,6 @@ export interface CycleRunAuditHistoryItem {
   guidanceEffectivenessSummary: string;
   guidanceEffectivenessReportPath: string | null;
   hasDurableGuidanceEffectivenessReport: boolean;
-  guidanceLearningReviewSummary: string;
-  guidanceLearningReviewReportPath: string | null;
-  hasDurableGuidanceLearningReviewReport: boolean;
-  guidanceExperimentReviewStatus: string | null;
-  guidanceExperimentReviewSignal: string | null;
-  guidanceExperimentReviewSummary: string;
-  guidanceExperimentReviewReportPath: string | null;
-  hasDurableGuidanceExperimentReviewReport: boolean;
-  guidanceExperimentDecisionType: string | null;
-  guidanceExperimentDecisionPosture: string | null;
-  guidanceExperimentDecisionSummary: string;
-  guidanceExperimentDecisionReportPath: string | null;
-  hasDurableGuidanceExperimentDecisionReport: boolean;
-  guidanceExperimentType: string | null;
-  guidanceExperimentSummary: string;
-  guidanceExperimentReportPath: string | null;
-  hasDurableGuidanceExperimentReport: boolean;
 }
 
 function cycleAuditVerificationLabel(audit: Record<string, unknown> | null | undefined): string {
@@ -81,24 +60,8 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
       const guidanceEffectivenessReportPath = typeof data.guidanceEffectivenessReportPath === "string"
         ? data.guidanceEffectivenessReportPath
         : null;
-      const guidanceLearningReviewReportPath = typeof data.guidanceLearningReviewReportPath === "string"
-        ? data.guidanceLearningReviewReportPath
-        : null;
-      const guidanceExperimentReviewReportPath = typeof data.guidanceExperimentReviewReportPath === "string"
-        ? data.guidanceExperimentReviewReportPath
-        : null;
-      const guidanceExperimentDecisionReportPath = typeof data.guidanceExperimentDecisionReportPath === "string"
-        ? data.guidanceExperimentDecisionReportPath
-        : null;
-      const guidanceExperimentReportPath = typeof data.guidanceExperimentReportPath === "string"
-        ? data.guidanceExperimentReportPath
-        : null;
       const guidanceOutcomeRecord = readAuditGuidanceOutcomeReportByRelativePath(guidanceOutcomeReportPath);
       const guidanceEffectivenessRecord = readAuditGuidanceEffectivenessReportByRelativePath(guidanceEffectivenessReportPath);
-      const guidanceLearningReviewRecord = readAuditGuidanceLearningReviewReportByRelativePath(guidanceLearningReviewReportPath);
-      const guidanceExperimentReviewRecord = readAuditGuidanceExperimentReviewReportByRelativePath(guidanceExperimentReviewReportPath);
-      const guidanceExperimentDecisionRecord = readAuditGuidanceExperimentDecisionReportByRelativePath(guidanceExperimentDecisionReportPath);
-      const guidanceExperimentRecord = readAuditGuidanceExperimentReportByRelativePath(guidanceExperimentReportPath);
       const matchingGuidanceEffectivenessItem = guidanceEffectivenessRecord?.report.items.find((item) =>
         guidanceOutcomeRecord ? item.guidanceOutcomeReportId === guidanceOutcomeRecord.report.reportId : true)
         ?? guidanceEffectivenessRecord?.report.items[0]
@@ -145,45 +108,6 @@ export function readCycleRunAuditHistory(sessions: ParsedSession[], limit = 12):
             : "No guidance-effectiveness report recorded."),
         guidanceEffectivenessReportPath,
         hasDurableGuidanceEffectivenessReport: Boolean(guidanceEffectivenessRecord),
-        guidanceLearningReviewSummary: guidanceLearningReviewRecord?.report.summary
-          ?? (guidanceLearningReviewReportPath
-            ? `Guidance-learning review report path was recorded but could not be loaded: ${guidanceLearningReviewReportPath}`
-            : "No guidance-learning review recorded."),
-        guidanceLearningReviewReportPath,
-        hasDurableGuidanceLearningReviewReport: Boolean(guidanceLearningReviewRecord),
-        guidanceExperimentReviewStatus: guidanceExperimentReviewRecord?.report.executionStatus
-          ?? (typeof data.guidanceExperimentReviewStatus === "string" ? data.guidanceExperimentReviewStatus : null),
-        guidanceExperimentReviewSignal: guidanceExperimentReviewRecord?.report.signalDirection ?? null,
-        guidanceExperimentReviewSummary: guidanceExperimentReviewRecord?.report.summary
-          ?? (typeof data.guidanceExperimentReviewSummary === "string"
-            ? data.guidanceExperimentReviewSummary
-            : guidanceExperimentReviewReportPath
-              ? `Guidance-experiment review report path was recorded but could not be loaded: ${guidanceExperimentReviewReportPath}`
-              : "No guidance experiment review recorded."),
-        guidanceExperimentReviewReportPath,
-        hasDurableGuidanceExperimentReviewReport: Boolean(guidanceExperimentReviewRecord),
-        guidanceExperimentDecisionType: guidanceExperimentDecisionRecord?.report.decisionType
-          ?? (typeof data.guidanceExperimentDecisionType === "string" ? data.guidanceExperimentDecisionType : null),
-        guidanceExperimentDecisionPosture: guidanceExperimentDecisionRecord?.report.recommendedGuidancePosture
-          ?? (typeof data.auditGuidance?.experimentDecisionPosture === "string" ? data.auditGuidance.experimentDecisionPosture : null),
-        guidanceExperimentDecisionSummary: guidanceExperimentDecisionRecord?.report.summary
-          ?? (typeof data.guidanceExperimentDecisionSummary === "string"
-            ? data.guidanceExperimentDecisionSummary
-            : guidanceExperimentDecisionReportPath
-              ? `Guidance-experiment decision report path was recorded but could not be loaded: ${guidanceExperimentDecisionReportPath}`
-              : "No guidance experiment decision recorded."),
-        guidanceExperimentDecisionReportPath,
-        hasDurableGuidanceExperimentDecisionReport: Boolean(guidanceExperimentDecisionRecord),
-        guidanceExperimentType: guidanceExperimentRecord?.report.experimentType
-          ?? (typeof data.auditGuidance?.experimentType === "string" ? data.auditGuidance.experimentType : null),
-        guidanceExperimentSummary: guidanceExperimentRecord?.report.summary
-          ?? (typeof data.guidanceExperimentSummary === "string"
-            ? data.guidanceExperimentSummary
-            : guidanceExperimentReportPath
-              ? `Guidance-experiment report path was recorded but could not be loaded: ${guidanceExperimentReportPath}`
-              : "No guidance experiment recorded."),
-        guidanceExperimentReportPath,
-        hasDurableGuidanceExperimentReport: Boolean(guidanceExperimentRecord),
       } satisfies CycleRunAuditHistoryItem;
     }))
     .filter((item) => item.auditStatus !== "none");

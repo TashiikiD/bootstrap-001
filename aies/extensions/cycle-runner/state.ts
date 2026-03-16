@@ -38,24 +38,6 @@ export interface CycleRunGuidanceTrail {
   latestLoopSource: string | null;
   latestLoopVerification: string;
   latestLoopReportPath: string | null;
-  learningPosture: string | null;
-  learningSummary: string;
-  learningRecommendation: string;
-  learningRelevantItemCount: number;
-  learningReportGeneratedAt: IsoTimestamp | null;
-  learningReportPath: string | null;
-  experimentType: string | null;
-  experimentNextPosture: string | null;
-  experimentSummary: string;
-  experimentPlannedRelevantCycles: number;
-  experimentReportGeneratedAt: IsoTimestamp | null;
-  experimentReportPath: string | null;
-  experimentDecisionType: string | null;
-  experimentDecisionPosture: string | null;
-  experimentDecisionSummary: string;
-  experimentDecisionRecommendation: string;
-  experimentDecisionReportGeneratedAt: IsoTimestamp | null;
-  experimentDecisionReportPath: string | null;
 }
 
 export interface CycleRunEntry {
@@ -77,16 +59,6 @@ export interface CycleRunEntry {
   guidanceEffectivenessReportPath: string | null;
   guidanceEffectivenessVerdict: string | null;
   guidanceEffectivenessSummary: string | null;
-  guidanceLearningReviewReportPath: string | null;
-  guidanceLearningReviewSummary: string | null;
-  guidanceExperimentReviewReportPath: string | null;
-  guidanceExperimentReviewStatus: string | null;
-  guidanceExperimentReviewSummary: string | null;
-  guidanceExperimentDecisionReportPath: string | null;
-  guidanceExperimentDecisionType: string | null;
-  guidanceExperimentDecisionSummary: string | null;
-  guidanceExperimentReportPath: string | null;
-  guidanceExperimentSummary: string | null;
   postRunAudit: CycleRunAuditTrail | null;
 }
 
@@ -133,16 +105,6 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     guidanceEffectivenessReportPath: entry.guidanceEffectivenessReportPath ?? null,
     guidanceEffectivenessVerdict: entry.guidanceEffectivenessVerdict ?? null,
     guidanceEffectivenessSummary: entry.guidanceEffectivenessSummary ?? null,
-    guidanceLearningReviewReportPath: entry.guidanceLearningReviewReportPath ?? null,
-    guidanceLearningReviewSummary: entry.guidanceLearningReviewSummary ?? null,
-    guidanceExperimentReviewReportPath: entry.guidanceExperimentReviewReportPath ?? null,
-    guidanceExperimentReviewStatus: entry.guidanceExperimentReviewStatus ?? null,
-    guidanceExperimentReviewSummary: entry.guidanceExperimentReviewSummary ?? null,
-    guidanceExperimentDecisionReportPath: entry.guidanceExperimentDecisionReportPath ?? null,
-    guidanceExperimentDecisionType: entry.guidanceExperimentDecisionType ?? null,
-    guidanceExperimentDecisionSummary: entry.guidanceExperimentDecisionSummary ?? null,
-    guidanceExperimentReportPath: entry.guidanceExperimentReportPath ?? null,
-    guidanceExperimentSummary: entry.guidanceExperimentSummary ?? null,
     postRunAudit: entry.postRunAudit ?? null,
   };
 }

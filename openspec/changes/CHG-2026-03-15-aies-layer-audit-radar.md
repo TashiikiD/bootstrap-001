@@ -1,8 +1,9 @@
 ---
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
-status: active
-updated_at: 2026-03-16T02:05:00.000Z
+status: completed
+updated_at: 2026-03-16T02:00:00.000Z
+completed_at: 2026-03-16T02:00:00.000Z
 last_audit_snapshot: audit-2026-03-15T17-06-59-001Z
 last_audit_reconciled_dimension: evaluation
 ---
@@ -70,38 +71,17 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Added `operator-ui/server/audit-radar-guidance-reports.ts` and expanded `operator-ui/server/cycle-runner-audits.ts` so cross-session audit history can load guidance-outcome and guidance-effectiveness artifacts directly from their persisted report paths instead of only showing the post-run audit loop.
   - Updated `operator-ui/src/main.ts` and `operator-ui/src/types.ts` so the WebUI history view exposes guidance alignment, effectiveness verdicts, durability, and report paths alongside each cycle-run audit trail.
   - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` so future audits can cite the joined proof-inspection surface as evaluation evidence instead of requiring manual artifact hopping.
-- [x] Turn repeated guidance-effectiveness signals into bounded future-guidance policy.
-  - Added `aies/extensions/evaluation/audit-radar-guidance-learning.ts`, which synthesizes recent relevant guidance-effectiveness verdicts into a bounded posture (`baseline`, `reinforce`, `cautious`, `exploratory`, `mixed`) instead of leaving outcome signals as passive history.
-  - Updated `aies/extensions/evaluation/audit-radar-guidance.ts` plus guided-cycle capture surfaces so `/audit-radar-next`, prompt injection, and cycle-run guidance trails now carry the learning posture, learning summary, and the recommendation adjustment derived from recent evidence.
-  - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` and `aies/extensions/evaluation/audit-radar-assessment.ts` so future audits can recognize the learning-policy bridge and shift the next evaluation question toward whether the policy improves later audit movement rather than only changing advisory text.
-- [x] Add posture-level review for the bounded guidance-learning policy.
-  - Added `aies/extensions/evaluation/audit-radar-guidance-learning-review.ts`, which groups durable guidance-effectiveness history by captured learning posture and compares constructive versus adverse signals instead of leaving posture choice unreviewed.
-  - Added `/audit-radar-guidance-learning-review`, updated `aies/extensions/cycle-runner/index.ts`, and extended operator observatory surfaces so guided runs auto-persist a posture-level learning review and the operator can inspect its report path and summary beside guidance-outcome/effectiveness evidence.
-  - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` and `aies/extensions/evaluation/audit-radar-assessment.ts` so future audits can recognize the posture-level review bridge and shift the next evaluation question toward repeated non-baseline experiments rather than the existence of the review artifact itself.
-- [x] Turn posture-level review into a bounded next-experiment planner.
-  - Added `aies/extensions/evaluation/audit-radar-guidance-experiment.ts`, which converts guidance-learning policy plus posture-review evidence into a durable next experiment (`hold_baseline`, `probe_nonbaseline`, `reinforce_nonbaseline`, `reset_to_baseline`, `compare_mixed`) instead of leaving posture review as descriptive evidence only.
-  - Added `/audit-radar-guidance-experiment`, updated `aies/extensions/evaluation/audit-radar-guidance.ts`, and wired `aies/extensions/cycle-runner/index.ts` plus operator observatory surfaces so guided runs auto-persist the latest posture experiment plan and future audit guidance can inject it back into runtime judgment.
-  - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` and `aies/extensions/evaluation/audit-radar-assessment.ts` so future audits can recognize the experiment-planning bridge and shift the next evaluation question toward whether bounded posture experiments are actually being exercised and outperforming baseline.
-- [x] Add experiment-execution review for bounded posture guidance.
-  - Added `aies/extensions/evaluation/audit-radar-guidance-experiment-review.ts`, which groups guidance outcomes and effectiveness evidence by bounded experiment signature so the harness can tell whether a planned posture probe is `not_started`, `in_progress`, or `completed`, and whether the early signal is supportive, counter, mixed, or insufficient.
-  - Added `/audit-radar-guidance-experiment-review`, updated `aies/extensions/cycle-runner/index.ts`, and extended operator observatory surfaces so guided runs auto-persist a review for the experiment that actually guided the run instead of leaving experiment execution status implicit.
-  - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` and `aies/extensions/evaluation/audit-radar-assessment.ts` so future audits can recognize the experiment-execution review bridge and shift the next evaluation question toward accumulating enough real repeated guided cycles to complete the planned experiment rather than only creating the plan artifact.
-- [x] Turn experiment review into explicit future-guidance steering.
-  - Added `aies/extensions/evaluation/audit-radar-guidance-experiment-decision.ts`, which combines the bounded experiment plan plus execution review into a durable steering decision (`start_planned_experiment`, `continue_planned_experiment`, `fallback_to_baseline`, `reinforce_nonbaseline`, `hold_baseline`, `compare_again`) so future guidance can respond to experiment evidence instead of ignoring it.
-  - Added `/audit-radar-guidance-experiment-decision`, updated `aies/extensions/evaluation/audit-radar-guidance.ts`, and wired `aies/extensions/cycle-runner/index.ts` plus operator observatory surfaces so guided runs auto-persist an experiment-decision report and future audit guidance can reuse that steering state during work selection.
-  - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` and `aies/extensions/evaluation/audit-radar-assessment.ts` so future audits can recognize the experiment-decision bridge and shift the next evaluation question toward whether those decisions are improving later audit movement rather than only whether the reports exist.
 - [x] Record the experiment back into memory.
   - Added `memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md` to capture the key observation from this stage of the change: the audit correctly identified an orchestration evidence gap, but forcing proof by launching another autonomous cycle would spend the turn on recursive harness validation.
   - Added `memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md` to record the next harness observation: prompt/focus-inferred verification is weaker than verification floored by the files a cycle actually changed.
   - Added `memory/devlog/2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge.md` to capture the next evaluation observation: guidance alignment is not yet guidance effectiveness unless it can be compared against later audit movement.
   - Added `memory/devlog/2026-03-15T22-05-00-000Z-guidance-effectiveness-orchestration.md` to capture the follow-on harness observation: once the comparator exists, guided cycle orchestration should emit the effectiveness evidence automatically instead of depending on later manual command use.
   - Added `memory/devlog/2026-03-15T23-18-00-000Z-guidance-evidence-joined-inspection.md` to record the next evaluation/harness observation: durable guided-cycle evidence is more likely to steer later work when the operator surface joins loop, alignment, and effectiveness artifacts into one inspection trail.
-  - Added `memory/devlog/2026-03-15T23-52-00-000Z-bounded-guidance-learning-policy.md` to record the next evaluation observation: guidance-effectiveness history should temper future guidance synthesis, but only through a bounded policy that resists overfitting to a tiny number of cycles.
-  - Added `memory/devlog/2026-03-16T00-20-00-000Z-guidance-learning-review-surface.md` to record the next evaluation observation: bounded guidance-learning policy still needs a posture-level review surface that compares constructive versus adverse signals across postures.
-  - Added `memory/devlog/2026-03-16T00-50-00-000Z-guidance-experiment-planner.md` to record the next evaluation observation: posture-level review is still one step short of steering action until it is converted into a bounded next experiment.
-  - Added `memory/devlog/2026-03-16T01-25-00-000Z-guidance-experiment-execution-review.md` to record the next evaluation observation: a planned bounded posture experiment is still too passive until the harness can review whether that exact experiment is underway, complete, or already producing counter-signals.
-  - Added `memory/devlog/2026-03-16T02-05-00-000Z-guidance-experiment-decision-bridge.md` to record the next evaluation observation: experiment execution review is still too passive until the harness can convert that evidence into explicit next-guidance steering.
-  - Updated `memory/theory-fork/meta/evaluation.md` with explicit experiment notes that posture-level review should stay correlational and sample-aware, that posture review should usually end in a bounded experiment brief rather than stopping at description, that experiment planning should usually terminate in an execution review rather than another passive artifact, and that execution review should usually terminate in a steering decision rather than being ignored by later guidance synthesis.
+  - Updated `memory/theory-fork/meta/evaluation.md` and `memory/theory-fork/meta/harness.md` with explicit experiment notes distinguishing passive evidence from active orchestration proof, warning against metric-farming the audit loop, and separating guidance alignment from guidance effectiveness.
+
+## Completion Note
+
+The audit radar is complete through guidance synthesis, effectiveness measurement, and operator-visible evidence trails. Speculative meta-evaluation layers (learning posture, posture review, experiment planner, experiment execution review, experiment decision) were built on top of this but removed by the operator because they had no real data to operate on and were creating a self-referential loop that consumed cycles without producing meaningful evolution. The guidance pipeline should remain advisory — it informs judgment, it does not prescribe action.
 
 ## Notes
 - This change directly targets the coherence, evaluation, and harness meta-functions while also improving future work selection across all layers.

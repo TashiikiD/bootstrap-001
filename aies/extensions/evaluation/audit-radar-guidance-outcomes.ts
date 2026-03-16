@@ -34,24 +34,6 @@ export interface AuditGuidanceCapturedBrief {
   latestLoopSource: string | null;
   latestLoopVerification: string;
   latestLoopReportPath: string | null;
-  learningPosture: string | null;
-  learningSummary: string;
-  learningRecommendation: string;
-  learningRelevantItemCount: number;
-  learningReportGeneratedAt: IsoTimestamp | null;
-  learningReportPath: string | null;
-  experimentType: string | null;
-  experimentNextPosture: string | null;
-  experimentSummary: string;
-  experimentPlannedRelevantCycles: number;
-  experimentReportGeneratedAt: IsoTimestamp | null;
-  experimentReportPath: string | null;
-  experimentDecisionType: string | null;
-  experimentDecisionPosture: string | null;
-  experimentDecisionSummary: string;
-  experimentDecisionRecommendation: string;
-  experimentDecisionReportGeneratedAt: IsoTimestamp | null;
-  experimentDecisionReportPath: string | null;
 }
 
 export interface AuditGuidanceOutcomeReport {
@@ -171,24 +153,6 @@ export function captureAuditGuidanceBrief(guidance: AuditRadarGuidance): AuditGu
     latestLoopSource: guidance.latestLoopSource,
     latestLoopVerification: guidance.latestLoopVerification,
     latestLoopReportPath: guidance.latestLoopReportPath,
-    learningPosture: guidance.learningPosture,
-    learningSummary: guidance.learningSummary,
-    learningRecommendation: guidance.learningRecommendation,
-    learningRelevantItemCount: guidance.learningRelevantItemCount,
-    learningReportGeneratedAt: guidance.learningReportGeneratedAt,
-    learningReportPath: guidance.learningReportPath,
-    experimentType: guidance.experimentType,
-    experimentNextPosture: guidance.experimentNextPosture,
-    experimentSummary: guidance.experimentSummary,
-    experimentPlannedRelevantCycles: guidance.experimentPlannedRelevantCycles,
-    experimentReportGeneratedAt: guidance.experimentReportGeneratedAt,
-    experimentReportPath: guidance.experimentReportPath,
-    experimentDecisionType: guidance.experimentDecisionType,
-    experimentDecisionPosture: guidance.experimentDecisionPosture,
-    experimentDecisionSummary: guidance.experimentDecisionSummary,
-    experimentDecisionRecommendation: guidance.experimentDecisionRecommendation,
-    experimentDecisionReportGeneratedAt: guidance.experimentDecisionReportGeneratedAt,
-    experimentDecisionReportPath: guidance.experimentDecisionReportPath,
   };
 }
 
@@ -336,9 +300,6 @@ export function formatAuditGuidanceOutcomeReport(report: AuditGuidanceOutcomeRep
     `Guidance focus: ${report.guidance.recommendedFocusType}`,
     `Guidance action: ${report.guidance.actionType}`,
     `Guidance targets: ${report.guidance.targetDimensions.join(", ") || "none"}`,
-    `Guidance learning posture: ${report.guidance.learningPosture ?? "baseline"}`,
-    `Guidance learning signal: ${report.guidance.learningSummary ?? "none"}`,
-    `Guidance learning recommendation: ${report.guidance.learningRecommendation ?? "none"}`,
     `Observed focus: ${report.actual.cycleFocusType ?? "none"}`,
     `Observed dimensions: ${report.actual.cycleLinkedDimensions.join(", ") || "none"}`,
     `Observed linked change: ${report.actual.cycleLinkedChangeId ?? "none"}`,

@@ -8,10 +8,6 @@ import { restoreOpenSpecEntry } from "../openspec/state.ts";
 import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/messages.ts";
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
 import { formatAuditGuidanceEffectivenessReport, createAuditGuidanceEffectivenessReport, persistAuditGuidanceEffectivenessReport } from "./audit-radar-guidance-effectiveness.ts";
-import { formatAuditGuidanceLearningReviewReport, createAuditGuidanceLearningReviewReport, persistAuditGuidanceLearningReviewReport } from "./audit-radar-guidance-learning-review.ts";
-import { formatAuditGuidanceExperimentReport, createAuditGuidanceExperimentReport, persistAuditGuidanceExperimentReport } from "./audit-radar-guidance-experiment.ts";
-import { formatAuditGuidanceExperimentReviewReport, createAuditGuidanceExperimentReviewReport, persistAuditGuidanceExperimentReviewReport } from "./audit-radar-guidance-experiment-review.ts";
-import { formatAuditGuidanceExperimentDecisionReport, createAuditGuidanceExperimentDecisionReport, persistAuditGuidanceExperimentDecisionReport } from "./audit-radar-guidance-experiment-decision.ts";
 import { formatAuditGuidanceOutcomeReport, latestAuditGuidanceOutcomeReport } from "./audit-radar-guidance-outcomes.ts";
 import { createAuditRadarGuidance, buildAuditRadarGuidancePromptBlock, formatAuditRadarGuidance } from "./audit-radar-guidance.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
@@ -545,68 +541,6 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
 
       const persistedPath = persistAuditGuidanceEffectivenessReport(report);
       writeLine(ctx, `${formatAuditGuidanceEffectivenessReport(report)}\nPersisted: ${persistedPath}`);
-    },
-  });
-
-  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceLearningReview, {
-    description: "Compare bounded guidance-learning postures across durable effectiveness history so the harness can inspect whether baseline, cautious, or exploratory advice is actually helping",
-    handler: async (_args, ctx) => {
-      updateUi(restoreEvaluationEntry(ctx), ctx);
-      const report = createAuditGuidanceLearningReviewReport();
-      if (!report) {
-        writeLine(ctx, "Audit guidance learning review could not synthesize posture evidence yet.", "warning");
-        return;
-      }
-
-      const persistedPath = persistAuditGuidanceLearningReviewReport(report);
-      writeLine(ctx, `${formatAuditGuidanceLearningReviewReport(report)}\nPersisted: ${persistedPath}`);
-    },
-  });
-
-  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceExperiment, {
-    description: "Plan a bounded next experiment for guidance posture selection so the harness can deliberately test baseline versus non-baseline advice",
-    handler: async (_args, ctx) => {
-      const snapshot = latestAuditSnapshot();
-      updateUi(restoreEvaluationEntry(ctx), ctx);
-      if (!snapshot) {
-        writeLine(ctx, "Audit guidance experiment planning needs a durable audit snapshot. Run /audit-radar-assess first.", "warning");
-        return;
-      }
-
-      const report = createAuditGuidanceExperimentReport(snapshot.bindingConstraint.dimension, snapshot.recommendedNextStep.targetDimensions);
-      const persistedPath = persistAuditGuidanceExperimentReport(report);
-      writeLine(ctx, `${formatAuditGuidanceExperimentReport(report)}\nPersisted: ${persistedPath}`);
-    },
-  });
-
-  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceExperimentReview, {
-    description: "Review whether a bounded guidance experiment has actually been exercised across its planned relevant cycles and what early signal it is producing",
-    handler: async (_args, ctx) => {
-      updateUi(restoreEvaluationEntry(ctx), ctx);
-      const report = createAuditGuidanceExperimentReviewReport();
-      if (!report) {
-        writeLine(ctx, "Audit guidance experiment review needs either a durable experiment report or captured guided-cycle experiment evidence.", "warning");
-        return;
-      }
-
-      const persistedPath = persistAuditGuidanceExperimentReviewReport(report);
-      writeLine(ctx, `${formatAuditGuidanceExperimentReviewReport(report)}\nPersisted: ${persistedPath}`);
-    },
-  });
-
-  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceExperimentDecision, {
-    description: "Convert the latest bounded experiment plan plus execution review into a reusable next-guidance steering decision",
-    handler: async (_args, ctx) => {
-      const snapshot = latestAuditSnapshot();
-      updateUi(restoreEvaluationEntry(ctx), ctx);
-      if (!snapshot) {
-        writeLine(ctx, "Audit guidance experiment decisions need a durable audit snapshot. Run /audit-radar-assess first.", "warning");
-        return;
-      }
-
-      const report = createAuditGuidanceExperimentDecisionReport(snapshot.bindingConstraint.dimension, snapshot.recommendedNextStep.targetDimensions);
-      const persistedPath = persistAuditGuidanceExperimentDecisionReport(report);
-      writeLine(ctx, `${formatAuditGuidanceExperimentDecisionReport(report)}\nPersisted: ${persistedPath}`);
     },
   });
 
