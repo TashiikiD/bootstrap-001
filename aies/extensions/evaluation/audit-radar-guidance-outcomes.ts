@@ -40,6 +40,12 @@ export interface AuditGuidanceCapturedBrief {
   learningRelevantItemCount: number;
   learningReportGeneratedAt: IsoTimestamp | null;
   learningReportPath: string | null;
+  experimentType: string | null;
+  experimentNextPosture: string | null;
+  experimentSummary: string;
+  experimentPlannedRelevantCycles: number;
+  experimentReportGeneratedAt: IsoTimestamp | null;
+  experimentReportPath: string | null;
 }
 
 export interface AuditGuidanceOutcomeReport {
@@ -165,6 +171,12 @@ export function captureAuditGuidanceBrief(guidance: AuditRadarGuidance): AuditGu
     learningRelevantItemCount: guidance.learningRelevantItemCount,
     learningReportGeneratedAt: guidance.learningReportGeneratedAt,
     learningReportPath: guidance.learningReportPath,
+    experimentType: guidance.experimentType,
+    experimentNextPosture: guidance.experimentNextPosture,
+    experimentSummary: guidance.experimentSummary,
+    experimentPlannedRelevantCycles: guidance.experimentPlannedRelevantCycles,
+    experimentReportGeneratedAt: guidance.experimentReportGeneratedAt,
+    experimentReportPath: guidance.experimentReportPath,
   };
 }
 

@@ -210,6 +210,19 @@ function preferredGuidanceLearningReviewReportPath(): string | null {
   return candidates.length > 0 ? join(paths.auditRadarGuidanceLearningReviewRoot, candidates[0]) : null;
 }
 
+function preferredGuidanceExperimentReportPath(): string | null {
+  const paths = getAiesPaths();
+  if (!existsSync(paths.auditRadarGuidanceExperimentsRoot)) {
+    return null;
+  }
+
+  const candidates = readdirSync(paths.auditRadarGuidanceExperimentsRoot)
+    .filter((name) => name.toLowerCase().endsWith(".json"))
+    .sort((left, right) => right.localeCompare(left));
+
+  return candidates.length > 0 ? join(paths.auditRadarGuidanceExperimentsRoot, candidates[0]) : null;
+}
+
 function buildRules(): EvidenceRule[] {
   const latestChange = preferredChangePath();
   const latestOutcomeReport = preferredOutcomeReportPath();
@@ -217,6 +230,7 @@ function buildRules(): EvidenceRule[] {
   const latestGuidanceOutcomeReport = preferredGuidanceOutcomeReportPath();
   const latestGuidanceEffectivenessReport = preferredGuidanceEffectivenessReportPath();
   const latestGuidanceLearningReviewReport = preferredGuidanceLearningReviewReportPath();
+  const latestGuidanceExperimentReport = preferredGuidanceExperimentReportPath();
 
   return [
     {
@@ -437,6 +451,14 @@ function buildRules(): EvidenceRule[] {
     },
     {
       kind: "file",
+      ruleId: "evaluation-audit-radar-guidance-experiment-planner",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/evaluation/audit-radar-guidance-experiment.ts",
+      summary: "The audit radar can now turn posture-level review into a bounded next experiment, recommending when to hold baseline, probe a non-baseline posture, reinforce a stronger posture, or reset to baseline.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditGuidanceExperimentReport(", "experimentType", "recommendedNextPosture"]),
+    },
+    {
+      kind: "file",
       ruleId: "evaluation-audit-radar-guidance-outcome-tracker",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/audit-radar-guidance-outcomes.ts",
@@ -485,6 +507,14 @@ function buildRules(): EvidenceRule[] {
       summary: "Guided cycle completion now emits a guidance-learning review automatically after persisting effectiveness evidence, so the harness can inspect posture-level comparison without an extra manual command.",
       extractExcerpt: (content) => firstMatchingLine(content, ["createAuditGuidanceLearningReviewReport()", "guidanceLearningReviewReportPath", "guidanceLearningReviewSummary"]),
     },
+    {
+      kind: "file",
+      ruleId: "evaluation-audit-radar-guidance-experiment-cycle-bridge",
+      dimension: "evaluation",
+      relativePath: "aies/extensions/cycle-runner/index.ts",
+      summary: "Guided cycle completion now emits a bounded guidance-experiment report after learning review, so the harness records not just what posture evidence existed but what the next posture experiment should be.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["createAuditGuidanceExperimentReport(", "guidanceExperimentReportPath", "guidanceExperimentSummary"]),
+    },
     ...(latestGuidanceEffectivenessReport
       ? [{
           kind: "file" as const,
@@ -505,21 +535,31 @@ function buildRules(): EvidenceRule[] {
           extractExcerpt: (content: string) => firstMatchingLine(content, ["\"strongestPosture\"", "\"constructiveSignalCount\"", "\"posture\""]),
         }]
       : []),
+    ...(latestGuidanceExperimentReport
+      ? [{
+          kind: "file" as const,
+          ruleId: "evaluation-audit-radar-guidance-experiment-report",
+          dimension: "evaluation",
+          relativePath: projectRelativePath(latestGuidanceExperimentReport),
+          summary: "A durable guidance-experiment report now turns posture review into a bounded next experiment, recording which posture should be tried next and under what guardrails.",
+          extractExcerpt: (content: string) => firstMatchingLine(content, ["\"experimentType\"", "\"recommendedNextPosture\"", "\"guardrails\""]),
+        }]
+      : []),
     {
       kind: "file",
       ruleId: "evaluation-audit-radar-guidance-observatory",
       dimension: "evaluation",
       relativePath: "operator-ui/server/cycle-runner-audits.ts",
-      summary: "The operator observatory can now join cycle-run audit trails with guidance-outcome, guidance-effectiveness, and guidance-learning-review evidence, lowering the cost of inspecting whether audit advice was followed and whether later posture-level comparison favored or challenged that advice.",
-      extractExcerpt: (content) => firstMatchingLine(content, ["guidanceOutcomeStatus", "guidanceEffectivenessVerdict", "guidanceLearningReviewReportPath", "readAuditGuidanceLearningReviewReportByRelativePath"]),
+      summary: "The operator observatory can now join cycle-run audit trails with guidance-outcome, guidance-effectiveness, guidance-learning-review, and guidance-experiment evidence, lowering the cost of inspecting whether audit advice was followed and what posture experiment the harness proposed next.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["guidanceOutcomeStatus", "guidanceEffectivenessVerdict", "guidanceLearningReviewReportPath", "guidanceExperimentReportPath", "readAuditGuidanceExperimentReportByRelativePath"]),
     },
     {
       kind: "file",
       ruleId: "evaluation-audit-radar-runtime-surface",
       dimension: "evaluation",
       relativePath: "aies/extensions/evaluation/index.ts",
-      summary: "The evaluation extension now surfaces the latest durable audit inside runtime command flow, prompt context, next-cycle guidance, guidance-outcome review, and posture-level learning review so future cycles can reuse it during work selection.",
-      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "AIES_COMMANDS.auditRadarNext", "AIES_COMMANDS.auditRadarGuidanceReview", "AIES_COMMANDS.auditRadarGuidanceEffectiveness", "AIES_COMMANDS.auditRadarGuidanceLearningReview", "buildAuditRadarGuidancePromptBlock"]),
+      summary: "The evaluation extension now surfaces the latest durable audit inside runtime command flow, prompt context, next-cycle guidance, posture-level learning review, and bounded guidance-experiment planning so future cycles can reuse it during work selection.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["AIES_COMMANDS.auditRadarStatus", "AIES_COMMANDS.auditRadarNext", "AIES_COMMANDS.auditRadarGuidanceReview", "AIES_COMMANDS.auditRadarGuidanceEffectiveness", "AIES_COMMANDS.auditRadarGuidanceLearningReview", "AIES_COMMANDS.auditRadarGuidanceExperiment", "buildAuditRadarGuidancePromptBlock"]),
     },
     {
       kind: "file",

@@ -552,6 +552,7 @@ function buildState() {
         `guidanceEffect=${cycleRunner?.guidanceEffectivenessVerdict ?? (cycleRunner?.guidanceOutcomeReportPath ? "tracked" : "none")}`,
         `guidanceEffectReport=${cycleRunner?.guidanceEffectivenessReportPath ?? "none"}`,
         `guidanceLearningReview=${cycleRunner?.guidanceLearningReviewReportPath ?? "none"}`,
+        `guidanceExperiment=${cycleRunner?.guidanceExperimentReportPath ?? "none"}`,
         `promptLines=${typeof cycleRunner?.promptText === "string" ? cycleRunner.promptText.split(/\r?\n/).length : 0}`,
         `thoughtBlocks=${thoughtStream.length}`,
         `failure=${cycleRunner?.failureNote ?? "none"}`,

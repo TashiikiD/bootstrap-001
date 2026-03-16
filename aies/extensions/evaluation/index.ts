@@ -9,6 +9,7 @@ import { AIES_COMMANDS, AIES_STATUS_KEYS, AIES_WIDGET_KEYS } from "../shared/mes
 import { createLayerAuditSnapshot, formatLayerAuditSnapshot } from "./audit-radar-assessment.ts";
 import { formatAuditGuidanceEffectivenessReport, createAuditGuidanceEffectivenessReport, persistAuditGuidanceEffectivenessReport } from "./audit-radar-guidance-effectiveness.ts";
 import { formatAuditGuidanceLearningReviewReport, createAuditGuidanceLearningReviewReport, persistAuditGuidanceLearningReviewReport } from "./audit-radar-guidance-learning-review.ts";
+import { formatAuditGuidanceExperimentReport, createAuditGuidanceExperimentReport, persistAuditGuidanceExperimentReport } from "./audit-radar-guidance-experiment.ts";
 import { formatAuditGuidanceOutcomeReport, latestAuditGuidanceOutcomeReport } from "./audit-radar-guidance-outcomes.ts";
 import { createAuditRadarGuidance, buildAuditRadarGuidancePromptBlock, formatAuditRadarGuidance } from "./audit-radar-guidance.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
@@ -557,6 +558,22 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
 
       const persistedPath = persistAuditGuidanceLearningReviewReport(report);
       writeLine(ctx, `${formatAuditGuidanceLearningReviewReport(report)}\nPersisted: ${persistedPath}`);
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceExperiment, {
+    description: "Plan a bounded next experiment for guidance posture selection so the harness can deliberately test baseline versus non-baseline advice",
+    handler: async (_args, ctx) => {
+      const snapshot = latestAuditSnapshot();
+      updateUi(restoreEvaluationEntry(ctx), ctx);
+      if (!snapshot) {
+        writeLine(ctx, "Audit guidance experiment planning needs a durable audit snapshot. Run /audit-radar-assess first.", "warning");
+        return;
+      }
+
+      const report = createAuditGuidanceExperimentReport(snapshot.bindingConstraint.dimension, snapshot.recommendedNextStep.targetDimensions);
+      const persistedPath = persistAuditGuidanceExperimentReport(report);
+      writeLine(ctx, `${formatAuditGuidanceExperimentReport(report)}\nPersisted: ${persistedPath}`);
     },
   });
 

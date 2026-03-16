@@ -39,6 +39,16 @@ interface MinimalAuditGuidanceLearningReviewReport {
   buckets: MinimalAuditGuidanceLearningReviewBucket[];
 }
 
+interface MinimalAuditGuidanceExperimentReport {
+  reportId: string;
+  generatedAt: string;
+  experimentType: string;
+  recommendedNextPosture: string;
+  summary: string;
+  rationale: string;
+  guardrails: string[];
+}
+
 export interface AuditGuidanceOutcomeReportRecord {
   report: MinimalAuditGuidanceOutcomeReport;
   fullPath: string;
@@ -53,6 +63,12 @@ export interface AuditGuidanceEffectivenessReportRecord {
 
 export interface AuditGuidanceLearningReviewReportRecord {
   report: MinimalAuditGuidanceLearningReviewReport;
+  fullPath: string;
+  relativePath: string;
+}
+
+export interface AuditGuidanceExperimentReportRecord {
+  report: MinimalAuditGuidanceExperimentReport;
   fullPath: string;
   relativePath: string;
 }
@@ -131,6 +147,22 @@ function isAuditGuidanceLearningReviewReport(value: unknown): value is MinimalAu
     && candidate.buckets.every((bucket) => isAuditGuidanceLearningReviewBucket(bucket));
 }
 
+function isAuditGuidanceExperimentReport(value: unknown): value is MinimalAuditGuidanceExperimentReport {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<MinimalAuditGuidanceExperimentReport>;
+  return typeof candidate.reportId === "string"
+    && typeof candidate.generatedAt === "string"
+    && typeof candidate.experimentType === "string"
+    && typeof candidate.recommendedNextPosture === "string"
+    && typeof candidate.summary === "string"
+    && typeof candidate.rationale === "string"
+    && Array.isArray(candidate.guardrails)
+    && candidate.guardrails.every((item) => typeof item === "string");
+}
+
 function toOutcomeRecord(fullPath: string): AuditGuidanceOutcomeReportRecord | null {
   try {
     const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as unknown;
@@ -182,6 +214,23 @@ function toLearningReviewRecord(fullPath: string): AuditGuidanceLearningReviewRe
   }
 }
 
+function toExperimentRecord(fullPath: string): AuditGuidanceExperimentReportRecord | null {
+  try {
+    const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as unknown;
+    if (!isAuditGuidanceExperimentReport(parsed)) {
+      return null;
+    }
+
+    return {
+      report: parsed,
+      fullPath,
+      relativePath: projectRelativePath(fullPath),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function readAuditGuidanceOutcomeReportByRelativePath(
   relativePath: string | null | undefined,
 ): AuditGuidanceOutcomeReportRecord | null {
@@ -201,4 +250,11 @@ export function readAuditGuidanceLearningReviewReportByRelativePath(
 ): AuditGuidanceLearningReviewReportRecord | null {
   const fullPath = resolveRelativeProjectPath(relativePath);
   return fullPath ? toLearningReviewRecord(fullPath) : null;
+}
+
+export function readAuditGuidanceExperimentReportByRelativePath(
+  relativePath: string | null | undefined,
+): AuditGuidanceExperimentReportRecord | null {
+  const fullPath = resolveRelativeProjectPath(relativePath);
+  return fullPath ? toExperimentRecord(fullPath) : null;
 }

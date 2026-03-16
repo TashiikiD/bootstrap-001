@@ -50,6 +50,7 @@ export const AIES_COMMANDS = {
   auditRadarGuidanceReview: "audit-radar-guidance-review",
   auditRadarGuidanceEffectiveness: "audit-radar-guidance-effectiveness",
   auditRadarGuidanceLearningReview: "audit-radar-guidance-learning-review",
+  auditRadarGuidanceExperiment: "audit-radar-guidance-experiment",
   auditRadarPropose: "audit-radar-propose",
   auditRadarReconcile: "audit-radar-reconcile",
   auditRadarOutcomes: "audit-radar-outcomes",

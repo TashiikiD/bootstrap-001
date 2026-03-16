@@ -44,6 +44,12 @@ export interface CycleRunGuidanceTrail {
   learningRelevantItemCount: number;
   learningReportGeneratedAt: IsoTimestamp | null;
   learningReportPath: string | null;
+  experimentType: string | null;
+  experimentNextPosture: string | null;
+  experimentSummary: string;
+  experimentPlannedRelevantCycles: number;
+  experimentReportGeneratedAt: IsoTimestamp | null;
+  experimentReportPath: string | null;
 }
 
 export interface CycleRunEntry {
@@ -67,6 +73,8 @@ export interface CycleRunEntry {
   guidanceEffectivenessSummary: string | null;
   guidanceLearningReviewReportPath: string | null;
   guidanceLearningReviewSummary: string | null;
+  guidanceExperimentReportPath: string | null;
+  guidanceExperimentSummary: string | null;
   postRunAudit: CycleRunAuditTrail | null;
 }
 
@@ -115,6 +123,8 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     guidanceEffectivenessSummary: entry.guidanceEffectivenessSummary ?? null,
     guidanceLearningReviewReportPath: entry.guidanceLearningReviewReportPath ?? null,
     guidanceLearningReviewSummary: entry.guidanceLearningReviewSummary ?? null,
+    guidanceExperimentReportPath: entry.guidanceExperimentReportPath ?? null,
+    guidanceExperimentSummary: entry.guidanceExperimentSummary ?? null,
     postRunAudit: entry.postRunAudit ?? null,
   };
 }

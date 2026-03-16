@@ -889,6 +889,9 @@ class AiesOperatorApp extends LitElement {
                           ${item.guidanceEffectivenessVerdict
                             ? html`<span class="chip">effect:${item.guidanceEffectivenessVerdict}</span>`
                             : nothing}
+                          ${item.guidanceExperimentType
+                            ? html`<span class="chip">experiment:${item.guidanceExperimentType}</span>`
+                            : nothing}
                         </div>
                       </div>
                       <div>${item.promptSummary}</div>
@@ -910,9 +913,13 @@ class AiesOperatorApp extends LitElement {
                       <div class="artifact-meta">
                         learningReview=${item.guidanceLearningReviewReportPath ?? "none"} · durable=${item.hasDurableGuidanceLearningReviewReport ? "yes" : "no"}
                       </div>
+                      <div class="artifact-meta">
+                        experiment=${item.guidanceExperimentReportPath ?? "none"} · durable=${item.hasDurableGuidanceExperimentReport ? "yes" : "no"}
+                      </div>
                       <div class="artifact-meta">${item.guidanceOutcomeSummary}</div>
                       <div class="artifact-meta">${item.guidanceEffectivenessSummary}</div>
                       <div class="artifact-meta">${item.guidanceLearningReviewSummary}</div>
+                      <div class="artifact-meta">${item.guidanceExperimentSummary}</div>
                       <div class="artifact-meta">${item.auditFailure ?? item.auditSummary}</div>
                     </div>
                   `)}

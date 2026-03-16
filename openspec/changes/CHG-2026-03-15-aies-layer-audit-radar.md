@@ -2,7 +2,7 @@
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
 status: active
-updated_at: 2026-03-16T00:20:00.000Z
+updated_at: 2026-03-16T00:50:00.000Z
 last_audit_snapshot: audit-2026-03-15T17-06-59-001Z
 last_audit_reconciled_dimension: evaluation
 ---
@@ -78,6 +78,10 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Added `aies/extensions/evaluation/audit-radar-guidance-learning-review.ts`, which groups durable guidance-effectiveness history by captured learning posture and compares constructive versus adverse signals instead of leaving posture choice unreviewed.
   - Added `/audit-radar-guidance-learning-review`, updated `aies/extensions/cycle-runner/index.ts`, and extended operator observatory surfaces so guided runs auto-persist a posture-level learning review and the operator can inspect its report path and summary beside guidance-outcome/effectiveness evidence.
   - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` and `aies/extensions/evaluation/audit-radar-assessment.ts` so future audits can recognize the posture-level review bridge and shift the next evaluation question toward repeated non-baseline experiments rather than the existence of the review artifact itself.
+- [x] Turn posture-level review into a bounded next-experiment planner.
+  - Added `aies/extensions/evaluation/audit-radar-guidance-experiment.ts`, which converts guidance-learning policy plus posture-review evidence into a durable next experiment (`hold_baseline`, `probe_nonbaseline`, `reinforce_nonbaseline`, `reset_to_baseline`, `compare_mixed`) instead of leaving posture review as descriptive evidence only.
+  - Added `/audit-radar-guidance-experiment`, updated `aies/extensions/evaluation/audit-radar-guidance.ts`, and wired `aies/extensions/cycle-runner/index.ts` plus operator observatory surfaces so guided runs auto-persist the latest posture experiment plan and future audit guidance can inject it back into runtime judgment.
+  - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` and `aies/extensions/evaluation/audit-radar-assessment.ts` so future audits can recognize the experiment-planning bridge and shift the next evaluation question toward whether bounded posture experiments are actually being exercised and outperforming baseline.
 - [x] Record the experiment back into memory.
   - Added `memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md` to capture the key observation from this stage of the change: the audit correctly identified an orchestration evidence gap, but forcing proof by launching another autonomous cycle would spend the turn on recursive harness validation.
   - Added `memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md` to record the next harness observation: prompt/focus-inferred verification is weaker than verification floored by the files a cycle actually changed.
@@ -86,7 +90,8 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Added `memory/devlog/2026-03-15T23-18-00-000Z-guidance-evidence-joined-inspection.md` to record the next evaluation/harness observation: durable guided-cycle evidence is more likely to steer later work when the operator surface joins loop, alignment, and effectiveness artifacts into one inspection trail.
   - Added `memory/devlog/2026-03-15T23-52-00-000Z-bounded-guidance-learning-policy.md` to record the next evaluation observation: guidance-effectiveness history should temper future guidance synthesis, but only through a bounded policy that resists overfitting to a tiny number of cycles.
   - Added `memory/devlog/2026-03-16T00-20-00-000Z-guidance-learning-review-surface.md` to record the next evaluation observation: bounded guidance-learning policy still needs a posture-level review surface that compares constructive versus adverse signals across postures.
-  - Updated `memory/theory-fork/meta/evaluation.md` with an explicit experiment note that posture-level review should stay correlational and sample-aware, complementing the earlier harness/evaluation notes already added in this change.
+  - Added `memory/devlog/2026-03-16T00-50-00-000Z-guidance-experiment-planner.md` to record the next evaluation observation: posture-level review is still one step short of steering action until it is converted into a bounded next experiment.
+  - Updated `memory/theory-fork/meta/evaluation.md` with explicit experiment notes that posture-level review should stay correlational and sample-aware, and that posture review should usually end in a bounded experiment brief rather than stopping at description.
 
 ## Notes
 - This change directly targets the coherence, evaluation, and harness meta-functions while also improving future work selection across all layers.

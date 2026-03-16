@@ -60,6 +60,18 @@ The key distinction is:
 
 That review should stay correlational and sample-aware. Its job is to guide the next experiment, not to declare a winner too early.
 
+## Experiment Note — Posture Review Should End in a Bounded Experiment
+
+Once posture-level review exists, another failure mode appears: the system can describe which posture currently looks strongest without converting that observation into a bounded next test.
+
+That leaves evaluation one step short of steering action. A useful posture review should usually terminate in an experiment brief:
+- what posture to try next
+- for how many relevant guided cycles
+- under what guardrails
+- when to fall back to baseline
+
+This keeps posture learning honest. The planner should not treat correlational review as settled truth; it should only narrow the next experiment enough that future cycles stop guessing blindly.
+
 ## Open Questions
 
 - What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?
