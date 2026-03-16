@@ -43,7 +43,7 @@ The design should stay conservative. It should prefer existing durable artifacts
 - [x] Validate the index against the current corpus.
   - Demonstrate that the tool can reconstruct at least a few real cross-cycle threads, such as the audit-radar progression from descriptive status to guidance-effectiveness comparison.
   - Prove that unsupported questions return uncertainty or insufficient evidence instead of fabricated certainty.
-- [ ] Record the retrieval experiment back into theory and memory.
+- [x] Record the retrieval experiment back into theory and memory.
   - Capture whether the index materially reduced context-reconstruction cost for later cycles.
   - Update theory or knowledge artifacts if the file-based plus structured-index split turns out to be a useful practical answer to the context-layer legibility/queryability tension.
 
