@@ -1,0 +1,133 @@
+{
+  "generatedAt": "2026-03-16T12:29:13.475Z",
+  "advisoryOnly": true,
+  "sourceRoots": [
+    "memory/devlog",
+    "memory/knowledge",
+    "memory/theory-fork",
+    "openspec/changes"
+  ],
+  "summary": {
+    "signalCount": 3,
+    "observedCount": 2,
+    "insufficientEvidenceCount": 1,
+    "scopeCounts": {
+      "local": 1,
+      "global": 0,
+      "ambiguous": 1
+    },
+    "familyCounts": {
+      "subsystem_hotspot_concentration": 1,
+      "theory_runtime_mismatch": 1,
+      "intent_action_misalignment": 1,
+      "cross_session_contradiction": 0
+    }
+  },
+  "signals": [
+    {
+      "id": "coherence-signal:subsystem-hotspot-concentration",
+      "title": "Capability work is currently concentrated in the evaluation/harness hotspot",
+      "status": "observed",
+      "scope": "local",
+      "signalFamily": "subsystem_hotspot_concentration",
+      "summary": "Recent durable devlogs repeatedly cluster around audit, guidance, evidence, and cycle-runner work (7 of the last 12 devlogs).",
+      "whyItMatters": "This looks like a local coherence signal rather than system-wide drift: the activity is concentrated in one subsystem family, so the next question is whether the hotspot is healthy iteration or an unresolved local contr…",
+      "citations": [
+        {
+          "sourcePath": "memory/devlog/2026-03-16T08-03-56-900795Z-evolution-evidence-theory-closeout.md",
+          "excerpt": "I again diverged from the nominal active guidance-adaptation change because that slice is already materially complete, while `CHG-2026-03-16-evolution-evidence-index` still had one unfinished task: recording the experiment back into theory…"
+        },
+        {
+          "sourcePath": "memory/devlog/2026-03-16T07-48-49-025196Z-evolution-evidence-validation-smoke.md",
+          "excerpt": "I deliberately diverged from the nominal active guidance-adaptation change because that slice is already materially complete and another cycle on the same evaluator surface risked turning into maintenance. The stronger move was to advance…"
+        },
+        {
+          "sourcePath": "memory/devlog/2026-03-16T05-45-28-351688Z-cycle-preview-guidance-preflight.md",
+          "excerpt": "I continued `CHG-2026-03-16-audit-guidance-adaptation` by adding a cheap preflight inspection tool instead of another review layer. The new cycle-preview command exposes the synthesized next-cycle context packet — including guidance trust…"
+        }
+      ],
+      "missingEvidence": [
+        "Operator-visible usage evidence showing whether this hotspot resolved a real bottleneck or merely attracted repeated attention."
+      ],
+      "suggestedPaths": [
+        "aies/extensions/evaluation",
+        "aies/extensions/verification",
+        "aies/extensions/cycle-runner",
+        "operator-ui/server",
+        "memory/devlog"
+      ]
+    },
+    {
+      "id": "coherence-signal:intent-action-misalignment",
+      "title": "Rotation commitments and recent hotspot work remain in tension",
+      "status": "observed",
+      "scope": "ambiguous",
+      "signalFamily": "intent_action_misalignment",
+      "summary": "The intent hierarchy asks AIES to avoid jagged over-investment in one dimension, yet most recent durable work still lands in evaluation/harness changes. The corpus also records deliberate reasons for that concentration,…",
+      "whyItMatters": "This ambiguity is useful: future cycles should not treat every repeated hotspot as failure, but they also should not ignore when the same area keeps winning against rotation goals.",
+      "citations": [
+        {
+          "sourcePath": "memory/knowledge/intent-hierarchy.yaml",
+          "excerpt": "name: Balanced evolution"
+        },
+        {
+          "sourcePath": "memory/knowledge/coherence-charter.yaml",
+          "excerpt": "- Multiple consecutive cycles of small maintenance without proposing or advancing a larger capability plan."
+        },
+        {
+          "sourcePath": "memory/devlog/2026-03-16T08-03-56-900795Z-evolution-evidence-theory-closeout.md",
+          "excerpt": "I again diverged from the nominal active guidance-adaptation change because that slice is already materially complete, while `CHG-2026-03-16-evolution-evidence-index` still had one unfinished task: recording the experiment back into theory…"
+        },
+        {
+          "sourcePath": "memory/devlog/2026-03-16T07-48-49-025196Z-evolution-evidence-validation-smoke.md",
+          "excerpt": "I deliberately diverged from the nominal active guidance-adaptation change because that slice is already materially complete and another cycle on the same evaluator surface risked turning into maintenance. The stronger move was to advance…"
+        }
+      ],
+      "missingEvidence": [
+        "Need more post-hotspot cycles to tell whether the concentration persists after the new coherence direction was proposed.",
+        "Need evidence from at least one other subsystem showing whether the tension is local or whole-harness."
+      ],
+      "suggestedPaths": [
+        "memory/knowledge/intent-hierarchy.yaml",
+        "memory/knowledge/coherence-charter.yaml",
+        "memory/devlog",
+        "openspec/changes",
+        "memory/knowledge/coherence-signals"
+      ]
+    },
+    {
+      "id": "coherence-signal:theory-runtime-mismatch",
+      "title": "Possible theory/runtime lag is visible, but not yet classifiable",
+      "status": "insufficient_evidence",
+      "scope": null,
+      "signalFamily": "theory_runtime_mismatch",
+      "summary": "The corpus now contains a sharper coherence taxonomy and an implementation change proposal, but there is not yet enough runtime history to say whether any resulting theory/runtime lag is local, global, or simply normal…",
+      "whyItMatters": "AIES should be able to say 'not enough evidence' when theory gets ahead of implementation. That keeps coherence reporting from turning thin timing gaps into exaggerated drift claims.",
+      "citations": [
+        {
+          "sourcePath": "memory/knowledge/coherence-charter.yaml",
+          "excerpt": "- Preserve consistency between theory, operational files, and runtime behavior."
+        },
+        {
+          "sourcePath": "memory/theory-fork/layers/coherence.md",
+          "excerpt": "- How does the agent detect incoherence in its own behavior when it lacks a persistent identity across sessions? - Is there a useful distinction between local coherence (within a single subsystem) and global coherence (across the entire ar…"
+        },
+        {
+          "sourcePath": "openspec/changes/CHG-2026-03-16-coherence-local-global-signals.md",
+          "excerpt": "The new theory-question lab surfaced a coherence-focused experiment candidate from `memory/theory-fork/layers/coherence.md`: **Is there a useful distinction between local coherence (within a single subsystem) and global coherence (across t…"
+        }
+      ],
+      "missingEvidence": [
+        "Need repeated post-implementation cycles using the coherence report builder.",
+        "Need at least one operator-visible or cycle-usable surface consuming the coherence map.",
+        "Need evidence showing whether the taxonomy changes later work selection or remains descriptive only."
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/coherence.md",
+        "openspec/changes/CHG-2026-03-16-coherence-local-global-signals.md",
+        "aies/extensions/coherence-signals",
+        "operator-ui/server"
+      ]
+    }
+  ]
+}

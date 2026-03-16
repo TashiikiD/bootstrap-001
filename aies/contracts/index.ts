@@ -7,4 +7,5 @@ export * from "./layer-audit-snapshot.ts";
 export * from "./memory-event.ts";
 export * from "./openspec-context.ts";
 export * from "./evolution-evidence-index.ts";
+export * from "./theory-question-lab.ts";
 

@@ -48,6 +48,7 @@ import {
 } from "./audit-radar-loops";
 import { readCycleRunAuditHistory } from "./cycle-runner-audits";
 import { buildEvolutionEvidencePanelData, executeEvolutionEvidenceQuery, readLatestEvolutionEvidenceIndexRecord } from "./evolution-evidence";
+import { buildTheoryQuestionLabPanelData, readLatestTheoryQuestionLabRecord } from "./theory-question-lab";
 
 const port = Number.parseInt(process.env.AIES_OPERATOR_UI_PORT ?? "4320", 10);
 const distRoot = resolve(operatorUiRoot, "dist");
@@ -555,6 +556,8 @@ function buildState() {
   const latestGuidanceAdaptation = auditGuidanceAdaptationHistory[0] ?? null;
   const evolutionEvidenceRecord = readLatestEvolutionEvidenceIndexRecord();
   const evolutionEvidencePanel = buildEvolutionEvidencePanelData(evolutionEvidenceRecord);
+  const theoryQuestionLabRecord = readLatestTheoryQuestionLabRecord();
+  const theoryQuestionLabPanel = buildTheoryQuestionLabPanelData(theoryQuestionLabRecord);
 
   const panels = {
     cycleRunner: panel(
@@ -850,6 +853,13 @@ function buildState() {
       evolutionEvidencePanel.bullets,
       evolutionEvidencePanel.detail,
       evolutionEvidencePanel.provenance,
+    ),
+    theoryQuestionLab: panel(
+      "Theory Question Lab",
+      theoryQuestionLabPanel.summary,
+      theoryQuestionLabPanel.bullets,
+      theoryQuestionLabPanel.detail,
+      theoryQuestionLabPanel.provenance,
     ),
     requests: panel(
       "Requests",
@@ -1448,6 +1458,9 @@ createServer(async (req, res) => {
     }
     if (req.method === "GET" && url.pathname === "/api/evolution-evidence/query") {
       return json(res, executeEvolutionEvidenceQuery(readLatestEvolutionEvidenceIndexRecord(), url.searchParams));
+    }
+    if (req.method === "GET" && url.pathname === "/api/theory-question-lab") {
+      return json(res, buildTheoryQuestionLabPanelData(readLatestTheoryQuestionLabRecord()));
     }
     if (req.method === "GET" && url.pathname === "/api/observatory") {
       return json(res, buildState().observatory);

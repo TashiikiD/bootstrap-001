@@ -12,6 +12,7 @@ export interface AiesPaths {
   memoryRoot: string;
   knowledgeRoot: string;
   evolutionEvidenceIndexRoot: string;
+  theoryQuestionLabRoot: string;
   auditRadarRoot: string;
   auditRadarSnapshotsRoot: string;
   auditRadarOutcomesRoot: string;
@@ -40,6 +41,7 @@ export function getAiesPaths(runtimeDirName = ".aies-runtime", sessionDirName = 
 
   const knowledgeRoot = resolve(memoryRoot, "knowledge");
   const evolutionEvidenceIndexRoot = resolve(knowledgeRoot, "evolution-evidence-index");
+  const theoryQuestionLabRoot = resolve(knowledgeRoot, "theory-question-lab");
   const auditRadarRoot = resolve(knowledgeRoot, "audit-radar");
 
   return {
@@ -50,6 +52,7 @@ export function getAiesPaths(runtimeDirName = ".aies-runtime", sessionDirName = 
     memoryRoot,
     knowledgeRoot,
     evolutionEvidenceIndexRoot,
+    theoryQuestionLabRoot,
     auditRadarRoot,
     auditRadarSnapshotsRoot: resolve(auditRadarRoot, "snapshots"),
     auditRadarOutcomesRoot: resolve(auditRadarRoot, "outcomes"),

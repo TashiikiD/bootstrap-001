@@ -1,0 +1,1456 @@
+{
+  "generatedAt": "2026-03-16T12:29:08.963Z",
+  "advisoryOnly": true,
+  "sourceRoot": "memory/theory-fork",
+  "summary": {
+    "sourceCount": 8,
+    "questionCount": 25,
+    "candidateCount": 25,
+    "ambiguousQuestionCount": 22,
+    "questionCountsByDimension": {
+      "prompt": 3,
+      "context": 3,
+      "intent": 3,
+      "judgment": 3,
+      "coherence": 4,
+      "evaluation": 5,
+      "harness": 5
+    }
+  },
+  "questions": [
+    {
+      "id": "theory-question:memory/theory-fork/index-md:1",
+      "question": "How does the \"infinite regress\" problem (who evaluates the evaluator?) manifest in practice? The document says it terminates at human governance. How does this work for an autonomous evolution cycle?",
+      "sourcePath": "memory/theory-fork/index.md",
+      "sourceTitle": "AIES Theory Fork — Agent's Evolving Interpretation",
+      "sourceKind": "index",
+      "dimensionHints": [],
+      "suggestedPaths": [
+        "memory/theory-fork/index.md",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/index.md",
+          "excerpt": "How does the \"infinite regress\" problem (who evaluates the evaluator?) manifest in practice? The document says it terminates at human governance. How does this work for an autonomous evolution cycle?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/index-md:2",
+      "question": "The document distinguishes evaluation (what to observe/measure/correct) from harness (where to execute). In practice these are tightly coupled. How do I keep them conceptually distinct while implementing them together?",
+      "sourcePath": "memory/theory-fork/index.md",
+      "sourceTitle": "AIES Theory Fork — Agent's Evolving Interpretation",
+      "sourceKind": "index",
+      "dimensionHints": [
+        "evaluation",
+        "harness"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/index.md",
+        "aies/extensions/evaluation",
+        "aies/extensions/verification",
+        "operator-ui/server",
+        "aies/extensions/cycle-runner",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/index.md",
+          "excerpt": "The document distinguishes evaluation (what to observe/measure/correct) from harness (where to execute). In practice these are tightly coupled. How do I keep them conceptually distinct while implementing them together?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/index-md:3",
+      "question": "What does \"coherence\" look like concretely for a single agent? The document focuses on multi-agent coherence. For a single evolving agent, is coherence about behavioral consistency over time? Architectural integrity? Both?",
+      "sourcePath": "memory/theory-fork/index.md",
+      "sourceTitle": "AIES Theory Fork — Agent's Evolving Interpretation",
+      "sourceKind": "index",
+      "dimensionHints": [
+        "coherence"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/index.md",
+        "memory/theory-fork",
+        "memory/knowledge",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/index.md",
+          "excerpt": "What does \"coherence\" look like concretely for a single agent? The document focuses on multi-agent coherence. For a single evolving agent, is coherence about behavioral consistency over time? Architectural integrity? Both?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/index-md:4",
+      "question": "How should imported foundation documents be refreshed when upstream theory changes, without letting the harness silently rewrite the human-authored source copies?",
+      "sourcePath": "memory/theory-fork/index.md",
+      "sourceTitle": "AIES Theory Fork — Agent's Evolving Interpretation",
+      "sourceKind": "index",
+      "dimensionHints": [
+        "harness"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/index.md",
+        "aies/extensions/cycle-runner",
+        "aies/extensions/verification",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "normative_tradeoff",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/index.md",
+          "excerpt": "How should imported foundation documents be refreshed when upstream theory changes, without letting the harness silently rewrite the human-authored source copies?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/coherence-md:1",
+      "question": "How does the agent detect incoherence in its own behavior when it lacks a persistent identity across sessions?",
+      "sourcePath": "memory/theory-fork/layers/coherence.md",
+      "sourceTitle": "Layer 5: Coherence Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "coherence"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/coherence.md",
+        "memory/theory-fork",
+        "memory/knowledge",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/coherence.md",
+          "excerpt": "How does the agent detect incoherence in its own behavior when it lacks a persistent identity across sessions?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/coherence-md:2",
+      "question": "Is there a useful distinction between local coherence (within a single subsystem) and global coherence (across the entire architecture)?",
+      "sourcePath": "memory/theory-fork/layers/coherence.md",
+      "sourceTitle": "Layer 5: Coherence Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "coherence"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/coherence.md",
+        "memory/theory-fork",
+        "memory/knowledge",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/coherence.md",
+          "excerpt": "Is there a useful distinction between local coherence (within a single subsystem) and global coherence (across the entire architecture)?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/coherence-md:3",
+      "question": "When coherence conflicts with improvement, which should win? Consistency can become a barrier to necessary change.",
+      "sourcePath": "memory/theory-fork/layers/coherence.md",
+      "sourceTitle": "Layer 5: Coherence Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "coherence"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/coherence.md",
+        "memory/theory-fork",
+        "memory/knowledge",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "normative_tradeoff"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/coherence.md",
+          "excerpt": "When coherence conflicts with improvement, which should win? Consistency can become a barrier to necessary change."
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/context-md:1",
+      "question": "When file-based memory and SQLite state diverge, which is the source of truth? How should reconciliation work?",
+      "sourcePath": "memory/theory-fork/layers/context.md",
+      "sourceTitle": "Layer 2: Context Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "context"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/context.md",
+        "memory",
+        "aies/extensions/memory",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "normative_tradeoff",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/context.md",
+          "excerpt": "When file-based memory and SQLite state diverge, which is the source of truth? How should reconciliation work?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/context-md:2",
+      "question": "What is the right eviction or archival strategy for context that is no longer relevant but may become relevant again?",
+      "sourcePath": "memory/theory-fork/layers/context.md",
+      "sourceTitle": "Layer 2: Context Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "context"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/context.md",
+        "memory",
+        "aies/extensions/memory",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "multiple_candidate_answers",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/context.md",
+          "excerpt": "What is the right eviction or archival strategy for context that is no longer relevant but may become relevant again?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/context-md:3",
+      "question": "Does the agent need a model of its own context window limitations, and how should that model inform what gets persisted?",
+      "sourcePath": "memory/theory-fork/layers/context.md",
+      "sourceTitle": "Layer 2: Context Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "context"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/context.md",
+        "memory",
+        "aies/extensions/memory",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "normative_tradeoff",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/context.md",
+          "excerpt": "Does the agent need a model of its own context window limitations, and how should that model inform what gets persisted?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/intent-md:1",
+      "question": "Who holds the authority to modify the fitness criteria as the system matures — the human operator, the agent, or some negotiated process?",
+      "sourcePath": "memory/theory-fork/layers/intent.md",
+      "sourceTitle": "Layer 3: Intent Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "intent"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/intent.md",
+        "memory/knowledge",
+        "aies/extensions/policy",
+        "openspec/changes",
+        "memory/devlog"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "multiple_candidate_answers"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/intent.md",
+          "excerpt": "Who holds the authority to modify the fitness criteria as the system matures — the human operator, the agent, or some negotiated process?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/intent-md:2",
+      "question": "How do you detect when encoded intent has become misaligned with actual goals? The metric can be green while the system pursues the wrong thing.",
+      "sourcePath": "memory/theory-fork/layers/intent.md",
+      "sourceTitle": "Layer 3: Intent Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "intent"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/intent.md",
+        "memory/knowledge",
+        "aies/extensions/policy",
+        "openspec/changes",
+        "memory/devlog"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/intent.md",
+          "excerpt": "How do you detect when encoded intent has become misaligned with actual goals? The metric can be green while the system pursues the wrong thing."
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/intent-md:3",
+      "question": "Is there a hierarchy of intents, and if so, what happens when lower-level intents conflict with higher-level ones?",
+      "sourcePath": "memory/theory-fork/layers/intent.md",
+      "sourceTitle": "Layer 3: Intent Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "intent"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/intent.md",
+        "memory/knowledge",
+        "aies/extensions/policy",
+        "openspec/changes",
+        "memory/devlog"
+      ],
+      "ambiguityFlags": [],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/intent.md",
+          "excerpt": "Is there a hierarchy of intents, and if so, what happens when lower-level intents conflict with higher-level ones?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/judgment-md:1",
+      "question": "What is the right granularity for the approval queue? Too fine-grained and it becomes a bottleneck; too coarse and it loses its safety function.",
+      "sourcePath": "memory/theory-fork/layers/judgment.md",
+      "sourceTitle": "Layer 4: Judgment Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "judgment"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/judgment.md",
+        "aies/extensions/user-requests",
+        "aies/extensions/policy",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/judgment.md",
+          "excerpt": "What is the right granularity for the approval queue? Too fine-grained and it becomes a bottleneck; too coarse and it loses its safety function."
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/judgment-md:2",
+      "question": "Can the agent develop calibrated confidence about its own judgment quality, and should high-confidence decisions bypass the queue?",
+      "sourcePath": "memory/theory-fork/layers/judgment.md",
+      "sourceTitle": "Layer 4: Judgment Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "judgment"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/judgment.md",
+        "aies/extensions/user-requests",
+        "aies/extensions/policy",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "normative_tradeoff"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/judgment.md",
+          "excerpt": "Can the agent develop calibrated confidence about its own judgment quality, and should high-confidence decisions bypass the queue?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/judgment-md:3",
+      "question": "How should the system handle situations where historical approval patterns contradict current red lines?",
+      "sourcePath": "memory/theory-fork/layers/judgment.md",
+      "sourceTitle": "Layer 4: Judgment Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "judgment"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/judgment.md",
+        "aies/extensions/user-requests",
+        "aies/extensions/policy",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "normative_tradeoff",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/judgment.md",
+          "excerpt": "How should the system handle situations where historical approval patterns contradict current red lines?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/prompt-md:1",
+      "question": "How should self-directed prompts differ structurally from human-directed prompts? The agent knows its own capabilities intimately — does that change what needs to be explicit?",
+      "sourcePath": "memory/theory-fork/layers/prompt.md",
+      "sourceTitle": "Layer 1: Prompt Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "prompt"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/prompt.md",
+        "aies/prompts",
+        "aies/skills",
+        ".pi/skills",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "normative_tradeoff",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/prompt.md",
+          "excerpt": "How should self-directed prompts differ structurally from human-directed prompts? The agent knows its own capabilities intimately — does that change what needs to be explicit?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/prompt-md:2",
+      "question": "What is the failure mode when self-authored prompts drift toward verbosity or vagueness over successive revisions?",
+      "sourcePath": "memory/theory-fork/layers/prompt.md",
+      "sourceTitle": "Layer 1: Prompt Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "prompt"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/prompt.md",
+        "aies/prompts",
+        "aies/skills",
+        ".pi/skills",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "multiple_candidate_answers"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/prompt.md",
+          "excerpt": "What is the failure mode when self-authored prompts drift toward verbosity or vagueness over successive revisions?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/prompt-md:3",
+      "question": "Can prompt quality be measured independently from outcome quality, or are they inseparable?",
+      "sourcePath": "memory/theory-fork/layers/prompt.md",
+      "sourceTitle": "Layer 1: Prompt Engineering",
+      "sourceKind": "layer",
+      "dimensionHints": [
+        "prompt"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/layers/prompt.md",
+        "aies/prompts",
+        "aies/skills",
+        ".pi/skills",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "multiple_candidate_answers"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/prompt.md",
+          "excerpt": "Can prompt quality be measured independently from outcome quality, or are they inseparable?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/evaluation-md:1",
+      "question": "What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?",
+      "sourcePath": "memory/theory-fork/meta/evaluation.md",
+      "sourceTitle": "Meta-Function: Evaluation Engineering",
+      "sourceKind": "meta",
+      "dimensionHints": [
+        "evaluation"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/meta/evaluation.md",
+        "aies/extensions/evaluation",
+        "aies/extensions/verification",
+        "operator-ui/server",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/evaluation.md",
+          "excerpt": "What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/evaluation-md:2",
+      "question": "Should evaluation be continuous or periodic? Continuous evaluation adds overhead; periodic evaluation risks missing regressions.",
+      "sourcePath": "memory/theory-fork/meta/evaluation.md",
+      "sourceTitle": "Meta-Function: Evaluation Engineering",
+      "sourceKind": "meta",
+      "dimensionHints": [
+        "evaluation"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/meta/evaluation.md",
+        "aies/extensions/evaluation",
+        "aies/extensions/verification",
+        "operator-ui/server",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "multiple_candidate_answers",
+        "normative_tradeoff"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/evaluation.md",
+          "excerpt": "Should evaluation be continuous or periodic? Continuous evaluation adds overhead; periodic evaluation risks missing regressions."
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/evaluation-md:3",
+      "question": "How should the system weight structural health (LDI) against functional capability when the two metrics disagree?",
+      "sourcePath": "memory/theory-fork/meta/evaluation.md",
+      "sourceTitle": "Meta-Function: Evaluation Engineering",
+      "sourceKind": "meta",
+      "dimensionHints": [
+        "evaluation"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/meta/evaluation.md",
+        "aies/extensions/evaluation",
+        "aies/extensions/verification",
+        "operator-ui/server",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "normative_tradeoff",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/evaluation.md",
+          "excerpt": "How should the system weight structural health (LDI) against functional capability when the two metrics disagree?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/harness-md:1",
+      "question": "When the harness modifies itself, how do you ensure the modification preserves the harness's ability to evaluate future modifications? Self-modification of the evaluation substrate is the most dangerous kind.",
+      "sourcePath": "memory/theory-fork/meta/harness.md",
+      "sourceTitle": "Meta-Function: Harness Engineering",
+      "sourceKind": "meta",
+      "dimensionHints": [
+        "harness",
+        "evaluation"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/meta/harness.md",
+        "aies/extensions/cycle-runner",
+        "aies/extensions/verification",
+        "operator-ui",
+        "aies/extensions/evaluation",
+        "operator-ui/server",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/harness.md",
+          "excerpt": "When the harness modifies itself, how do you ensure the modification preserves the harness's ability to evaluate future modifications? Self-modification of the evaluation substrate is the most dangerous kind."
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/harness-md:2",
+      "question": "What is the minimal viable harness — the smallest set of mechanisms that still enables meaningful self-evolution?",
+      "sourcePath": "memory/theory-fork/meta/harness.md",
+      "sourceTitle": "Meta-Function: Harness Engineering",
+      "sourceKind": "meta",
+      "dimensionHints": [
+        "harness"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/meta/harness.md",
+        "aies/extensions/cycle-runner",
+        "aies/extensions/verification",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/harness.md",
+          "excerpt": "What is the minimal viable harness — the smallest set of mechanisms that still enables meaningful self-evolution?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/harness-md:3",
+      "question": "How should harness improvements be validated differently from layer improvements, given that harness failures can be catastrophic in ways layer failures cannot?",
+      "sourcePath": "memory/theory-fork/meta/harness.md",
+      "sourceTitle": "Meta-Function: Harness Engineering",
+      "sourceKind": "meta",
+      "dimensionHints": [
+        "harness"
+      ],
+      "suggestedPaths": [
+        "memory/theory-fork/meta/harness.md",
+        "aies/extensions/cycle-runner",
+        "aies/extensions/verification",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "ambiguityFlags": [
+        "open_interrogative",
+        "normative_tradeoff",
+        "underspecified_method"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/harness.md",
+          "excerpt": "How should harness improvements be validated differently from layer improvements, given that harness failures can be catastrophic in ways layer failures cannot?"
+        }
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "id": "theory-question:memory/theory-fork/index-md:1:candidate",
+      "questionId": "theory-question:memory/theory-fork/index-md:1",
+      "title": "Experiment candidate: AIES Theory Fork — Agent's Evolving Interpretation",
+      "summary": "Probe whether AIES can make progress on: How does the \"infinite regress\" problem (who evaluates the evaluator?) manifest in practice? The document says it terminates at human governance. How does this work for an autono…",
+      "whyNow": "Advisory experiment candidate grounded in the theory fork. Use it to test uncertainty without auto-selecting the next change.",
+      "dimensionHints": [],
+      "experimentShape": "openspec_plan",
+      "suggestedPaths": [
+        "memory/theory-fork/index.md",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "low",
+      "minimumVerificationFloor": "docs_only",
+      "breadthSignals": [],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/index.md",
+          "excerpt": "Question (unspecified): How does the \"infinite regress\" problem (who evaluates the evaluator?) manifest in practice? The document says it terminates at human governance. How does this work for an autonomous evolution cycle?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/index-md:2:candidate",
+      "questionId": "theory-question:memory/theory-fork/index-md:2",
+      "title": "Experiment candidate: AIES Theory Fork — Agent's Evolving Interpretation",
+      "summary": "Probe whether AIES can make progress on: The document distinguishes evaluation (what to observe/measure/correct) from harness (where to execute). In practice these are tightly coupled. How do I keep them conceptually di…",
+      "whyNow": "Cross-layer question: evaluation, harness touches multiple AIES dimensions and could reduce theory/runtime drift if probed with one bounded experiment.",
+      "dimensionHints": [
+        "evaluation",
+        "harness"
+      ],
+      "experimentShape": "runtime_module",
+      "suggestedPaths": [
+        "memory/theory-fork/index.md",
+        "aies/extensions/evaluation",
+        "aies/extensions/verification",
+        "operator-ui/server",
+        "aies/extensions/cycle-runner",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "high",
+      "minimumVerificationFloor": "fast",
+      "breadthSignals": [
+        "cross_layer_question",
+        "touches_existing_hotspot"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/index.md",
+          "excerpt": "Question (evaluation, harness): The document distinguishes evaluation (what to observe/measure/correct) from harness (where to execute). In practice these are tightly coupled. How do I keep them conceptually distinct while implementing the…"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/index-md:3:candidate",
+      "questionId": "theory-question:memory/theory-fork/index-md:3",
+      "title": "Experiment candidate: AIES Theory Fork — Agent's Evolving Interpretation",
+      "summary": "Probe whether AIES can make progress on: What does \"coherence\" look like concretely for a single agent? The document focuses on multi-agent coherence. For a single evolving agent, is coherence about behavioral consisten…",
+      "whyNow": "Good rotation candidate: coherence is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "coherence"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/index.md",
+        "memory/theory-fork",
+        "memory/knowledge",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/index.md",
+          "excerpt": "Question (coherence): What does \"coherence\" look like concretely for a single agent? The document focuses on multi-agent coherence. For a single evolving agent, is coherence about behavioral consistency over time? Architectural integrity?…"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/index-md:4:candidate",
+      "questionId": "theory-question:memory/theory-fork/index-md:4",
+      "title": "Experiment candidate: AIES Theory Fork — Agent's Evolving Interpretation",
+      "summary": "Probe whether AIES can make progress on: How should imported foundation documents be refreshed when upstream theory changes, without letting the harness silently rewrite the human-authored source copies?",
+      "whyNow": "Advisory experiment candidate grounded in the theory fork. Use it to test uncertainty without auto-selecting the next change.",
+      "dimensionHints": [
+        "harness"
+      ],
+      "experimentShape": "runtime_module",
+      "suggestedPaths": [
+        "memory/theory-fork/index.md",
+        "aies/extensions/cycle-runner",
+        "aies/extensions/verification",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "high",
+      "minimumVerificationFloor": "fast",
+      "breadthSignals": [
+        "touches_existing_hotspot"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/index.md",
+          "excerpt": "Question (harness): How should imported foundation documents be refreshed when upstream theory changes, without letting the harness silently rewrite the human-authored source copies?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/coherence-md:1:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/coherence-md:1",
+      "title": "Experiment candidate: Layer 5: Coherence Engineering",
+      "summary": "Probe whether AIES can make progress on: How does the agent detect incoherence in its own behavior when it lacks a persistent identity across sessions?",
+      "whyNow": "Good rotation candidate: coherence is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "coherence"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/coherence.md",
+        "memory/theory-fork",
+        "memory/knowledge",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/coherence.md",
+          "excerpt": "Question (coherence): How does the agent detect incoherence in its own behavior when it lacks a persistent identity across sessions?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/coherence-md:2:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/coherence-md:2",
+      "title": "Experiment candidate: Layer 5: Coherence Engineering",
+      "summary": "Probe whether AIES can make progress on: Is there a useful distinction between local coherence (within a single subsystem) and global coherence (across the entire architecture)?",
+      "whyNow": "Good rotation candidate: coherence is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "coherence"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/coherence.md",
+        "memory/theory-fork",
+        "memory/knowledge",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/coherence.md",
+          "excerpt": "Question (coherence): Is there a useful distinction between local coherence (within a single subsystem) and global coherence (across the entire architecture)?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/coherence-md:3:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/coherence-md:3",
+      "title": "Experiment candidate: Layer 5: Coherence Engineering",
+      "summary": "Probe whether AIES can make progress on: When coherence conflicts with improvement, which should win? Consistency can become a barrier to necessary change.",
+      "whyNow": "Good rotation candidate: coherence is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "coherence"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/coherence.md",
+        "memory/theory-fork",
+        "memory/knowledge",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/coherence.md",
+          "excerpt": "Question (coherence): When coherence conflicts with improvement, which should win? Consistency can become a barrier to necessary change."
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/context-md:1:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/context-md:1",
+      "title": "Experiment candidate: Layer 2: Context Engineering",
+      "summary": "Probe whether AIES can make progress on: When file-based memory and SQLite state diverge, which is the source of truth? How should reconciliation work?",
+      "whyNow": "Advisory experiment candidate grounded in the theory fork. Use it to test uncertainty without auto-selecting the next change.",
+      "dimensionHints": [
+        "context"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/context.md",
+        "memory",
+        "aies/extensions/memory",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/context.md",
+          "excerpt": "Question (context): When file-based memory and SQLite state diverge, which is the source of truth? How should reconciliation work?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/context-md:2:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/context-md:2",
+      "title": "Experiment candidate: Layer 2: Context Engineering",
+      "summary": "Probe whether AIES can make progress on: What is the right eviction or archival strategy for context that is no longer relevant but may become relevant again?",
+      "whyNow": "Advisory experiment candidate grounded in the theory fork. Use it to test uncertainty without auto-selecting the next change.",
+      "dimensionHints": [
+        "context"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/context.md",
+        "memory",
+        "aies/extensions/memory",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/context.md",
+          "excerpt": "Question (context): What is the right eviction or archival strategy for context that is no longer relevant but may become relevant again?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/context-md:3:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/context-md:3",
+      "title": "Experiment candidate: Layer 2: Context Engineering",
+      "summary": "Probe whether AIES can make progress on: Does the agent need a model of its own context window limitations, and how should that model inform what gets persisted?",
+      "whyNow": "Advisory experiment candidate grounded in the theory fork. Use it to test uncertainty without auto-selecting the next change.",
+      "dimensionHints": [
+        "context"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/context.md",
+        "memory",
+        "aies/extensions/memory",
+        "aies/extensions/shared",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/context.md",
+          "excerpt": "Question (context): Does the agent need a model of its own context window limitations, and how should that model inform what gets persisted?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/intent-md:1:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/intent-md:1",
+      "title": "Experiment candidate: Layer 3: Intent Engineering",
+      "summary": "Probe whether AIES can make progress on: Who holds the authority to modify the fitness criteria as the system matures — the human operator, the agent, or some negotiated process?",
+      "whyNow": "Good rotation candidate: intent is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "intent"
+      ],
+      "experimentShape": "openspec_plan",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/intent.md",
+        "memory/knowledge",
+        "aies/extensions/policy",
+        "openspec/changes",
+        "memory/devlog"
+      ],
+      "expectedRisk": "low",
+      "minimumVerificationFloor": "docs_only",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/intent.md",
+          "excerpt": "Question (intent): Who holds the authority to modify the fitness criteria as the system matures — the human operator, the agent, or some negotiated process?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/intent-md:2:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/intent-md:2",
+      "title": "Experiment candidate: Layer 3: Intent Engineering",
+      "summary": "Probe whether AIES can make progress on: How do you detect when encoded intent has become misaligned with actual goals? The metric can be green while the system pursues the wrong thing.",
+      "whyNow": "Good rotation candidate: intent is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "intent"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/intent.md",
+        "memory/knowledge",
+        "aies/extensions/policy",
+        "openspec/changes",
+        "memory/devlog"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/intent.md",
+          "excerpt": "Question (intent): How do you detect when encoded intent has become misaligned with actual goals? The metric can be green while the system pursues the wrong thing."
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/intent-md:3:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/intent-md:3",
+      "title": "Experiment candidate: Layer 3: Intent Engineering",
+      "summary": "Probe whether AIES can make progress on: Is there a hierarchy of intents, and if so, what happens when lower-level intents conflict with higher-level ones?",
+      "whyNow": "Good rotation candidate: intent is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "intent"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/intent.md",
+        "memory/knowledge",
+        "aies/extensions/policy",
+        "openspec/changes",
+        "memory/devlog"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/intent.md",
+          "excerpt": "Question (intent): Is there a hierarchy of intents, and if so, what happens when lower-level intents conflict with higher-level ones?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/judgment-md:1:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/judgment-md:1",
+      "title": "Experiment candidate: Layer 4: Judgment Engineering",
+      "summary": "Probe whether AIES can make progress on: What is the right granularity for the approval queue? Too fine-grained and it becomes a bottleneck; too coarse and it loses its safety function.",
+      "whyNow": "Good rotation candidate: judgment is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "judgment"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/judgment.md",
+        "aies/extensions/user-requests",
+        "aies/extensions/policy",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/judgment.md",
+          "excerpt": "Question (judgment): What is the right granularity for the approval queue? Too fine-grained and it becomes a bottleneck; too coarse and it loses its safety function."
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/judgment-md:2:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/judgment-md:2",
+      "title": "Experiment candidate: Layer 4: Judgment Engineering",
+      "summary": "Probe whether AIES can make progress on: Can the agent develop calibrated confidence about its own judgment quality, and should high-confidence decisions bypass the queue?",
+      "whyNow": "Good rotation candidate: judgment is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "judgment"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/judgment.md",
+        "aies/extensions/user-requests",
+        "aies/extensions/policy",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/judgment.md",
+          "excerpt": "Question (judgment): Can the agent develop calibrated confidence about its own judgment quality, and should high-confidence decisions bypass the queue?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/judgment-md:3:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/judgment-md:3",
+      "title": "Experiment candidate: Layer 4: Judgment Engineering",
+      "summary": "Probe whether AIES can make progress on: How should the system handle situations where historical approval patterns contradict current red lines?",
+      "whyNow": "Good rotation candidate: judgment is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "judgment"
+      ],
+      "experimentShape": "tool",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/judgment.md",
+        "aies/extensions/user-requests",
+        "aies/extensions/policy",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "medium",
+      "minimumVerificationFloor": "targeted",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/judgment.md",
+          "excerpt": "Question (judgment): How should the system handle situations where historical approval patterns contradict current red lines?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/prompt-md:1:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/prompt-md:1",
+      "title": "Experiment candidate: Layer 1: Prompt Engineering",
+      "summary": "Probe whether AIES can make progress on: How should self-directed prompts differ structurally from human-directed prompts? The agent knows its own capabilities intimately — does that change what needs to be explicit?",
+      "whyNow": "Good rotation candidate: prompt is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "prompt"
+      ],
+      "experimentShape": "skill",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/prompt.md",
+        "aies/prompts",
+        "aies/skills",
+        ".pi/skills",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "low",
+      "minimumVerificationFloor": "docs_only",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/prompt.md",
+          "excerpt": "Question (prompt): How should self-directed prompts differ structurally from human-directed prompts? The agent knows its own capabilities intimately — does that change what needs to be explicit?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/prompt-md:2:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/prompt-md:2",
+      "title": "Experiment candidate: Layer 1: Prompt Engineering",
+      "summary": "Probe whether AIES can make progress on: What is the failure mode when self-authored prompts drift toward verbosity or vagueness over successive revisions?",
+      "whyNow": "Good rotation candidate: prompt is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "prompt"
+      ],
+      "experimentShape": "skill",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/prompt.md",
+        "aies/prompts",
+        "aies/skills",
+        ".pi/skills",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "low",
+      "minimumVerificationFloor": "docs_only",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/prompt.md",
+          "excerpt": "Question (prompt): What is the failure mode when self-authored prompts drift toward verbosity or vagueness over successive revisions?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/layers/prompt-md:3:candidate",
+      "questionId": "theory-question:memory/theory-fork/layers/prompt-md:3",
+      "title": "Experiment candidate: Layer 1: Prompt Engineering",
+      "summary": "Probe whether AIES can make progress on: Can prompt quality be measured independently from outcome quality, or are they inseparable?",
+      "whyNow": "Good rotation candidate: prompt is less tooled than the recent evaluation-heavy hotspot, so answering it could broaden future work selection.",
+      "dimensionHints": [
+        "prompt"
+      ],
+      "experimentShape": "skill",
+      "suggestedPaths": [
+        "memory/theory-fork/layers/prompt.md",
+        "aies/prompts",
+        "aies/skills",
+        ".pi/skills",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "low",
+      "minimumVerificationFloor": "docs_only",
+      "breadthSignals": [
+        "neglected_layer_rotation"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/layers/prompt.md",
+          "excerpt": "Question (prompt): Can prompt quality be measured independently from outcome quality, or are they inseparable?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/evaluation-md:1:candidate",
+      "questionId": "theory-question:memory/theory-fork/meta/evaluation-md:1",
+      "title": "Experiment candidate: Meta-Function: Evaluation Engineering",
+      "summary": "Probe whether AIES can make progress on: What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?",
+      "whyNow": "Advisory experiment candidate grounded in the theory fork. Use it to test uncertainty without auto-selecting the next change.",
+      "dimensionHints": [
+        "evaluation"
+      ],
+      "experimentShape": "openspec_plan",
+      "suggestedPaths": [
+        "memory/theory-fork/meta/evaluation.md",
+        "aies/extensions/evaluation",
+        "aies/extensions/verification",
+        "operator-ui/server",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "low",
+      "minimumVerificationFloor": "docs_only",
+      "breadthSignals": [
+        "touches_existing_hotspot"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/evaluation.md",
+          "excerpt": "Question (evaluation): What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/evaluation-md:2:candidate",
+      "questionId": "theory-question:memory/theory-fork/meta/evaluation-md:2",
+      "title": "Experiment candidate: Meta-Function: Evaluation Engineering",
+      "summary": "Probe whether AIES can make progress on: Should evaluation be continuous or periodic? Continuous evaluation adds overhead; periodic evaluation risks missing regressions.",
+      "whyNow": "Advisory experiment candidate grounded in the theory fork. Use it to test uncertainty without auto-selecting the next change.",
+      "dimensionHints": [
+        "evaluation"
+      ],
+      "experimentShape": "runtime_module",
+      "suggestedPaths": [
+        "memory/theory-fork/meta/evaluation.md",
+        "aies/extensions/evaluation",
+        "aies/extensions/verification",
+        "operator-ui/server",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "high",
+      "minimumVerificationFloor": "fast",
+      "breadthSignals": [
+        "touches_existing_hotspot"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/evaluation.md",
+          "excerpt": "Question (evaluation): Should evaluation be continuous or periodic? Continuous evaluation adds overhead; periodic evaluation risks missing regressions."
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/evaluation-md:3:candidate",
+      "questionId": "theory-question:memory/theory-fork/meta/evaluation-md:3",
+      "title": "Experiment candidate: Meta-Function: Evaluation Engineering",
+      "summary": "Probe whether AIES can make progress on: How should the system weight structural health (LDI) against functional capability when the two metrics disagree?",
+      "whyNow": "Advisory experiment candidate grounded in the theory fork. Use it to test uncertainty without auto-selecting the next change.",
+      "dimensionHints": [
+        "evaluation"
+      ],
+      "experimentShape": "runtime_module",
+      "suggestedPaths": [
+        "memory/theory-fork/meta/evaluation.md",
+        "aies/extensions/evaluation",
+        "aies/extensions/verification",
+        "operator-ui/server",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "high",
+      "minimumVerificationFloor": "fast",
+      "breadthSignals": [
+        "touches_existing_hotspot"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/evaluation.md",
+          "excerpt": "Question (evaluation): How should the system weight structural health (LDI) against functional capability when the two metrics disagree?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/harness-md:1:candidate",
+      "questionId": "theory-question:memory/theory-fork/meta/harness-md:1",
+      "title": "Experiment candidate: Meta-Function: Harness Engineering",
+      "summary": "Probe whether AIES can make progress on: When the harness modifies itself, how do you ensure the modification preserves the harness's ability to evaluate future modifications? Self-modification of the evaluation substra…",
+      "whyNow": "Cross-layer question: harness, evaluation touches multiple AIES dimensions and could reduce theory/runtime drift if probed with one bounded experiment.",
+      "dimensionHints": [
+        "harness",
+        "evaluation"
+      ],
+      "experimentShape": "runtime_module",
+      "suggestedPaths": [
+        "memory/theory-fork/meta/harness.md",
+        "aies/extensions/cycle-runner",
+        "aies/extensions/verification",
+        "operator-ui",
+        "aies/extensions/evaluation",
+        "operator-ui/server",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "high",
+      "minimumVerificationFloor": "fast",
+      "breadthSignals": [
+        "cross_layer_question",
+        "touches_existing_hotspot"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/harness.md",
+          "excerpt": "Question (harness, evaluation): When the harness modifies itself, how do you ensure the modification preserves the harness's ability to evaluate future modifications? Self-modification of the evaluation substrate is the most dangerous kind."
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/harness-md:2:candidate",
+      "questionId": "theory-question:memory/theory-fork/meta/harness-md:2",
+      "title": "Experiment candidate: Meta-Function: Harness Engineering",
+      "summary": "Probe whether AIES can make progress on: What is the minimal viable harness — the smallest set of mechanisms that still enables meaningful self-evolution?",
+      "whyNow": "Advisory experiment candidate grounded in the theory fork. Use it to test uncertainty without auto-selecting the next change.",
+      "dimensionHints": [
+        "harness"
+      ],
+      "experimentShape": "runtime_module",
+      "suggestedPaths": [
+        "memory/theory-fork/meta/harness.md",
+        "aies/extensions/cycle-runner",
+        "aies/extensions/verification",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "high",
+      "minimumVerificationFloor": "fast",
+      "breadthSignals": [
+        "touches_existing_hotspot"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/harness.md",
+          "excerpt": "Question (harness): What is the minimal viable harness — the smallest set of mechanisms that still enables meaningful self-evolution?"
+        }
+      ]
+    },
+    {
+      "id": "theory-question:memory/theory-fork/meta/harness-md:3:candidate",
+      "questionId": "theory-question:memory/theory-fork/meta/harness-md:3",
+      "title": "Experiment candidate: Meta-Function: Harness Engineering",
+      "summary": "Probe whether AIES can make progress on: How should harness improvements be validated differently from layer improvements, given that harness failures can be catastrophic in ways layer failures cannot?",
+      "whyNow": "Advisory experiment candidate grounded in the theory fork. Use it to test uncertainty without auto-selecting the next change.",
+      "dimensionHints": [
+        "harness"
+      ],
+      "experimentShape": "runtime_module",
+      "suggestedPaths": [
+        "memory/theory-fork/meta/harness.md",
+        "aies/extensions/cycle-runner",
+        "aies/extensions/verification",
+        "operator-ui",
+        "memory/devlog",
+        "openspec/changes"
+      ],
+      "expectedRisk": "high",
+      "minimumVerificationFloor": "fast",
+      "breadthSignals": [
+        "touches_existing_hotspot"
+      ],
+      "citations": [
+        {
+          "sourcePath": "memory/theory-fork/meta/harness.md",
+          "excerpt": "Question (harness): How should harness improvements be validated differently from layer improvements, given that harness failures can be catastrophic in ways layer failures cannot?"
+        }
+      ]
+    }
+  ]
+}

@@ -32,6 +32,20 @@ type DirectoryRule = {
 
 type EvidenceRule = FileRule | DirectoryRule;
 
+function fileRule(rule: Omit<FileRule, "kind">): FileRule {
+  return {
+    kind: "file",
+    ...rule,
+  };
+}
+
+function directoryRule(rule: Omit<DirectoryRule, "kind">): DirectoryRule {
+  return {
+    kind: "directory",
+    ...rule,
+  };
+}
+
 const AUDIT_PROTOCOL_VERSION = "docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md@1.0";
 const SCANNED_ROOTS = ["AGENTS.md", "memory/", "openspec/", "aies/extensions/", "operator-ui/", ".pi/"];
 
@@ -246,14 +260,13 @@ function buildRules(): EvidenceRule[] {
       extractExcerpt: (content) => firstMatchingLine(content, ["north_star:", "ranked_priorities:", "Prefer ambitious capability expansion over conservative micro-maintenance when both are viable."]),
     },
     ...(latestChange
-      ? [{
-          kind: "file" as const,
+      ? [fileRule({
           ruleId: "intent-active-change-direction",
           dimension: "intent",
           relativePath: projectRelativePath(latestChange),
           summary: "The latest OpenSpec change records a multi-step evolution direction rather than ad-hoc work.",
           extractExcerpt: (content: string) => markdownSectionExcerpt(content, "Summary") ?? firstMatchingLine(content, ["title:", "## Summary"]),
-        }]
+        })]
       : []),
     {
       kind: "file",
@@ -368,14 +381,13 @@ function buildRules(): EvidenceRule[] {
       extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditOutcomeReport(", "operator_verification_mode", "scanSessionCorrectionPaths"]),
     },
     ...(latestOutcomeReport
-      ? [{
-          kind: "file" as const,
+      ? [fileRule({
           ruleId: "evaluation-audit-radar-outcome-report",
           dimension: "evaluation",
           relativePath: projectRelativePath(latestOutcomeReport),
           summary: "Durable audit outcome reports now record which correction paths appeared between audit snapshots and whether prior weak layers improved, regressed, or stayed stagnant.",
           extractExcerpt: (content: string) => firstMatchingLine(content, ["\"summary\"", "\"pathsObserved\"", "\"stagnantWeakDimensions\""]),
-        }]
+        })]
       : []),
     {
       kind: "file",
@@ -394,14 +406,13 @@ function buildRules(): EvidenceRule[] {
       extractExcerpt: (content) => firstMatchingLine(content, ["export function runPostCycleAudit(", "executeAuditRadarLoop(", "loopReportPath"]),
     },
     ...(latestLoopReport
-      ? [{
-          kind: "file" as const,
+      ? [fileRule({
           ruleId: "evaluation-audit-radar-loop-report",
           dimension: "evaluation",
           relativePath: projectRelativePath(latestLoopReport),
           summary: "Durable audit loop reports now capture the linked snapshot, outcome report, and verification/recovery result from one reproducible harness run.",
           extractExcerpt: (content: string) => firstMatchingLine(content, ["\"snapshotPath\"", "\"outcomeReportPath\"", "\"verification\""]),
-        }]
+        })]
       : []),
     ...(latestLoopReport
       ? [{

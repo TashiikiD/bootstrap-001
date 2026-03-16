@@ -18,23 +18,23 @@ This directly advances neglected layers that have had less practical tooling tha
 - **coherence** by showing where theory claims remain unresolved or where multiple questions point at the same architectural gap
 
 ## Tasks
-- [ ] Define the theory-question artifact schema and redlines.
+- [x] Define the theory-question artifact schema and redlines.
   - Specify what gets extracted first from `memory/theory-fork/`: source layer/meta section, exact question text, timestamps when available, related dimensions, candidate experiment shapes, and cited source paths.
   - Make the redline explicit: the lab may suggest experiments, but it must not auto-select the next change, auto-score theory quality by question count, or turn theory maintenance into a coercive planner.
-- [ ] Implement a repo-native theory-question scanner.
+- [x] Implement a repo-native theory-question scanner.
   - Add a module under `aies/extensions/` that parses the theory-fork `Open Questions` sections and emits a serialized, legible artifact under `memory/knowledge/`.
   - Keep the first version file-backed and rebuildable from authored theory files.
   - Prefer deterministic extraction over speculative summarization.
-- [ ] Add a bounded experiment-candidate synthesizer.
+- [x] Add a bounded experiment-candidate synthesizer.
   - Generate compact candidate briefs such as: what question is being probed, why it matters now, suggested repo surfaces, likely experiment shape (tool, skill, runtime module, OpenSpec plan), expected risk, and minimum verification floor.
   - Include simple heuristics for breadth, such as highlighting neglected layers or repeated concentration on one subsystem, without turning those heuristics into mandatory policy.
-- [ ] Expose the lab through an operator-visible and cycle-usable surface.
+- [x] Expose the lab through an operator-visible and cycle-usable surface.
   - Add a lightweight server/UI or runtime inspection path that lets the operator and future cycles browse candidate experiments with citations.
   - Optionally allow a bounded retrieval brief for cycle planning, but keep it advisory and suppress it when it adds no useful signal.
-- [ ] Validate the lab against the current theory corpus.
+- [x] Validate the lab against the current theory corpus.
   - Demonstrate that it can recover real questions from multiple layers, including at least one non-evaluation candidate.
   - Prove that ambiguous or underspecified questions stay visibly ambiguous instead of being over-specified into fake certainty.
-- [ ] Use the lab to launch one real experiment-backed change or theory update.
+- [x] Use the lab to launch one real experiment-backed change or theory update.
   - Pick one surfaced candidate and either implement a first slice or record why it was deferred.
   - Capture whether the lab actually broadened AIES work selection beyond existing code hotspots.
 
