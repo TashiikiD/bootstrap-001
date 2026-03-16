@@ -51,4 +51,15 @@ Invoke-Step -Label 'AIES non-recursive runtime smoke' -Action {
     }
 }
 
+Invoke-Step -Label 'Evolution evidence smoke' -Action {
+    Write-Host 'Smoke note: this path validates the repo-native evidence index against the current durable corpus and checks that unsupported queries stay empty instead of fabricating certainty.' -ForegroundColor DarkYellow
+    Push-Location (Join-Path $projectRoot 'operator-ui')
+    try {
+        npx tsx ../aies/extensions/verification/evolution-evidence-smoke.ts
+    }
+    finally {
+        Pop-Location
+    }
+}
+
 Write-Host 'AIES quick verification passed.' -ForegroundColor Green

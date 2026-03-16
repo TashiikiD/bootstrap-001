@@ -40,7 +40,7 @@ The design should stay conservative. It should prefer existing durable artifacts
 - [x] Expose the evidence map through an operator-visible inspection path.
   - Add a lightweight status or UI surface that lets the operator inspect recent indexed artifacts, inferred relations, and missing links.
   - Make stale-index or insufficient-coverage states explicit so the system does not over-claim retrieval quality.
-- [ ] Validate the index against the current corpus.
+- [x] Validate the index against the current corpus.
   - Demonstrate that the tool can reconstruct at least a few real cross-cycle threads, such as the audit-radar progression from descriptive status to guidance-effectiveness comparison.
   - Prove that unsupported questions return uncertainty or insufficient evidence instead of fabricated certainty.
 - [ ] Record the retrieval experiment back into theory and memory.
