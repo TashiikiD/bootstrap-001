@@ -11,6 +11,7 @@ export interface AiesPaths {
   sessionDir: string;
   memoryRoot: string;
   knowledgeRoot: string;
+  evolutionEvidenceIndexRoot: string;
   auditRadarRoot: string;
   auditRadarSnapshotsRoot: string;
   auditRadarOutcomesRoot: string;
@@ -38,6 +39,7 @@ export function getAiesPaths(runtimeDirName = ".aies-runtime", sessionDirName = 
   const openSpecRoot = resolve(projectRoot, "openspec");
 
   const knowledgeRoot = resolve(memoryRoot, "knowledge");
+  const evolutionEvidenceIndexRoot = resolve(knowledgeRoot, "evolution-evidence-index");
   const auditRadarRoot = resolve(knowledgeRoot, "audit-radar");
 
   return {
@@ -47,6 +49,7 @@ export function getAiesPaths(runtimeDirName = ".aies-runtime", sessionDirName = 
     sessionDir: resolve(runtimeRoot, sessionDirName),
     memoryRoot,
     knowledgeRoot,
+    evolutionEvidenceIndexRoot,
     auditRadarRoot,
     auditRadarSnapshotsRoot: resolve(auditRadarRoot, "snapshots"),
     auditRadarOutcomesRoot: resolve(auditRadarRoot, "outcomes"),

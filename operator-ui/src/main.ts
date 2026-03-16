@@ -52,6 +52,26 @@ function sessionPathLabel(value: string | null | undefined): string {
   return parts[parts.length - 1] ?? String(value);
 }
 
+function textContentFromMessageContent(content: unknown): string {
+  if (typeof content === "string") {
+    return content.trim();
+  }
+  if (!Array.isArray(content)) {
+    return "";
+  }
+  return content
+    .filter((item): item is { type?: unknown; text?: unknown } => typeof item === "object" && item !== null)
+    .filter((item) => item.type === "text")
+    .map((item) => safeString(item.text))
+    .join("\n")
+    .trim();
+}
+
+function timelineMessageText(event: OperatorTimelineEvent): string {
+  const detail = event.detail as { content?: unknown };
+  return textContentFromMessageContent(detail.content);
+}
+
 class AiesOperatorApp extends LitElement {
   static properties = {
     state: { state: true },
@@ -286,6 +306,10 @@ class AiesOperatorApp extends LitElement {
 
   private timelineItems(events: OperatorTimelineEvent[]): OperatorTimelineEvent[] {
     return events.filter((event) => {
+      if (event.subsystem === "message") {
+        if (event.eventKind !== "assistant") return false;
+        if (timelineMessageText(event).length === 0) return false;
+      }
       if (this.timelineSubsystemFilter !== "all" && event.subsystem !== this.timelineSubsystemFilter) return false;
       if (this.timelineOriginFilter !== "all" && event.origin !== this.timelineOriginFilter) return false;
       if (this.timelineChangeFilter.trim()) {
@@ -294,6 +318,10 @@ class AiesOperatorApp extends LitElement {
       }
       return true;
     });
+  }
+
+  private transcriptItems(messages: TranscriptMessage[]): TranscriptMessage[] {
+    return messages.filter((message) => message.role === "assistant" && message.text.trim().length > 0);
   }
 
   private renderPanel(panel: PanelState): TemplateResult {
@@ -665,11 +693,17 @@ class AiesOperatorApp extends LitElement {
           <div class="timeline-meta">${items.length} visible / ${events.length} total</div>
         </div>
         <div class="filter-row">
-          <select @change=${(event: Event) => { this.timelineSubsystemFilter = (event.target as HTMLSelectElement).value; }}>
+          <select
+            .value=${this.timelineSubsystemFilter}
+            @change=${(event: Event) => { this.timelineSubsystemFilter = (event.target as HTMLSelectElement).value; }}
+          >
             <option value="all">All subsystems</option>
             ${subsystems.map((subsystem) => html`<option value=${subsystem}>${subsystem}</option>`)}
           </select>
-          <select @change=${(event: Event) => { this.timelineOriginFilter = (event.target as HTMLSelectElement).value; }}>
+          <select
+            .value=${this.timelineOriginFilter}
+            @change=${(event: Event) => { this.timelineOriginFilter = (event.target as HTMLSelectElement).value; }}
+          >
             <option value="all">All origins</option>
             <option value="system">system</option>
             <option value="operator">operator</option>
@@ -689,6 +723,7 @@ class AiesOperatorApp extends LitElement {
   }
 
   private renderLive(state: OperatorStateResponse): TemplateResult {
+    const transcriptItems = this.transcriptItems(state.transcript);
     return html`
       <div class="content">
         <div class="live-layout">
@@ -698,11 +733,11 @@ class AiesOperatorApp extends LitElement {
             <section class="card stack">
               <div class="row wrap">
                 <h2>Messages</h2>
-                <div class="timeline-meta">${state.transcript.length} messages</div>
+                <div class="timeline-meta">${transcriptItems.length} messages</div>
               </div>
-              ${state.transcript.length === 0
+              ${transcriptItems.length === 0
                 ? html`<div class="empty">No user/assistant messages in the selected session yet.</div>`
-                : html`<ul class="transcript-list">${state.transcript.slice().reverse().map((message) => this.renderTranscriptItem(message))}</ul>`}
+                : html`<ul class="transcript-list">${transcriptItems.slice().reverse().map((message) => this.renderTranscriptItem(message))}</ul>`}
             </section>
             ${this.renderTimeline(state.timeline)}
           </div>

@@ -22,11 +22,11 @@ The design should stay conservative. It should prefer existing durable artifacts
 - a causal conclusion that the evidence does **not** justify yet
 
 ## Tasks
-- [ ] Define the evolution-evidence artifact taxonomy and relation contract.
+- [x] Define the evolution-evidence artifact taxonomy and relation contract.
   - Specify the durable item types to ingest first: `CHG-*.md` changes, `memory/devlog/*.md`, audit radar snapshots/outcomes/loops/guidance reports, selected theory-fork notes, and verification state artifacts.
   - Define relation types such as `targets_dimension`, `continues_change`, `records_observation`, `references_snapshot`, `touches_path`, `verifies_surface`, and `updates_theory`.
   - Make provenance, timestamping, confidence, and source-path citation first-class so later cycles can inspect why a relation exists.
-- [ ] Implement a repo-native index builder under the AIES extensions.
+- [x] Implement a repo-native index builder under the AIES extensions.
   - Add a module under `aies/extensions/` that scans curated durable surfaces and emits a serialized index under `memory/knowledge/`.
   - Keep the initial build file-backed and legible; do not require a heavyweight database before the retrieval patterns are proven useful.
   - Exclude `.log` files and avoid full session-transcript parsing for the first version; prefer already-summarized durable artifacts.
