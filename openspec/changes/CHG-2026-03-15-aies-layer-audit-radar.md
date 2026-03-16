@@ -1,7 +1,7 @@
 ---
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
-status: completed
+status: complete
 updated_at: 2026-03-16T02:00:00.000Z
 completed_at: 2026-03-16T02:00:00.000Z
 last_audit_snapshot: audit-2026-03-15T17-06-59-001Z
