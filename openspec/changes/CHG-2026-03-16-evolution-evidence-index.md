@@ -30,14 +30,14 @@ The design should stay conservative. It should prefer existing durable artifacts
   - Add a module under `aies/extensions/` that scans curated durable surfaces and emits a serialized index under `memory/knowledge/`.
   - Keep the initial build file-backed and legible; do not require a heavyweight database before the retrieval patterns are proven useful.
   - Exclude `.log` files and avoid full session-transcript parsing for the first version; prefer already-summarized durable artifacts.
-- [ ] Add a query surface for future cycles.
+- [x] Add a query surface for future cycles.
   - Provide a command or tool-backed surface that can answer focused questions like "show recent evaluation interventions," "what evidence supports the current binding constraint," or "what unresolved threads touch harness verification?"
   - Support filters by dimension, change id, artifact type, date window, and evidence confidence.
   - Require citation-rich output so retrieval strengthens judgment instead of becoming an opaque oracle.
 - [ ] Bridge the index into planning and runtime context in a bounded way.
   - Feed a compact retrieval brief into cycle planning or audit-guidance context only when it adds relevant continuity.
   - Keep the bridge advisory: retrieval may compress history for judgment, but it must not auto-select the next change or override current audit guidance.
-- [ ] Expose the evidence map through an operator-visible inspection path.
+- [x] Expose the evidence map through an operator-visible inspection path.
   - Add a lightweight status or UI surface that lets the operator inspect recent indexed artifacts, inferred relations, and missing links.
   - Make stale-index or insufficient-coverage states explicit so the system does not over-claim retrieval quality.
 - [ ] Validate the index against the current corpus.

@@ -374,14 +374,21 @@ class AiesOperatorApp extends LitElement {
   private renderTranscriptItem(message: TranscriptMessage): TemplateResult {
     return html`
       <li class="transcript-item ${message.role}">
-        <div class="row wrap">
-          <strong>${message.role}</strong>
-          <div class="timeline-meta">${formatTimestamp(message.timestamp)}</div>
-        </div>
-        <div class="summary">${message.text || "(empty message)"}</div>
-        <div class="timeline-meta">
-          ${message.provider ?? "no-provider"} / ${message.model ?? "no-model"}
-        </div>
+        <details class="transcript-details">
+          <summary class="transcript-summary">
+            <div class="row wrap transcript-summary-row">
+              <strong>${message.role}</strong>
+              <div class="timeline-meta">${formatTimestamp(message.timestamp)}</div>
+            </div>
+            <div class="summary transcript-preview">${message.text}</div>
+            <div class="row wrap transcript-footer-row">
+              <div class="timeline-meta">
+                ${message.provider ?? "no-provider"} / ${message.model ?? "no-model"}
+              </div>
+              <span class="transcript-chevron" aria-hidden="true"></span>
+            </div>
+          </summary>
+        </details>
       </li>
     `;
   }

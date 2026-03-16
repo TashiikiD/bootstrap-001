@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-16T05:12:07.064Z",
+  "generatedAt": "2026-03-16T05:08:29.666Z",
   "advisoryOnly": true,
   "sourceRoots": [
     "openspec/changes",
@@ -9,13 +9,13 @@
     "memory/knowledge/audit-radar"
   ],
   "summary": {
-    "nodeCount": 104,
-    "relationCount": 290,
+    "nodeCount": 103,
+    "relationCount": 285,
     "artifactCounts": {
       "dimension_anchor": 7,
       "path_anchor": 13,
       "openspec_change": 4,
-      "devlog": 35,
+      "devlog": 34,
       "knowledge_decision": 12,
       "theory_note": 7,
       "audit_snapshot": 14,
@@ -1063,33 +1063,6 @@
         {
           "sourcePath": "memory/devlog/2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder.md",
           "excerpt": "I switched from the completed audit-guidance-adaptation change to the already-proposed `CHG-2026-03-16-evolution-evidence-index` and implemented its first real capability slice: a…"
-        }
-      ]
-    },
-    {
-      "id": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "artifactType": "devlog",
-      "title": "2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "summary": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materially complete while the evidence index stil…",
-      "createdAt": "2026-03-16T05:08:45.131168Z",
-      "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-      "changeId": "CHG-2026-03-16-evolution-evidence-index",
-      "dimensionHints": [
-        "context",
-        "coherence",
-        "evaluation",
-        "harness"
-      ],
-      "tags": [],
-      "metadata": {
-        "focusType": "capability_expansion",
-        "verificationMode": "fast",
-        "verificationResult": "passed"
-      },
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
         }
       ]
     },
@@ -2890,20 +2863,6 @@
         }
       ],
       "id": "continues_change:devlog:2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder->change:CHG-2026-03-16-evolution-evidence-index"
-    },
-    {
-      "type": "continues_change",
-      "fromId": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "toId": "change:CHG-2026-03-16-evolution-evidence-index",
-      "confidence": "direct",
-      "rationale": "The devlog explicitly links itself to this OpenSpec change.",
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
-        }
-      ],
-      "id": "continues_change:devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface->change:CHG-2026-03-16-evolution-evidence-index"
     },
     {
       "type": "continues_change",
@@ -5326,62 +5285,6 @@
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder->dimension:evaluation"
-    },
-    {
-      "type": "targets_dimension",
-      "fromId": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "toId": "dimension:coherence",
-      "confidence": "heuristic",
-      "rationale": "The devlog text names these AIES dimensions directly.",
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
-        }
-      ],
-      "id": "targets_dimension:devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface->dimension:coherence"
-    },
-    {
-      "type": "targets_dimension",
-      "fromId": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "toId": "dimension:context",
-      "confidence": "heuristic",
-      "rationale": "The devlog text names these AIES dimensions directly.",
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
-        }
-      ],
-      "id": "targets_dimension:devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface->dimension:context"
-    },
-    {
-      "type": "targets_dimension",
-      "fromId": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "toId": "dimension:evaluation",
-      "confidence": "heuristic",
-      "rationale": "The devlog text names these AIES dimensions directly.",
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
-        }
-      ],
-      "id": "targets_dimension:devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface->dimension:evaluation"
-    },
-    {
-      "type": "targets_dimension",
-      "fromId": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "toId": "dimension:harness",
-      "confidence": "heuristic",
-      "rationale": "The devlog text names these AIES dimensions directly.",
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
-        }
-      ],
-      "id": "targets_dimension:devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface->dimension:harness"
     },
     {
       "type": "targets_dimension",

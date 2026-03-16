@@ -41,6 +41,7 @@ import {
   summarizeAuditLoopVerification,
 } from "./audit-radar-loops";
 import { readCycleRunAuditHistory } from "./cycle-runner-audits";
+import { buildEvolutionEvidencePanelData, executeEvolutionEvidenceQuery, readLatestEvolutionEvidenceIndexRecord } from "./evolution-evidence";
 
 const port = Number.parseInt(process.env.AIES_OPERATOR_UI_PORT ?? "4320", 10);
 const distRoot = resolve(operatorUiRoot, "dist");
@@ -533,6 +534,8 @@ function buildState() {
   const cycleRunnerAuditVerification = cycleRunner?.postRunAudit?.verificationMode && cycleRunner?.postRunAudit?.verificationResult
     ? `${cycleRunner.postRunAudit.verificationMode}/${cycleRunner.postRunAudit.verificationResult}`
     : "none";
+  const evolutionEvidenceRecord = readLatestEvolutionEvidenceIndexRecord();
+  const evolutionEvidencePanel = buildEvolutionEvidencePanelData(evolutionEvidenceRecord);
 
   const panels = {
     cycleRunner: panel(
@@ -787,6 +790,13 @@ function buildState() {
         relatedChangeId: currentCycle?.activeChangeId ?? null,
         stale: false,
       },
+    ),
+    evolutionEvidence: panel(
+      "Evolution Evidence",
+      evolutionEvidencePanel.summary,
+      evolutionEvidencePanel.bullets,
+      evolutionEvidencePanel.detail,
+      evolutionEvidencePanel.provenance,
     ),
     requests: panel(
       "Requests",
@@ -1341,6 +1351,12 @@ createServer(async (req, res) => {
 
     if (req.method === "GET" && url.pathname === "/api/state") {
       return json(res, buildState());
+    }
+    if (req.method === "GET" && url.pathname === "/api/evolution-evidence") {
+      return json(res, buildEvolutionEvidencePanelData(readLatestEvolutionEvidenceIndexRecord()));
+    }
+    if (req.method === "GET" && url.pathname === "/api/evolution-evidence/query") {
+      return json(res, executeEvolutionEvidenceQuery(readLatestEvolutionEvidenceIndexRecord(), url.searchParams));
     }
     if (req.method === "GET" && url.pathname === "/api/observatory") {
       return json(res, buildState().observatory);

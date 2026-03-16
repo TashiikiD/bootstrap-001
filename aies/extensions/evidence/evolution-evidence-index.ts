@@ -161,7 +161,15 @@ function firstParagraph(body: string): string {
     .split(/\r?\n\s*\r?\n/)
     .map((item) => item.trim())
     .filter(Boolean)
-    .filter((item) => !item.startsWith("#") && !item.startsWith("- "));
+    .map((item) => item
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .filter((line) => !line.startsWith("#"))
+      .filter((line) => !line.startsWith("- "))
+      .join(" "))
+    .map((item) => item.trim())
+    .filter(Boolean);
 
   return compact(paragraphs[0] ?? "none");
 }
@@ -905,10 +913,50 @@ function nodeMatchesChangeIds(index: EvolutionEvidenceIndex, node: EvolutionEvid
     && changeIds.includes(index.nodes.find((candidate) => candidate.id === relation.toId)?.changeId ?? ""));
 }
 
+function parseIsoDate(value: string | null | undefined): number | null {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function nodeMatchesDateWindow(node: EvolutionEvidenceNode, createdAfter: string | null | undefined, createdBefore: string | null | undefined): boolean {
+  if (!createdAfter && !createdBefore) {
+    return true;
+  }
+
+  const createdAt = parseIsoDate(node.createdAt);
+  if (createdAt === null) {
+    return false;
+  }
+
+  const after = parseIsoDate(createdAfter);
+  const before = parseIsoDate(createdBefore);
+  if (after !== null && createdAt < after) {
+    return false;
+  }
+  if (before !== null && createdAt > before) {
+    return false;
+  }
+  return true;
+}
+
+function sortQueriedNodes(left: EvolutionEvidenceNode, right: EvolutionEvidenceNode): number {
+  const leftTime = parseIsoDate(left.createdAt) ?? -1;
+  const rightTime = parseIsoDate(right.createdAt) ?? -1;
+  if (leftTime !== rightTime) {
+    return rightTime - leftTime;
+  }
+  return left.id.localeCompare(right.id);
+}
+
 export function queryEvolutionEvidenceIndex(index: EvolutionEvidenceIndex, query: EvolutionEvidenceQuery): EvolutionEvidenceQueryResult {
   const dimensions = query.dimensions ?? [];
   const changeIds = query.changeIds ?? [];
   const artifactTypes = query.artifactTypes ?? [];
+  const confidence = query.confidence ?? [];
   const loweredText = query.text?.trim().toLowerCase() ?? "";
   const maxNodes = query.maxNodes ?? 12;
 
@@ -916,11 +964,15 @@ export function queryEvolutionEvidenceIndex(index: EvolutionEvidenceIndex, query
     .filter((node) => artifactTypes.length === 0 || artifactTypes.includes(node.artifactType))
     .filter((node) => nodeMatchesDimensions(node, dimensions))
     .filter((node) => nodeMatchesChangeIds(index, node, changeIds))
+    .filter((node) => nodeMatchesDateWindow(node, query.createdAfter, query.createdBefore))
     .filter((node) => !loweredText || `${node.title}\n${node.summary}\n${node.sourcePath}`.toLowerCase().includes(loweredText))
+    .sort(sortQueriedNodes)
     .slice(0, maxNodes);
 
   const nodeIds = new Set(nodes.map((node) => node.id));
-  const relations = index.relations.filter((relation) => nodeIds.has(relation.fromId) || nodeIds.has(relation.toId));
+  const relations = index.relations
+    .filter((relation) => nodeIds.has(relation.fromId) || nodeIds.has(relation.toId))
+    .filter((relation) => confidence.length === 0 || confidence.includes(relation.confidence));
 
   return {
     query,

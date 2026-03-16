@@ -360,6 +360,60 @@ code {
   border-left: 3px solid var(--success);
 }
 
+.transcript-details {
+  display: grid;
+  gap: 10px;
+}
+
+.transcript-summary {
+  display: grid;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.transcript-summary::-webkit-details-marker {
+  display: none;
+}
+
+.transcript-summary::marker {
+  content: "";
+}
+
+.transcript-summary-row,
+.transcript-footer-row {
+  align-items: center;
+}
+
+.transcript-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.transcript-details[open] .transcript-preview {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.transcript-chevron {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--text-dim);
+  border-bottom: 2px solid var(--text-dim);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+  margin-right: 4px;
+}
+
+.transcript-details[open] .transcript-chevron {
+  transform: rotate(225deg);
+}
+
 .thought-item.live-message {
   border-left: 3px solid var(--accent);
   background: rgba(120, 183, 255, 0.06);

@@ -81,6 +81,9 @@ export interface EvolutionEvidenceQuery {
   dimensions?: AiesDimension[];
   changeIds?: string[];
   artifactTypes?: EvolutionEvidenceArtifactType[];
+  confidence?: EvolutionEvidenceConfidence[];
+  createdAfter?: IsoTimestamp;
+  createdBefore?: IsoTimestamp;
   text?: string;
   maxNodes?: number;
 }

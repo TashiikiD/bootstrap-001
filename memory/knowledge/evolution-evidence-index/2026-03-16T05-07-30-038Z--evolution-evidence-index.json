@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-16T05:12:07.064Z",
+  "generatedAt": "2026-03-16T05:07:30.038Z",
   "advisoryOnly": true,
   "sourceRoots": [
     "openspec/changes",
@@ -9,13 +9,13 @@
     "memory/knowledge/audit-radar"
   ],
   "summary": {
-    "nodeCount": 104,
-    "relationCount": 290,
+    "nodeCount": 103,
+    "relationCount": 285,
     "artifactCounts": {
       "dimension_anchor": 7,
       "path_anchor": 13,
       "openspec_change": 4,
-      "devlog": 35,
+      "devlog": 34,
       "knowledge_decision": 12,
       "theory_note": 7,
       "audit_snapshot": 14,
@@ -65,7 +65,7 @@
       "id": "change:CHG-2026-03-15-audit-judgment-gate",
       "artifactType": "openspec_change",
       "title": "Add an audit judgment gate",
-      "summary": "Audit snapshot `audit-2026-03-15T06-03-59-146Z` observed at `2026-03-15T06:03:59.146Z` rated **judgment** as **partial**. Judgment engineering has explicit red lines and escalation boundaries, but the audit still lacks…",
+      "summary": "none",
       "createdAt": null,
       "sourcePath": "openspec/changes/CHG-2026-03-15-audit-judgment-gate.md",
       "changeId": "CHG-2026-03-15-audit-judgment-gate",
@@ -99,7 +99,7 @@
       "id": "change:CHG-2026-03-16-audit-guidance-adaptation",
       "artifactType": "openspec_change",
       "title": "Tune audit guidance from real effectiveness history",
-      "summary": "Audit snapshot `audit-2026-03-16T03:09:45.963Z` rated **evaluation** as the current binding constraint even after judgment improved to **strong**. The audit can now emit guidance, record whether later cycles aligned wit…",
+      "summary": "The next capability step is to turn durable guidance-effectiveness history into a bounded, advisory learning surface. The aim is not to let evaluation prescribe future behavior. The aim is to help future cycles see when…",
       "createdAt": null,
       "sourcePath": "openspec/changes/CHG-2026-03-16-audit-guidance-adaptation.md",
       "changeId": "CHG-2026-03-16-audit-guidance-adaptation",
@@ -137,7 +137,7 @@
       "id": "change:CHG-2026-03-16-evolution-evidence-index",
       "artifactType": "openspec_change",
       "title": "Build an evolution evidence index for cross-cycle retrieval",
-      "summary": "AIES now persists a growing body of durable evidence: OpenSpec changes, devlogs, audit snapshots, audit outcomes, guidance-effectiveness reports, verification records, and theory updates. But future cycles still recover…",
+      "summary": "A more evolved harness should have a repo-native way to index and query its own evolution evidence. This change proposes an **evolution evidence index**: a bounded retrieval capability that scans curated durable artifac…",
       "createdAt": null,
       "sourcePath": "openspec/changes/CHG-2026-03-16-evolution-evidence-index.md",
       "changeId": "CHG-2026-03-16-evolution-evidence-index",
@@ -381,7 +381,7 @@
       "id": "devlog:2026-03-14T07-25-09-444Z-cycle-1773471862681",
       "artifactType": "devlog",
       "title": "2026-03-14T07-25-09-444Z-cycle-1773471862681",
-      "summary": "Implemented for `CHG-aies-v2-bootstrap` / `task-active-cycle-runner`. What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/exten…",
+      "summary": "What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/extensions/cycle-runner/index.ts` - `operator-ui/server/lib.ts` - `operator-ui/server/index.ts` - `operator-ui/src/types.ts` - `operator-ui/src/main.ts` -…",
       "createdAt": "2026-03-14T07:25:09.444Z",
       "sourcePath": "memory/devlog/2026-03-14T07-25-09-444Z-cycle-1773471862681.md",
       "changeId": "CHG-aies-v2-bootstrap",
@@ -400,7 +400,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T07-25-09-444Z-cycle-1773471862681.md",
-          "excerpt": "Implemented for `CHG-aies-v2-bootstrap` / `task-active-cycle-runner`. What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/exten…"
+          "excerpt": "What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/extensions/cycle-runner/index.ts` - `operator-ui/server/lib.ts` - `operator-ui/server/index.ts` - `operator-ui/src/…"
         }
       ]
     },
@@ -408,7 +408,7 @@
       "id": "devlog:2026-03-14T15-21-18-772Z-cycle-1773500775567",
       "artifactType": "devlog",
       "title": "2026-03-14T15-21-18-772Z-cycle-1773500775567",
-      "summary": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…",
+      "summary": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - memory/knowledge/intent-hierarchy.yaml -…",
       "createdAt": "2026-03-14T15:21:18.772Z",
       "sourcePath": "memory/devlog/2026-03-14T15-21-18-772Z-cycle-1773500775567.md",
       "changeId": "CHG-aies-v2-bootstrap",
@@ -430,7 +430,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T15-21-18-772Z-cycle-1773500775567.md",
-          "excerpt": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ]
     },
@@ -438,7 +438,7 @@
       "id": "devlog:2026-03-14T19-06-04-719Z-cycle-1773514682569",
       "artifactType": "devlog",
       "title": "2026-03-14T19-06-04-719Z-cycle-1773514682569",
-      "summary": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…",
+      "summary": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - memory/knowledge/intent-hierarchy.yaml -…",
       "createdAt": "2026-03-14T19:06:04.719Z",
       "sourcePath": "memory/devlog/2026-03-14T19-06-04-719Z-cycle-1773514682569.md",
       "changeId": null,
@@ -460,7 +460,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T19-06-04-719Z-cycle-1773514682569.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ]
     },
@@ -468,7 +468,7 @@
       "id": "devlog:2026-03-14T20-07-24-610Z-cycle-1773518380820",
       "artifactType": "devlog",
       "title": "2026-03-14T20-07-24-610Z-cycle-1773518380820",
-      "summary": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…",
+      "summary": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - memory/knowledge/intent-hierarchy.yaml -…",
       "createdAt": "2026-03-14T20:07:24.610Z",
       "sourcePath": "memory/devlog/2026-03-14T20-07-24-610Z-cycle-1773518380820.md",
       "changeId": null,
@@ -490,7 +490,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-07-24-610Z-cycle-1773518380820.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ]
     },
@@ -498,7 +498,7 @@
       "id": "devlog:2026-03-14T20-43-52-064Z-cycle-1773520685487",
       "artifactType": "devlog",
       "title": "2026-03-14T20-43-52-064Z-cycle-1773520685487",
-      "summary": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…",
+      "summary": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - memory/knowledge/intent-hierarchy.yaml -…",
       "createdAt": "2026-03-14T20:43:52.064Z",
       "sourcePath": "memory/devlog/2026-03-14T20-43-52-064Z-cycle-1773520685487.md",
       "changeId": null,
@@ -520,7 +520,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-43-52-064Z-cycle-1773520685487.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ]
     },
@@ -528,7 +528,7 @@
       "id": "devlog:2026-03-15T02-21-26-132Z-manual-session-recency-ordering",
       "artifactType": "devlog",
       "title": "2026-03-15T02-21-26-132Z-manual-session-recency-ordering",
-      "summary": "Rationale: with no active OpenSpec change, I tightened auto-session selection to follow session filename chronology instead of mutable file mtimes.",
+      "summary": "none",
       "createdAt": "2026-03-15T02:21:26.132Z",
       "sourcePath": "memory/devlog/2026-03-15T02-21-26-132Z-manual-session-recency-ordering.md",
       "changeId": null,
@@ -546,7 +546,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T02-21-26-132Z-manual-session-recency-ordering.md",
-          "excerpt": "Rationale: with no active OpenSpec change, I tightened auto-session selection to follow session filename chronology instead of mutable file mtimes."
+          "excerpt": "none"
         }
       ]
     },
@@ -554,7 +554,7 @@
       "id": "devlog:2026-03-15T02-36-35-845Z-persisted-verification-mode-restore",
       "artifactType": "devlog",
       "title": "2026-03-15T02-36-35-845Z-persisted-verification-mode-restore",
-      "summary": "Rationale: after fixing auto-session recency, the next coherence gap was verification-mode restoration relying too heavily on in-memory session entries and re-emitting aligned-operator mode entries across turns.",
+      "summary": "none",
       "createdAt": "2026-03-15T02:36:35.845Z",
       "sourcePath": "memory/devlog/2026-03-15T02-36-35-845Z-persisted-verification-mode-restore.md",
       "changeId": null,
@@ -572,7 +572,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T02-36-35-845Z-persisted-verification-mode-restore.md",
-          "excerpt": "Rationale: after fixing auto-session recency, the next coherence gap was verification-mode restoration relying too heavily on in-memory session entries and re-emitting aligned-ope…"
+          "excerpt": "none"
         }
       ]
     },
@@ -580,7 +580,7 @@
       "id": "devlog:2026-03-15T03-01-38-682Z-dedupe-verification-mode-persistence",
       "artifactType": "devlog",
       "title": "2026-03-15T03-01-38-682Z-dedupe-verification-mode-persistence",
-      "summary": "Rationale: after teaching verification-mode restore to trust persisted session evidence, the next narrow harness fix was to stop appending duplicate verification-mode entries when the mode/source had not actually change…",
+      "summary": "none",
       "createdAt": "2026-03-15T03:01:38.682Z",
       "sourcePath": "memory/devlog/2026-03-15T03-01-38-682Z-dedupe-verification-mode-persistence.md",
       "changeId": null,
@@ -597,7 +597,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-01-38-682Z-dedupe-verification-mode-persistence.md",
-          "excerpt": "Rationale: after teaching verification-mode restore to trust persisted session evidence, the next narrow harness fix was to stop appending duplicate verification-mode entries when…"
+          "excerpt": "none"
         }
       ]
     },
@@ -605,7 +605,7 @@
       "id": "devlog:2026-03-15T03-10-31-035Z-clarify-quick-verify-smoke-session-scope",
       "artifactType": "devlog",
       "title": "2026-03-15T03-10-31-035Z-clarify-quick-verify-smoke-session-scope",
-      "summary": "Rationale: the next narrow coherence issue was not runtime state itself but the operator interpretation of quick verification. The slash-command smoke runs in a fresh session, so its mismatch/advisory lines can be mista…",
+      "summary": "none",
       "createdAt": "2026-03-15T03:10:31.035Z",
       "sourcePath": "memory/devlog/2026-03-15T03-10-31-035Z-clarify-quick-verify-smoke-session-scope.md",
       "changeId": null,
@@ -623,7 +623,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-10-31-035Z-clarify-quick-verify-smoke-session-scope.md",
-          "excerpt": "Rationale: the next narrow coherence issue was not runtime state itself but the operator interpretation of quick verification. The slash-command smoke runs in a fresh session, so…"
+          "excerpt": "none"
         }
       ]
     },
@@ -631,7 +631,7 @@
       "id": "devlog:2026-03-15T03-22-00-526Z-restore-verification-and-recovery-from-session-file",
       "artifactType": "devlog",
       "title": "2026-03-15T03-22-00-526Z-restore-verification-and-recovery-from-session-file",
-      "summary": "Rationale: verification-mode restore had already been hardened against stale in-memory session state, but verification records and recovery records still restored only from the in-memory entry list. That left an avoidab…",
+      "summary": "none",
       "createdAt": "2026-03-15T03:22:00.526Z",
       "sourcePath": "memory/devlog/2026-03-15T03-22-00-526Z-restore-verification-and-recovery-from-session-file.md",
       "changeId": null,
@@ -649,7 +649,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-22-00-526Z-restore-verification-and-recovery-from-session-file.md",
-          "excerpt": "Rationale: verification-mode restore had already been hardened against stale in-memory session state, but verification records and recovery records still restored only from the in…"
+          "excerpt": "none"
         }
       ]
     },
@@ -657,7 +657,7 @@
       "id": "devlog:2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost",
       "artifactType": "devlog",
       "title": "2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost",
-      "summary": "Rationale: the active audit-radar change already wired post-run audit execution into the cycle runner, but the latest durable audit still reports a missing cycle-runner-exercised loop report. In this single-cycle sessio…",
+      "summary": "Future harness work should make the second kind of proof cheaper to inspect and less dependent on spawning an extra cycle purely for validation.",
       "createdAt": "2026-03-15T17:43:18.559Z",
       "sourcePath": "memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md",
       "changeId": "CHG-2026-03-15-aies-layer-audit-radar",
@@ -674,7 +674,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md",
-          "excerpt": "Rationale: the active audit-radar change already wired post-run audit execution into the cycle runner, but the latest durable audit still reports a missing cycle-runner-exercised…"
+          "excerpt": "Future harness work should make the second kind of proof cheaper to inspect and less dependent on spawning an extra cycle purely for validation."
         }
       ]
     },
@@ -682,7 +682,7 @@
       "id": "devlog:2026-03-15T18-50-30-000Z-audit-loop-observability-surface",
       "artifactType": "devlog",
       "title": "2026-03-15T18-50-30-000Z-audit-loop-observability-surface",
-      "summary": "Rationale: the active audit-radar change still had a real orchestration-proof inspection cost. Rather than spend another cycle spawning autonomous work just to manufacture proof, I made the existing operator transparenc…",
+      "summary": "none",
       "createdAt": "2026-03-15T18:50:30.000Z",
       "sourcePath": "memory/devlog/2026-03-15T18-50-30-000Z-audit-loop-observability-surface.md",
       "changeId": "CHG-2026-03-15-aies-layer-audit-radar",
@@ -698,7 +698,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T18-50-30-000Z-audit-loop-observability-surface.md",
-          "excerpt": "Rationale: the active audit-radar change still had a real orchestration-proof inspection cost. Rather than spend another cycle spawning autonomous work just to manufacture proof,…"
+          "excerpt": "none"
         }
       ]
     },
@@ -706,7 +706,7 @@
       "id": "devlog:2026-03-15T19-42-14-099Z-audit-guidance-bridge",
       "artifactType": "devlog",
       "title": "2026-03-15T19-42-14-099Z-audit-guidance-bridge",
-      "summary": "Rationale: the audit radar had become good at producing durable status, but weaker at changing the next cycle's judgment. I added an audit-guidance bridge so durable audit state now compresses into an explicit execution…",
+      "summary": "none",
       "createdAt": "2026-03-15T19:42:14.099Z",
       "sourcePath": "memory/devlog/2026-03-15T19-42-14-099Z-audit-guidance-bridge.md",
       "changeId": "CHG-2026-03-15-aies-layer-audit-radar",
@@ -726,7 +726,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T19-42-14-099Z-audit-guidance-bridge.md",
-          "excerpt": "Rationale: the audit radar had become good at producing durable status, but weaker at changing the next cycle's judgment. I added an audit-guidance bridge so durable audit state n…"
+          "excerpt": "none"
         }
       ]
     },
@@ -734,7 +734,7 @@
       "id": "devlog:2026-03-15T20-17-12-421Z-guidance-alignment-tracker",
       "artifactType": "devlog",
       "title": "2026-03-15T20-17-12-421Z-guidance-alignment-tracker",
-      "summary": "Rationale: once the audit radar could produce guidance, the next blind spot was whether the harness ever followed that guidance. I added a guidance-alignment tracker so guided `/cycle-run` turns can leave durable eviden…",
+      "summary": "none",
       "createdAt": "2026-03-15T20:17:12.421Z",
       "sourcePath": "memory/devlog/2026-03-15T20-17-12-421Z-guidance-alignment-tracker.md",
       "changeId": "CHG-2026-03-15-aies-layer-audit-radar",
@@ -751,7 +751,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T20-17-12-421Z-guidance-alignment-tracker.md",
-          "excerpt": "Rationale: once the audit radar could produce guidance, the next blind spot was whether the harness ever followed that guidance. I added a guidance-alignment tracker so guided `/c…"
+          "excerpt": "none"
         }
       ]
     },
@@ -759,7 +759,7 @@
       "id": "devlog:2026-03-15T21-03-32-538Z-scope-aware-verification-floor",
       "artifactType": "devlog",
       "title": "2026-03-15T21-03-32-538Z-scope-aware-verification-floor",
-      "summary": "Rationale: audit guidance and outcome tracking were useful, but verification was still mostly inferred from prompt/focus shape. I added a scope-aware verification floor so the harness can look at the files a cycle actua…",
+      "summary": "none",
       "createdAt": "2026-03-15T21:03:32.538Z",
       "sourcePath": "memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md",
       "changeId": "CHG-2026-03-15-aies-layer-audit-radar",
@@ -777,7 +777,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md",
-          "excerpt": "Rationale: audit guidance and outcome tracking were useful, but verification was still mostly inferred from prompt/focus shape. I added a scope-aware verification floor so the har…"
+          "excerpt": "none"
         }
       ]
     },
@@ -785,7 +785,7 @@
       "id": "devlog:2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge",
       "artifactType": "devlog",
       "title": "Devlog — guidance effectiveness bridge",
-      "summary": "The audit radar could already do two useful but incomplete things:",
+      "summary": "The audit radar could already do two useful but incomplete things: - produce next-cycle guidance - record whether a later cycle followed that guidance",
       "createdAt": null,
       "sourcePath": "memory/devlog/2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge.md",
       "changeId": null,
@@ -803,7 +803,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge.md",
-          "excerpt": "The audit radar could already do two useful but incomplete things:"
+          "excerpt": "The audit radar could already do two useful but incomplete things: - produce next-cycle guidance - record whether a later cycle followed that guidance"
         }
       ]
     },
@@ -836,7 +836,7 @@
       "id": "devlog:2026-03-15T23-18-00-000Z-guidance-evidence-joined-inspection",
       "artifactType": "devlog",
       "title": "Devlog — guidance evidence joined inspection",
-      "summary": "The harness could already emit three related artifacts for a guided cycle:",
+      "summary": "The harness could already emit three related artifacts for a guided cycle: - a post-run audit loop report - a guidance-outcome report - a guidance-effectiveness report",
       "createdAt": null,
       "sourcePath": "memory/devlog/2026-03-15T23-18-00-000Z-guidance-evidence-joined-inspection.md",
       "changeId": null,
@@ -853,7 +853,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T23-18-00-000Z-guidance-evidence-joined-inspection.md",
-          "excerpt": "The harness could already emit three related artifacts for a guided cycle:"
+          "excerpt": "The harness could already emit three related artifacts for a guided cycle: - a post-run audit loop report - a guidance-outcome report - a guidance-effectiveness report"
         }
       ]
     },
@@ -887,7 +887,7 @@
       "id": "devlog:2026-03-16T02-58-30-000Z-audit-judgment-gate",
       "artifactType": "devlog",
       "title": "2026-03-16T02-58-30-000Z-audit-judgment-gate",
-      "summary": "Rationale: the active change was still too descriptive. Judgment was rated partial because the audit knew about red lines and escalation boundaries, but it still had no repo-native way to refuse strong ratings when evid…",
+      "summary": "none",
       "createdAt": "2026-03-16T02:58:30.000Z",
       "sourcePath": "memory/devlog/2026-03-16T02-58-30-000Z-audit-judgment-gate.md",
       "changeId": "CHG-2026-03-15-audit-judgment-gate",
@@ -905,7 +905,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T02-58-30-000Z-audit-judgment-gate.md",
-          "excerpt": "Rationale: the active change was still too descriptive. Judgment was rated partial because the audit knew about red lines and escalation boundaries, but it still had no repo-nativ…"
+          "excerpt": "none"
         }
       ]
     },
@@ -913,7 +913,7 @@
       "id": "devlog:2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation",
       "artifactType": "devlog",
       "title": "2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation",
-      "summary": "Rationale: the active change had already added the judgment gate, but the proof path was still awkward because quick verification depended on launching a child Pi session. I used this cycle to turn validation into a nat…",
+      "summary": "none",
       "createdAt": "2026-03-16T03:10:46.327Z",
       "sourcePath": "memory/devlog/2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation.md",
       "changeId": "CHG-2026-03-15-audit-judgment-gate",
@@ -932,7 +932,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation.md",
-          "excerpt": "Rationale: the active change had already added the judgment gate, but the proof path was still awkward because quick verification depended on launching a child Pi session. I used…"
+          "excerpt": "none"
         }
       ]
     },
@@ -940,7 +940,7 @@
       "id": "devlog:2026-03-16T03-27-31-019Z-proposed-audit-guidance-adaptation",
       "artifactType": "devlog",
       "title": "2026-03-16T03-27-31-019Z-proposed-audit-guidance-adaptation",
-      "summary": "Rationale: I did not continue `CHG-2026-03-15-audit-judgment-gate` because it is already complete with no pending tasks. The stronger immediate move was to convert the new evaluation bottleneck into a fresh OpenSpec pla…",
+      "summary": "none",
       "createdAt": "2026-03-16T03:27:31.019Z",
       "sourcePath": "memory/devlog/2026-03-16T03-27-31-019Z-proposed-audit-guidance-adaptation.md",
       "changeId": "CHG-2026-03-16-audit-guidance-adaptation",
@@ -957,7 +957,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-27-31-019Z-proposed-audit-guidance-adaptation.md",
-          "excerpt": "Rationale: I did not continue `CHG-2026-03-15-audit-judgment-gate` because it is already complete with no pending tasks. The stronger immediate move was to convert the new evaluat…"
+          "excerpt": "none"
         }
       ]
     },
@@ -965,7 +965,7 @@
       "id": "devlog:2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index",
       "artifactType": "devlog",
       "title": "2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index",
-      "summary": "I proposed `CHG-2026-03-16-evolution-evidence-index` because AIES now has enough durable artifacts that manual context reconstruction is becoming a real limitation. The system can persist audits, devlogs, guidance repor…",
+      "summary": "none",
       "createdAt": "2026-03-16T03:36:30.370Z",
       "sourcePath": "memory/devlog/2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index.md",
       "changeId": "CHG-2026-03-16-evolution-evidence-index",
@@ -985,7 +985,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index.md",
-          "excerpt": "I proposed `CHG-2026-03-16-evolution-evidence-index` because AIES now has enough durable artifacts that manual context reconstruction is becoming a real limitation. The system can…"
+          "excerpt": "none"
         }
       ]
     },
@@ -993,7 +993,7 @@
       "id": "devlog:2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate",
       "artifactType": "devlog",
       "title": "2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate",
-      "summary": "Implemented a threshold-gated guidance adaptation surface for `CHG-2026-03-16-audit-guidance-adaptation`. The new module summarizes durable guidance-effectiveness history into an advisory trust annotation, persists the…",
+      "summary": "none",
       "createdAt": "2026-03-16T04:01:28.765Z",
       "sourcePath": "memory/devlog/2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate.md",
       "changeId": "CHG-2026-03-16-audit-guidance-adaptation",
@@ -1011,7 +1011,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate.md",
-          "excerpt": "Implemented a threshold-gated guidance adaptation surface for `CHG-2026-03-16-audit-guidance-adaptation`. The new module summarizes durable guidance-effectiveness history into an…"
+          "excerpt": "none"
         }
       ]
     },
@@ -1019,7 +1019,7 @@
       "id": "devlog:2026-03-16T04-22-56-510Z-guidance-adaptation-cycle-bridge",
       "artifactType": "devlog",
       "title": "2026-03-16T04-22-56-510Z-guidance-adaptation-cycle-bridge",
-      "summary": "Extended the audit-guidance adaptation work from a manual command into a cycle-runner bridge. Guided runs can now carry the guidance trust note they started with, persist a refreshed guidance-adaptation report after pos…",
+      "summary": "none",
       "createdAt": "2026-03-16T04:22:56.510Z",
       "sourcePath": "memory/devlog/2026-03-16T04-22-56-510Z-guidance-adaptation-cycle-bridge.md",
       "changeId": "CHG-2026-03-16-audit-guidance-adaptation",
@@ -1036,7 +1036,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-22-56-510Z-guidance-adaptation-cycle-bridge.md",
-          "excerpt": "Extended the audit-guidance adaptation work from a manual command into a cycle-runner bridge. Guided runs can now carry the guidance trust note they started with, persist a refres…"
+          "excerpt": "none"
         }
       ]
     },
@@ -1044,7 +1044,7 @@
       "id": "devlog:2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder",
       "artifactType": "devlog",
       "title": "2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder",
-      "summary": "I switched from the completed audit-guidance-adaptation change to the already-proposed `CHG-2026-03-16-evolution-evidence-index` and implemented its first real capability slice: a repo-native evidence-index builder plus…",
+      "summary": "none",
       "createdAt": "2026-03-16T04:50:52.683262Z",
       "sourcePath": "memory/devlog/2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder.md",
       "changeId": "CHG-2026-03-16-evolution-evidence-index",
@@ -1062,34 +1062,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder.md",
-          "excerpt": "I switched from the completed audit-guidance-adaptation change to the already-proposed `CHG-2026-03-16-evolution-evidence-index` and implemented its first real capability slice: a…"
-        }
-      ]
-    },
-    {
-      "id": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "artifactType": "devlog",
-      "title": "2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "summary": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materially complete while the evidence index stil…",
-      "createdAt": "2026-03-16T05:08:45.131168Z",
-      "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-      "changeId": "CHG-2026-03-16-evolution-evidence-index",
-      "dimensionHints": [
-        "context",
-        "coherence",
-        "evaluation",
-        "harness"
-      ],
-      "tags": [],
-      "metadata": {
-        "focusType": "capability_expansion",
-        "verificationMode": "fast",
-        "verificationResult": "passed"
-      },
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
+          "excerpt": "none"
         }
       ]
     },
@@ -1379,7 +1352,7 @@
       "id": "knowledge:2026-03-14T15-21-18-770Z-active-change-continuation-decision",
       "artifactType": "knowledge_decision",
       "title": "Active Change Continuation decision",
-      "summary": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…",
+      "summary": "none",
       "createdAt": "2026-03-14T15:21:18.770Z",
       "sourcePath": "memory/knowledge/2026-03-14T15-21-18-770Z-active-change-continuation-decision.md",
       "changeId": "CHG-aies-v2-bootstrap",
@@ -1397,7 +1370,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T15-21-18-770Z-active-change-continuation-decision.md",
-          "excerpt": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…"
+          "excerpt": "none"
         }
       ]
     },
@@ -1405,7 +1378,7 @@
       "id": "knowledge:2026-03-14T19-06-04-718Z-active-change-continuation-decision",
       "artifactType": "knowledge_decision",
       "title": "Active Change Continuation decision",
-      "summary": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…",
+      "summary": "none",
       "createdAt": "2026-03-14T19:06:04.718Z",
       "sourcePath": "memory/knowledge/2026-03-14T19-06-04-718Z-active-change-continuation-decision.md",
       "changeId": null,
@@ -1424,7 +1397,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T19-06-04-718Z-active-change-continuation-decision.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "none"
         }
       ]
     },
@@ -1432,7 +1405,7 @@
       "id": "knowledge:2026-03-14T20-07-24-609Z-repair-self-heal-decision",
       "artifactType": "knowledge_decision",
       "title": "Repair Self Heal decision",
-      "summary": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…",
+      "summary": "none",
       "createdAt": "2026-03-14T20:07:24.609Z",
       "sourcePath": "memory/knowledge/2026-03-14T20-07-24-609Z-repair-self-heal-decision.md",
       "changeId": null,
@@ -1451,7 +1424,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T20-07-24-609Z-repair-self-heal-decision.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "none"
         }
       ]
     },
@@ -1459,7 +1432,7 @@
       "id": "knowledge:2026-03-14T20-43-52-063Z-repair-self-heal-decision",
       "artifactType": "knowledge_decision",
       "title": "Repair Self Heal decision",
-      "summary": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…",
+      "summary": "none",
       "createdAt": "2026-03-14T20:43:52.063Z",
       "sourcePath": "memory/knowledge/2026-03-14T20-43-52-063Z-repair-self-heal-decision.md",
       "changeId": null,
@@ -1479,7 +1452,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T20-43-52-063Z-repair-self-heal-decision.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "none"
         }
       ]
     },
@@ -1487,7 +1460,7 @@
       "id": "knowledge:2026-03-15T02-21-26-132Z-session-auto-selection-uses-filename-recency",
       "artifactType": "knowledge_decision",
       "title": "Session auto-selection should follow filename chronology",
-      "summary": "When operator controls are in `auto`, resolve the latest session from the session filename timestamp before falling back to file mtime or stored active-session paths.",
+      "summary": "none",
       "createdAt": "2026-03-15T02:21:26.132Z",
       "sourcePath": "memory/knowledge/2026-03-15T02-21-26-132Z-session-auto-selection-uses-filename-recency.md",
       "changeId": null,
@@ -1507,7 +1480,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T02-21-26-132Z-session-auto-selection-uses-filename-recency.md",
-          "excerpt": "When operator controls are in `auto`, resolve the latest session from the session filename timestamp before falling back to file mtime or stored active-session paths."
+          "excerpt": "none"
         }
       ]
     },
@@ -1515,7 +1488,7 @@
       "id": "knowledge:2026-03-15T02-36-35-845Z-restore-verification-mode-from-persisted-session-state",
       "artifactType": "knowledge_decision",
       "title": "Prefer persisted session evidence when restoring verification mode",
-      "summary": "When restoring verification mode, compare in-memory custom entries with the persisted session JSONL entry and prefer the newer recorded state.",
+      "summary": "none",
       "createdAt": "2026-03-15T02:36:35.845Z",
       "sourcePath": "memory/knowledge/2026-03-15T02-36-35-845Z-restore-verification-mode-from-persisted-session-state.md",
       "changeId": null,
@@ -1536,7 +1509,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T02-36-35-845Z-restore-verification-mode-from-persisted-session-state.md",
-          "excerpt": "When restoring verification mode, compare in-memory custom entries with the persisted session JSONL entry and prefer the newer recorded state."
+          "excerpt": "none"
         }
       ]
     },
@@ -1544,7 +1517,7 @@
       "id": "knowledge:2026-03-15T03-01-38-682Z-persist-verification-mode-only-on-state-transitions",
       "artifactType": "knowledge_decision",
       "title": "Persist verification mode only when mode/source changes",
-      "summary": "Treat verification mode persistence as a state-transition log: append a new entry only when mode or source actually changes.",
+      "summary": "none",
       "createdAt": "2026-03-15T03:01:38.682Z",
       "sourcePath": "memory/knowledge/2026-03-15T03-01-38-682Z-persist-verification-mode-only-on-state-transitions.md",
       "changeId": null,
@@ -1565,7 +1538,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T03-01-38-682Z-persist-verification-mode-only-on-state-transitions.md",
-          "excerpt": "Treat verification mode persistence as a state-transition log: append a new entry only when mode or source actually changes."
+          "excerpt": "none"
         }
       ]
     },
@@ -1573,7 +1546,7 @@
       "id": "knowledge:2026-03-15T03-10-31-035Z-quick-verification-smoke-must-disclose-session-scope",
       "artifactType": "knowledge_decision",
       "title": "Quick verification smoke must disclose its session scope",
-      "summary": "When quick verification includes a slash-command smoke in an isolated session, the script should explicitly say so before printing live status.",
+      "summary": "none",
       "createdAt": "2026-03-15T03:10:31.035Z",
       "sourcePath": "memory/knowledge/2026-03-15T03-10-31-035Z-quick-verification-smoke-must-disclose-session-scope.md",
       "changeId": null,
@@ -1594,7 +1567,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T03-10-31-035Z-quick-verification-smoke-must-disclose-session-scope.md",
-          "excerpt": "When quick verification includes a slash-command smoke in an isolated session, the script should explicitly say so before printing live status."
+          "excerpt": "none"
         }
       ]
     },
@@ -1602,7 +1575,7 @@
       "id": "knowledge:2026-03-15T03-22-00-526Z-restore-verification-state-from-persisted-session-evidence",
       "artifactType": "knowledge_decision",
       "title": "Restore verification state from persisted session evidence",
-      "summary": "When restoring verification or recovery state for a persisted session, prefer the newest session-file-backed evidence over trusting only the in-memory session snapshot.",
+      "summary": "none",
       "createdAt": "2026-03-15T03:22:00.526Z",
       "sourcePath": "memory/knowledge/2026-03-15T03-22-00-526Z-restore-verification-state-from-persisted-session-evidence.md",
       "changeId": null,
@@ -1624,7 +1597,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T03-22-00-526Z-restore-verification-state-from-persisted-session-evidence.md",
-          "excerpt": "When restoring verification or recovery state for a persisted session, prefer the newest session-file-backed evidence over trusting only the in-memory session snapshot."
+          "excerpt": "none"
         }
       ]
     },
@@ -1632,7 +1605,7 @@
       "id": "knowledge:2026-03-16T04-30-23-375925Z-guidance-adaptation-stays-advisory-until-history-repeats",
       "artifactType": "knowledge_decision",
       "title": "Guidance adaptation stays advisory until history repeats",
-      "summary": "Treat guidance adaptation as a threshold-gated trust annotation on current audit guidance, not as an automatic rewrite channel.",
+      "summary": "none",
       "createdAt": "2026-03-16T04:30:23.375974Z",
       "sourcePath": "memory/knowledge/2026-03-16T04-30-23-375925Z-guidance-adaptation-stays-advisory-until-history-repeats.md",
       "changeId": "CHG-2026-03-16-audit-guidance-adaptation",
@@ -1654,7 +1627,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-16T04-30-23-375925Z-guidance-adaptation-stays-advisory-until-history-repeats.md",
-          "excerpt": "Treat guidance adaptation as a threshold-gated trust annotation on current audit guidance, not as an automatic rewrite channel."
+          "excerpt": "none"
         }
       ]
     },
@@ -2732,7 +2705,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md",
-          "excerpt": "Rationale: the active audit-radar change already wired post-run audit execution into the cycle runner, but the latest durable audit still reports a missing cycle-runner-exercised…"
+          "excerpt": "Future harness work should make the second kind of proof cheaper to inspect and less dependent on spawning an extra cycle purely for validation."
         }
       ],
       "id": "continues_change:devlog:2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost->change:CHG-2026-03-15-aies-layer-audit-radar"
@@ -2746,7 +2719,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T18-50-30-000Z-audit-loop-observability-surface.md",
-          "excerpt": "Rationale: the active audit-radar change still had a real orchestration-proof inspection cost. Rather than spend another cycle spawning autonomous work just to manufacture proof,…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-15T18-50-30-000Z-audit-loop-observability-surface->change:CHG-2026-03-15-aies-layer-audit-radar"
@@ -2760,7 +2733,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T19-42-14-099Z-audit-guidance-bridge.md",
-          "excerpt": "Rationale: the audit radar had become good at producing durable status, but weaker at changing the next cycle's judgment. I added an audit-guidance bridge so durable audit state n…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-15T19-42-14-099Z-audit-guidance-bridge->change:CHG-2026-03-15-aies-layer-audit-radar"
@@ -2774,7 +2747,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T20-17-12-421Z-guidance-alignment-tracker.md",
-          "excerpt": "Rationale: once the audit radar could produce guidance, the next blind spot was whether the harness ever followed that guidance. I added a guidance-alignment tracker so guided `/c…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-15T20-17-12-421Z-guidance-alignment-tracker->change:CHG-2026-03-15-aies-layer-audit-radar"
@@ -2788,7 +2761,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md",
-          "excerpt": "Rationale: audit guidance and outcome tracking were useful, but verification was still mostly inferred from prompt/focus shape. I added a scope-aware verification floor so the har…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-15T21-03-32-538Z-scope-aware-verification-floor->change:CHG-2026-03-15-aies-layer-audit-radar"
@@ -2802,7 +2775,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T02-58-30-000Z-audit-judgment-gate.md",
-          "excerpt": "Rationale: the active change was still too descriptive. Judgment was rated partial because the audit knew about red lines and escalation boundaries, but it still had no repo-nativ…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-16T02-58-30-000Z-audit-judgment-gate->change:CHG-2026-03-15-audit-judgment-gate"
@@ -2816,7 +2789,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation.md",
-          "excerpt": "Rationale: the active change had already added the judgment gate, but the proof path was still awkward because quick verification depended on launching a child Pi session. I used…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation->change:CHG-2026-03-15-audit-judgment-gate"
@@ -2830,7 +2803,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-27-31-019Z-proposed-audit-guidance-adaptation.md",
-          "excerpt": "Rationale: I did not continue `CHG-2026-03-15-audit-judgment-gate` because it is already complete with no pending tasks. The stronger immediate move was to convert the new evaluat…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-16T03-27-31-019Z-proposed-audit-guidance-adaptation->change:CHG-2026-03-16-audit-guidance-adaptation"
@@ -2844,7 +2817,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index.md",
-          "excerpt": "I proposed `CHG-2026-03-16-evolution-evidence-index` because AIES now has enough durable artifacts that manual context reconstruction is becoming a real limitation. The system can…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index->change:CHG-2026-03-16-evolution-evidence-index"
@@ -2858,7 +2831,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate.md",
-          "excerpt": "Implemented a threshold-gated guidance adaptation surface for `CHG-2026-03-16-audit-guidance-adaptation`. The new module summarizes durable guidance-effectiveness history into an…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate->change:CHG-2026-03-16-audit-guidance-adaptation"
@@ -2872,7 +2845,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-22-56-510Z-guidance-adaptation-cycle-bridge.md",
-          "excerpt": "Extended the audit-guidance adaptation work from a manual command into a cycle-runner bridge. Guided runs can now carry the guidance trust note they started with, persist a refres…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-16T04-22-56-510Z-guidance-adaptation-cycle-bridge->change:CHG-2026-03-16-audit-guidance-adaptation"
@@ -2886,24 +2859,10 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder.md",
-          "excerpt": "I switched from the completed audit-guidance-adaptation change to the already-proposed `CHG-2026-03-16-evolution-evidence-index` and implemented its first real capability slice: a…"
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:devlog:2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder->change:CHG-2026-03-16-evolution-evidence-index"
-    },
-    {
-      "type": "continues_change",
-      "fromId": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "toId": "change:CHG-2026-03-16-evolution-evidence-index",
-      "confidence": "direct",
-      "rationale": "The devlog explicitly links itself to this OpenSpec change.",
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
-        }
-      ],
-      "id": "continues_change:devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface->change:CHG-2026-03-16-evolution-evidence-index"
     },
     {
       "type": "continues_change",
@@ -2942,7 +2901,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-16T04-30-23-375925Z-guidance-adaptation-stays-advisory-until-history-repeats.md",
-          "excerpt": "Treat guidance adaptation as a threshold-gated trust annotation on current audit guidance, not as an automatic rewrite channel."
+          "excerpt": "none"
         }
       ],
       "id": "continues_change:knowledge:2026-03-16T04-30-23-375925Z-guidance-adaptation-stays-advisory-until-history-repeats->change:CHG-2026-03-16-audit-guidance-adaptation"
@@ -4062,7 +4021,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T07-25-09-444Z-cycle-1773471862681.md",
-          "excerpt": "Implemented for `CHG-aies-v2-bootstrap` / `task-active-cycle-runner`. What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/exten…"
+          "excerpt": "What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/extensions/cycle-runner/index.ts` - `operator-ui/server/lib.ts` - `operator-ui/server/index.ts` - `operator-ui/src/…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T07-25-09-444Z-cycle-1773471862681->dimension:evaluation"
@@ -4076,7 +4035,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T07-25-09-444Z-cycle-1773471862681.md",
-          "excerpt": "Implemented for `CHG-aies-v2-bootstrap` / `task-active-cycle-runner`. What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/exten…"
+          "excerpt": "What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/extensions/cycle-runner/index.ts` - `operator-ui/server/lib.ts` - `operator-ui/server/index.ts` - `operator-ui/src/…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T07-25-09-444Z-cycle-1773471862681->dimension:harness"
@@ -4090,7 +4049,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T07-25-09-444Z-cycle-1773471862681.md",
-          "excerpt": "Implemented for `CHG-aies-v2-bootstrap` / `task-active-cycle-runner`. What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/exten…"
+          "excerpt": "What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/extensions/cycle-runner/index.ts` - `operator-ui/server/lib.ts` - `operator-ui/server/index.ts` - `operator-ui/src/…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T07-25-09-444Z-cycle-1773471862681->dimension:judgment"
@@ -4104,7 +4063,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T07-25-09-444Z-cycle-1773471862681.md",
-          "excerpt": "Implemented for `CHG-aies-v2-bootstrap` / `task-active-cycle-runner`. What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/exten…"
+          "excerpt": "What changed: - `aies/extensions/cycle-runner/state.ts` - `aies/extensions/cycle-runner/index.ts` - `operator-ui/server/lib.ts` - `operator-ui/server/index.ts` - `operator-ui/src/…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T07-25-09-444Z-cycle-1773471862681->dimension:prompt"
@@ -4118,7 +4077,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T15-21-18-772Z-cycle-1773500775567.md",
-          "excerpt": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T15-21-18-772Z-cycle-1773500775567->dimension:coherence"
@@ -4132,7 +4091,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T15-21-18-772Z-cycle-1773500775567.md",
-          "excerpt": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T15-21-18-772Z-cycle-1773500775567->dimension:context"
@@ -4146,7 +4105,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T15-21-18-772Z-cycle-1773500775567.md",
-          "excerpt": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T15-21-18-772Z-cycle-1773500775567->dimension:evaluation"
@@ -4160,7 +4119,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T15-21-18-772Z-cycle-1773500775567.md",
-          "excerpt": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T15-21-18-772Z-cycle-1773500775567->dimension:harness"
@@ -4174,7 +4133,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T15-21-18-772Z-cycle-1773500775567.md",
-          "excerpt": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T15-21-18-772Z-cycle-1773500775567->dimension:intent"
@@ -4188,7 +4147,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T15-21-18-772Z-cycle-1773500775567.md",
-          "excerpt": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T15-21-18-772Z-cycle-1773500775567->dimension:judgment"
@@ -4202,7 +4161,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T15-21-18-772Z-cycle-1773500775567.md",
-          "excerpt": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T15-21-18-772Z-cycle-1773500775567->dimension:prompt"
@@ -4216,7 +4175,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T19-06-04-719Z-cycle-1773514682569.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T19-06-04-719Z-cycle-1773514682569->dimension:coherence"
@@ -4230,7 +4189,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T19-06-04-719Z-cycle-1773514682569.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T19-06-04-719Z-cycle-1773514682569->dimension:context"
@@ -4244,7 +4203,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T19-06-04-719Z-cycle-1773514682569.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T19-06-04-719Z-cycle-1773514682569->dimension:evaluation"
@@ -4258,7 +4217,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T19-06-04-719Z-cycle-1773514682569.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T19-06-04-719Z-cycle-1773514682569->dimension:harness"
@@ -4272,7 +4231,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T19-06-04-719Z-cycle-1773514682569.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T19-06-04-719Z-cycle-1773514682569->dimension:intent"
@@ -4286,7 +4245,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T19-06-04-719Z-cycle-1773514682569.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T19-06-04-719Z-cycle-1773514682569->dimension:judgment"
@@ -4300,7 +4259,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T19-06-04-719Z-cycle-1773514682569.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T19-06-04-719Z-cycle-1773514682569->dimension:prompt"
@@ -4314,7 +4273,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-07-24-610Z-cycle-1773518380820.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-07-24-610Z-cycle-1773518380820->dimension:coherence"
@@ -4328,7 +4287,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-07-24-610Z-cycle-1773518380820.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-07-24-610Z-cycle-1773518380820->dimension:context"
@@ -4342,7 +4301,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-07-24-610Z-cycle-1773518380820.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-07-24-610Z-cycle-1773518380820->dimension:evaluation"
@@ -4356,7 +4315,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-07-24-610Z-cycle-1773518380820.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-07-24-610Z-cycle-1773518380820->dimension:harness"
@@ -4370,7 +4329,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-07-24-610Z-cycle-1773518380820.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-07-24-610Z-cycle-1773518380820->dimension:intent"
@@ -4384,7 +4343,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-07-24-610Z-cycle-1773518380820.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-07-24-610Z-cycle-1773518380820->dimension:judgment"
@@ -4398,7 +4357,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-07-24-610Z-cycle-1773518380820.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-07-24-610Z-cycle-1773518380820->dimension:prompt"
@@ -4412,7 +4371,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-43-52-064Z-cycle-1773520685487.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-43-52-064Z-cycle-1773520685487->dimension:coherence"
@@ -4426,7 +4385,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-43-52-064Z-cycle-1773520685487.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-43-52-064Z-cycle-1773520685487->dimension:context"
@@ -4440,7 +4399,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-43-52-064Z-cycle-1773520685487.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-43-52-064Z-cycle-1773520685487->dimension:evaluation"
@@ -4454,7 +4413,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-43-52-064Z-cycle-1773520685487.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-43-52-064Z-cycle-1773520685487->dimension:harness"
@@ -4468,7 +4427,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-43-52-064Z-cycle-1773520685487.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-43-52-064Z-cycle-1773520685487->dimension:intent"
@@ -4482,7 +4441,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-43-52-064Z-cycle-1773520685487.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-43-52-064Z-cycle-1773520685487->dimension:judgment"
@@ -4496,7 +4455,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-14T20-43-52-064Z-cycle-1773520685487.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "Theory assets: - docs/foundations/AI-Human-Stack-Component-Reference-Map.md - docs/foundations/AI-Human-Stack-Agent-Audit-Protocol.md - memory/knowledge/coherence-charter.yaml - m…"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-14T20-43-52-064Z-cycle-1773520685487->dimension:prompt"
@@ -4510,7 +4469,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T02-21-26-132Z-manual-session-recency-ordering.md",
-          "excerpt": "Rationale: with no active OpenSpec change, I tightened auto-session selection to follow session filename chronology instead of mutable file mtimes."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T02-21-26-132Z-manual-session-recency-ordering->dimension:coherence"
@@ -4524,7 +4483,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T02-21-26-132Z-manual-session-recency-ordering.md",
-          "excerpt": "Rationale: with no active OpenSpec change, I tightened auto-session selection to follow session filename chronology instead of mutable file mtimes."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T02-21-26-132Z-manual-session-recency-ordering->dimension:context"
@@ -4538,7 +4497,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T02-21-26-132Z-manual-session-recency-ordering.md",
-          "excerpt": "Rationale: with no active OpenSpec change, I tightened auto-session selection to follow session filename chronology instead of mutable file mtimes."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T02-21-26-132Z-manual-session-recency-ordering->dimension:prompt"
@@ -4552,7 +4511,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T02-36-35-845Z-persisted-verification-mode-restore.md",
-          "excerpt": "Rationale: after fixing auto-session recency, the next coherence gap was verification-mode restoration relying too heavily on in-memory session entries and re-emitting aligned-ope…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T02-36-35-845Z-persisted-verification-mode-restore->dimension:coherence"
@@ -4566,7 +4525,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T02-36-35-845Z-persisted-verification-mode-restore.md",
-          "excerpt": "Rationale: after fixing auto-session recency, the next coherence gap was verification-mode restoration relying too heavily on in-memory session entries and re-emitting aligned-ope…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T02-36-35-845Z-persisted-verification-mode-restore->dimension:context"
@@ -4580,7 +4539,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T02-36-35-845Z-persisted-verification-mode-restore.md",
-          "excerpt": "Rationale: after fixing auto-session recency, the next coherence gap was verification-mode restoration relying too heavily on in-memory session entries and re-emitting aligned-ope…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T02-36-35-845Z-persisted-verification-mode-restore->dimension:intent"
@@ -4594,7 +4553,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-01-38-682Z-dedupe-verification-mode-persistence.md",
-          "excerpt": "Rationale: after teaching verification-mode restore to trust persisted session evidence, the next narrow harness fix was to stop appending duplicate verification-mode entries when…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T03-01-38-682Z-dedupe-verification-mode-persistence->dimension:context"
@@ -4608,7 +4567,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-01-38-682Z-dedupe-verification-mode-persistence.md",
-          "excerpt": "Rationale: after teaching verification-mode restore to trust persisted session evidence, the next narrow harness fix was to stop appending duplicate verification-mode entries when…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T03-01-38-682Z-dedupe-verification-mode-persistence->dimension:harness"
@@ -4622,7 +4581,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-10-31-035Z-clarify-quick-verify-smoke-session-scope.md",
-          "excerpt": "Rationale: the next narrow coherence issue was not runtime state itself but the operator interpretation of quick verification. The slash-command smoke runs in a fresh session, so…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T03-10-31-035Z-clarify-quick-verify-smoke-session-scope->dimension:coherence"
@@ -4636,7 +4595,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-10-31-035Z-clarify-quick-verify-smoke-session-scope.md",
-          "excerpt": "Rationale: the next narrow coherence issue was not runtime state itself but the operator interpretation of quick verification. The slash-command smoke runs in a fresh session, so…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T03-10-31-035Z-clarify-quick-verify-smoke-session-scope->dimension:evaluation"
@@ -4650,7 +4609,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-10-31-035Z-clarify-quick-verify-smoke-session-scope.md",
-          "excerpt": "Rationale: the next narrow coherence issue was not runtime state itself but the operator interpretation of quick verification. The slash-command smoke runs in a fresh session, so…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T03-10-31-035Z-clarify-quick-verify-smoke-session-scope->dimension:harness"
@@ -4664,7 +4623,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-22-00-526Z-restore-verification-and-recovery-from-session-file.md",
-          "excerpt": "Rationale: verification-mode restore had already been hardened against stale in-memory session state, but verification records and recovery records still restored only from the in…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T03-22-00-526Z-restore-verification-and-recovery-from-session-file->dimension:coherence"
@@ -4678,7 +4637,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-22-00-526Z-restore-verification-and-recovery-from-session-file.md",
-          "excerpt": "Rationale: verification-mode restore had already been hardened against stale in-memory session state, but verification records and recovery records still restored only from the in…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T03-22-00-526Z-restore-verification-and-recovery-from-session-file->dimension:evaluation"
@@ -4692,7 +4651,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T03-22-00-526Z-restore-verification-and-recovery-from-session-file.md",
-          "excerpt": "Rationale: verification-mode restore had already been hardened against stale in-memory session state, but verification records and recovery records still restored only from the in…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T03-22-00-526Z-restore-verification-and-recovery-from-session-file->dimension:harness"
@@ -4706,7 +4665,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md",
-          "excerpt": "Rationale: the active audit-radar change already wired post-run audit execution into the cycle runner, but the latest durable audit still reports a missing cycle-runner-exercised…"
+          "excerpt": "Future harness work should make the second kind of proof cheaper to inspect and less dependent on spawning an extra cycle purely for validation."
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost->dimension:evaluation"
@@ -4720,7 +4679,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md",
-          "excerpt": "Rationale: the active audit-radar change already wired post-run audit execution into the cycle runner, but the latest durable audit still reports a missing cycle-runner-exercised…"
+          "excerpt": "Future harness work should make the second kind of proof cheaper to inspect and less dependent on spawning an extra cycle purely for validation."
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost->dimension:harness"
@@ -4734,7 +4693,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T18-50-30-000Z-audit-loop-observability-surface.md",
-          "excerpt": "Rationale: the active audit-radar change still had a real orchestration-proof inspection cost. Rather than spend another cycle spawning autonomous work just to manufacture proof,…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T18-50-30-000Z-audit-loop-observability-surface->dimension:harness"
@@ -4748,7 +4707,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T19-42-14-099Z-audit-guidance-bridge.md",
-          "excerpt": "Rationale: the audit radar had become good at producing durable status, but weaker at changing the next cycle's judgment. I added an audit-guidance bridge so durable audit state n…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T19-42-14-099Z-audit-guidance-bridge->dimension:context"
@@ -4762,7 +4721,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T19-42-14-099Z-audit-guidance-bridge.md",
-          "excerpt": "Rationale: the audit radar had become good at producing durable status, but weaker at changing the next cycle's judgment. I added an audit-guidance bridge so durable audit state n…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T19-42-14-099Z-audit-guidance-bridge->dimension:evaluation"
@@ -4776,7 +4735,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T19-42-14-099Z-audit-guidance-bridge.md",
-          "excerpt": "Rationale: the audit radar had become good at producing durable status, but weaker at changing the next cycle's judgment. I added an audit-guidance bridge so durable audit state n…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T19-42-14-099Z-audit-guidance-bridge->dimension:harness"
@@ -4790,7 +4749,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T19-42-14-099Z-audit-guidance-bridge.md",
-          "excerpt": "Rationale: the audit radar had become good at producing durable status, but weaker at changing the next cycle's judgment. I added an audit-guidance bridge so durable audit state n…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T19-42-14-099Z-audit-guidance-bridge->dimension:judgment"
@@ -4804,7 +4763,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T19-42-14-099Z-audit-guidance-bridge.md",
-          "excerpt": "Rationale: the audit radar had become good at producing durable status, but weaker at changing the next cycle's judgment. I added an audit-guidance bridge so durable audit state n…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T19-42-14-099Z-audit-guidance-bridge->dimension:prompt"
@@ -4818,7 +4777,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T20-17-12-421Z-guidance-alignment-tracker.md",
-          "excerpt": "Rationale: once the audit radar could produce guidance, the next blind spot was whether the harness ever followed that guidance. I added a guidance-alignment tracker so guided `/c…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T20-17-12-421Z-guidance-alignment-tracker->dimension:evaluation"
@@ -4832,7 +4791,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T20-17-12-421Z-guidance-alignment-tracker.md",
-          "excerpt": "Rationale: once the audit radar could produce guidance, the next blind spot was whether the harness ever followed that guidance. I added a guidance-alignment tracker so guided `/c…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T20-17-12-421Z-guidance-alignment-tracker->dimension:harness"
@@ -4846,7 +4805,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md",
-          "excerpt": "Rationale: audit guidance and outcome tracking were useful, but verification was still mostly inferred from prompt/focus shape. I added a scope-aware verification floor so the har…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T21-03-32-538Z-scope-aware-verification-floor->dimension:evaluation"
@@ -4860,7 +4819,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md",
-          "excerpt": "Rationale: audit guidance and outcome tracking were useful, but verification was still mostly inferred from prompt/focus shape. I added a scope-aware verification floor so the har…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T21-03-32-538Z-scope-aware-verification-floor->dimension:harness"
@@ -4874,7 +4833,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md",
-          "excerpt": "Rationale: audit guidance and outcome tracking were useful, but verification was still mostly inferred from prompt/focus shape. I added a scope-aware verification floor so the har…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T21-03-32-538Z-scope-aware-verification-floor->dimension:prompt"
@@ -4888,7 +4847,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge.md",
-          "excerpt": "The audit radar could already do two useful but incomplete things:"
+          "excerpt": "The audit radar could already do two useful but incomplete things: - produce next-cycle guidance - record whether a later cycle followed that guidance"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge->dimension:evaluation"
@@ -4902,7 +4861,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge.md",
-          "excerpt": "The audit radar could already do two useful but incomplete things:"
+          "excerpt": "The audit radar could already do two useful but incomplete things: - produce next-cycle guidance - record whether a later cycle followed that guidance"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge->dimension:harness"
@@ -4916,7 +4875,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge.md",
-          "excerpt": "The audit radar could already do two useful but incomplete things:"
+          "excerpt": "The audit radar could already do two useful but incomplete things: - produce next-cycle guidance - record whether a later cycle followed that guidance"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T21-26-23-000Z-guidance-effectiveness-bridge->dimension:judgment"
@@ -4958,7 +4917,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T23-18-00-000Z-guidance-evidence-joined-inspection.md",
-          "excerpt": "The harness could already emit three related artifacts for a guided cycle:"
+          "excerpt": "The harness could already emit three related artifacts for a guided cycle: - a post-run audit loop report - a guidance-outcome report - a guidance-effectiveness report"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T23-18-00-000Z-guidance-evidence-joined-inspection->dimension:evaluation"
@@ -4972,7 +4931,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-15T23-18-00-000Z-guidance-evidence-joined-inspection.md",
-          "excerpt": "The harness could already emit three related artifacts for a guided cycle:"
+          "excerpt": "The harness could already emit three related artifacts for a guided cycle: - a post-run audit loop report - a guidance-outcome report - a guidance-effectiveness report"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-15T23-18-00-000Z-guidance-evidence-joined-inspection->dimension:harness"
@@ -5028,7 +4987,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T02-58-30-000Z-audit-judgment-gate.md",
-          "excerpt": "Rationale: the active change was still too descriptive. Judgment was rated partial because the audit knew about red lines and escalation boundaries, but it still had no repo-nativ…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T02-58-30-000Z-audit-judgment-gate->dimension:evaluation"
@@ -5042,7 +5001,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T02-58-30-000Z-audit-judgment-gate.md",
-          "excerpt": "Rationale: the active change was still too descriptive. Judgment was rated partial because the audit knew about red lines and escalation boundaries, but it still had no repo-nativ…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T02-58-30-000Z-audit-judgment-gate->dimension:judgment"
@@ -5056,7 +5015,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T02-58-30-000Z-audit-judgment-gate.md",
-          "excerpt": "Rationale: the active change was still too descriptive. Judgment was rated partial because the audit knew about red lines and escalation boundaries, but it still had no repo-nativ…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T02-58-30-000Z-audit-judgment-gate->dimension:prompt"
@@ -5070,7 +5029,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation.md",
-          "excerpt": "Rationale: the active change had already added the judgment gate, but the proof path was still awkward because quick verification depended on launching a child Pi session. I used…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation->dimension:evaluation"
@@ -5084,7 +5043,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation.md",
-          "excerpt": "Rationale: the active change had already added the judgment gate, but the proof path was still awkward because quick verification depended on launching a child Pi session. I used…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation->dimension:harness"
@@ -5098,7 +5057,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation.md",
-          "excerpt": "Rationale: the active change had already added the judgment gate, but the proof path was still awkward because quick verification depended on launching a child Pi session. I used…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation->dimension:judgment"
@@ -5112,7 +5071,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation.md",
-          "excerpt": "Rationale: the active change had already added the judgment gate, but the proof path was still awkward because quick verification depended on launching a child Pi session. I used…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-10-46-327Z-non-recursive-judgment-gate-validation->dimension:prompt"
@@ -5126,7 +5085,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-27-31-019Z-proposed-audit-guidance-adaptation.md",
-          "excerpt": "Rationale: I did not continue `CHG-2026-03-15-audit-judgment-gate` because it is already complete with no pending tasks. The stronger immediate move was to convert the new evaluat…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-27-31-019Z-proposed-audit-guidance-adaptation->dimension:evaluation"
@@ -5140,7 +5099,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-27-31-019Z-proposed-audit-guidance-adaptation.md",
-          "excerpt": "Rationale: I did not continue `CHG-2026-03-15-audit-judgment-gate` because it is already complete with no pending tasks. The stronger immediate move was to convert the new evaluat…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-27-31-019Z-proposed-audit-guidance-adaptation->dimension:judgment"
@@ -5154,7 +5113,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index.md",
-          "excerpt": "I proposed `CHG-2026-03-16-evolution-evidence-index` because AIES now has enough durable artifacts that manual context reconstruction is becoming a real limitation. The system can…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index->dimension:coherence"
@@ -5168,7 +5127,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index.md",
-          "excerpt": "I proposed `CHG-2026-03-16-evolution-evidence-index` because AIES now has enough durable artifacts that manual context reconstruction is becoming a real limitation. The system can…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index->dimension:context"
@@ -5182,7 +5141,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index.md",
-          "excerpt": "I proposed `CHG-2026-03-16-evolution-evidence-index` because AIES now has enough durable artifacts that manual context reconstruction is becoming a real limitation. The system can…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index->dimension:evaluation"
@@ -5196,7 +5155,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index.md",
-          "excerpt": "I proposed `CHG-2026-03-16-evolution-evidence-index` because AIES now has enough durable artifacts that manual context reconstruction is becoming a real limitation. The system can…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index->dimension:harness"
@@ -5210,7 +5169,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index.md",
-          "excerpt": "I proposed `CHG-2026-03-16-evolution-evidence-index` because AIES now has enough durable artifacts that manual context reconstruction is becoming a real limitation. The system can…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T03-36-30-370Z-proposed-evolution-evidence-index->dimension:judgment"
@@ -5224,7 +5183,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate.md",
-          "excerpt": "Implemented a threshold-gated guidance adaptation surface for `CHG-2026-03-16-audit-guidance-adaptation`. The new module summarizes durable guidance-effectiveness history into an…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate->dimension:context"
@@ -5238,7 +5197,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate.md",
-          "excerpt": "Implemented a threshold-gated guidance adaptation surface for `CHG-2026-03-16-audit-guidance-adaptation`. The new module summarizes durable guidance-effectiveness history into an…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate->dimension:evaluation"
@@ -5252,7 +5211,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate.md",
-          "excerpt": "Implemented a threshold-gated guidance adaptation surface for `CHG-2026-03-16-audit-guidance-adaptation`. The new module summarizes durable guidance-effectiveness history into an…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T04-01-28-765Z-guidance-adaptation-threshold-gate->dimension:prompt"
@@ -5266,7 +5225,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-22-56-510Z-guidance-adaptation-cycle-bridge.md",
-          "excerpt": "Extended the audit-guidance adaptation work from a manual command into a cycle-runner bridge. Guided runs can now carry the guidance trust note they started with, persist a refres…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T04-22-56-510Z-guidance-adaptation-cycle-bridge->dimension:context"
@@ -5280,7 +5239,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-22-56-510Z-guidance-adaptation-cycle-bridge.md",
-          "excerpt": "Extended the audit-guidance adaptation work from a manual command into a cycle-runner bridge. Guided runs can now carry the guidance trust note they started with, persist a refres…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T04-22-56-510Z-guidance-adaptation-cycle-bridge->dimension:harness"
@@ -5294,7 +5253,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder.md",
-          "excerpt": "I switched from the completed audit-guidance-adaptation change to the already-proposed `CHG-2026-03-16-evolution-evidence-index` and implemented its first real capability slice: a…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder->dimension:coherence"
@@ -5308,7 +5267,7 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder.md",
-          "excerpt": "I switched from the completed audit-guidance-adaptation change to the already-proposed `CHG-2026-03-16-evolution-evidence-index` and implemented its first real capability slice: a…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder->dimension:context"
@@ -5322,66 +5281,10 @@
       "citations": [
         {
           "sourcePath": "memory/devlog/2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder.md",
-          "excerpt": "I switched from the completed audit-guidance-adaptation change to the already-proposed `CHG-2026-03-16-evolution-evidence-index` and implemented its first real capability slice: a…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:devlog:2026-03-16T04-50-52-683188Z-evolution-evidence-index-builder->dimension:evaluation"
-    },
-    {
-      "type": "targets_dimension",
-      "fromId": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "toId": "dimension:coherence",
-      "confidence": "heuristic",
-      "rationale": "The devlog text names these AIES dimensions directly.",
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
-        }
-      ],
-      "id": "targets_dimension:devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface->dimension:coherence"
-    },
-    {
-      "type": "targets_dimension",
-      "fromId": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "toId": "dimension:context",
-      "confidence": "heuristic",
-      "rationale": "The devlog text names these AIES dimensions directly.",
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
-        }
-      ],
-      "id": "targets_dimension:devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface->dimension:context"
-    },
-    {
-      "type": "targets_dimension",
-      "fromId": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "toId": "dimension:evaluation",
-      "confidence": "heuristic",
-      "rationale": "The devlog text names these AIES dimensions directly.",
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
-        }
-      ],
-      "id": "targets_dimension:devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface->dimension:evaluation"
-    },
-    {
-      "type": "targets_dimension",
-      "fromId": "devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface",
-      "toId": "dimension:harness",
-      "confidence": "heuristic",
-      "rationale": "The devlog text names these AIES dimensions directly.",
-      "citations": [
-        {
-          "sourcePath": "memory/devlog/2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface.md",
-          "excerpt": "I continued `CHG-2026-03-16-evolution-evidence-index` rather than returning to the nominal active audit-guidance change, because the guidance-adaptation slice is already materiall…"
-        }
-      ],
-      "id": "targets_dimension:devlog:2026-03-16T05-08-45-129402Z-evolution-evidence-query-surface->dimension:harness"
     },
     {
       "type": "targets_dimension",
@@ -5490,7 +5393,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T15-21-18-770Z-active-change-continuation-decision.md",
-          "excerpt": "Rationale: I continued the active change `CHG-aies-v2-bootstrap` on `task-active-cycle-runner` because the task says cycle runs should stay…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-14T15-21-18-770Z-active-change-continuation-decision->dimension:prompt"
@@ -5504,7 +5407,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T19-06-04-718Z-active-change-continuation-decision.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-14T19-06-04-718Z-active-change-continuation-decision->dimension:coherence"
@@ -5518,7 +5421,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T19-06-04-718Z-active-change-continuation-decision.md",
-          "excerpt": "Rationale: I chose a self-maintenance coherence fix because current evidence showed the session being classified as `active_change_continua…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-14T19-06-04-718Z-active-change-continuation-decision->dimension:prompt"
@@ -5532,7 +5435,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T20-07-24-609Z-repair-self-heal-decision.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-14T20-07-24-609Z-repair-self-heal-decision->dimension:coherence"
@@ -5546,7 +5449,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T20-07-24-609Z-repair-self-heal-decision.md",
-          "excerpt": "Rationale: there is no active OpenSpec change, and the strongest current coherence risk was still in the cycle prompt surface itself — the…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-14T20-07-24-609Z-repair-self-heal-decision->dimension:prompt"
@@ -5560,7 +5463,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T20-43-52-063Z-repair-self-heal-decision.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-14T20-43-52-063Z-repair-self-heal-decision->dimension:coherence"
@@ -5574,7 +5477,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T20-43-52-063Z-repair-self-heal-decision.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-14T20-43-52-063Z-repair-self-heal-decision->dimension:context"
@@ -5588,7 +5491,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-14T20-43-52-063Z-repair-self-heal-decision.md",
-          "excerpt": "Rationale: with no active OpenSpec change, the strongest current coherence gap was still prompt-context accuracy. The live AIES surfaces sh…"
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-14T20-43-52-063Z-repair-self-heal-decision->dimension:prompt"
@@ -5602,7 +5505,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T02-21-26-132Z-session-auto-selection-uses-filename-recency.md",
-          "excerpt": "When operator controls are in `auto`, resolve the latest session from the session filename timestamp before falling back to file mtime or stored active-session paths."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-15T02-21-26-132Z-session-auto-selection-uses-filename-recency->dimension:context"
@@ -5616,7 +5519,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T02-21-26-132Z-session-auto-selection-uses-filename-recency.md",
-          "excerpt": "When operator controls are in `auto`, resolve the latest session from the session filename timestamp before falling back to file mtime or stored active-session paths."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-15T02-21-26-132Z-session-auto-selection-uses-filename-recency->dimension:prompt"
@@ -5630,7 +5533,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T02-36-35-845Z-restore-verification-mode-from-persisted-session-state.md",
-          "excerpt": "When restoring verification mode, compare in-memory custom entries with the persisted session JSONL entry and prefer the newer recorded state."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-15T02-36-35-845Z-restore-verification-mode-from-persisted-session-state->dimension:context"
@@ -5644,7 +5547,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T02-36-35-845Z-restore-verification-mode-from-persisted-session-state.md",
-          "excerpt": "When restoring verification mode, compare in-memory custom entries with the persisted session JSONL entry and prefer the newer recorded state."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-15T02-36-35-845Z-restore-verification-mode-from-persisted-session-state->dimension:harness"
@@ -5658,7 +5561,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T03-01-38-682Z-persist-verification-mode-only-on-state-transitions.md",
-          "excerpt": "Treat verification mode persistence as a state-transition log: append a new entry only when mode or source actually changes."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-15T03-01-38-682Z-persist-verification-mode-only-on-state-transitions->dimension:coherence"
@@ -5672,7 +5575,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T03-01-38-682Z-persist-verification-mode-only-on-state-transitions.md",
-          "excerpt": "Treat verification mode persistence as a state-transition log: append a new entry only when mode or source actually changes."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-15T03-01-38-682Z-persist-verification-mode-only-on-state-transitions->dimension:harness"
@@ -5686,7 +5589,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T03-10-31-035Z-quick-verification-smoke-must-disclose-session-scope.md",
-          "excerpt": "When quick verification includes a slash-command smoke in an isolated session, the script should explicitly say so before printing live status."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-15T03-10-31-035Z-quick-verification-smoke-must-disclose-session-scope->dimension:evaluation"
@@ -5700,7 +5603,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T03-10-31-035Z-quick-verification-smoke-must-disclose-session-scope.md",
-          "excerpt": "When quick verification includes a slash-command smoke in an isolated session, the script should explicitly say so before printing live status."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-15T03-10-31-035Z-quick-verification-smoke-must-disclose-session-scope->dimension:harness"
@@ -5714,7 +5617,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T03-22-00-526Z-restore-verification-state-from-persisted-session-evidence.md",
-          "excerpt": "When restoring verification or recovery state for a persisted session, prefer the newest session-file-backed evidence over trusting only the in-memory session snapshot."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-15T03-22-00-526Z-restore-verification-state-from-persisted-session-evidence->dimension:evaluation"
@@ -5728,7 +5631,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-15T03-22-00-526Z-restore-verification-state-from-persisted-session-evidence.md",
-          "excerpt": "When restoring verification or recovery state for a persisted session, prefer the newest session-file-backed evidence over trusting only the in-memory session snapshot."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-15T03-22-00-526Z-restore-verification-state-from-persisted-session-evidence->dimension:harness"
@@ -5742,7 +5645,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-16T04-30-23-375925Z-guidance-adaptation-stays-advisory-until-history-repeats.md",
-          "excerpt": "Treat guidance adaptation as a threshold-gated trust annotation on current audit guidance, not as an automatic rewrite channel."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-16T04-30-23-375925Z-guidance-adaptation-stays-advisory-until-history-repeats->dimension:evaluation"
@@ -5756,7 +5659,7 @@
       "citations": [
         {
           "sourcePath": "memory/knowledge/2026-03-16T04-30-23-375925Z-guidance-adaptation-stays-advisory-until-history-repeats.md",
-          "excerpt": "Treat guidance adaptation as a threshold-gated trust annotation on current audit guidance, not as an automatic rewrite channel."
+          "excerpt": "none"
         }
       ],
       "id": "targets_dimension:knowledge:2026-03-16T04-30-23-375925Z-guidance-adaptation-stays-advisory-until-history-repeats->dimension:harness"
