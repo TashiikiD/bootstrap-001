@@ -9,6 +9,7 @@ import {
 } from "../evaluation/audit-radar-guidance-effectiveness.ts";
 import { createAuditGuidanceOutcomeReport, captureAuditGuidanceBrief, persistAuditGuidanceOutcomeReport } from "../evaluation/audit-radar-guidance-outcomes.ts";
 import { latestAuditRadarGuidance, type AuditRadarGuidance } from "../evaluation/audit-radar-guidance.ts";
+import { buildAuditJudgmentPromptBlock } from "../evaluation/audit-judgment-gate.ts";
 import { restoreEvaluationEntry, type EvaluationEntry } from "../evaluation/state.ts";
 import { restoreOpenSpecEntry, type OpenSpecEntry } from "../openspec/state.ts";
 import { restorePolicyModeEntry } from "../policy/state.ts";
@@ -630,6 +631,12 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     ...renderEvaluationSection(evaluation),
     "",
     ...renderAuditGuidanceSection(auditGuidance),
+    "",
+    buildAuditJudgmentPromptBlock({
+      activeChangeId: openSpec?.context.activeChangeId ?? resolveHeartbeatCycle(heartbeat)?.activeChangeId ?? null,
+      bindingConstraint: auditGuidance?.bindingConstraint ?? null,
+      liveStatusInterpretation: liveStatus.interpretationLabel,
+    }),
     "",
     // === USER REQUESTS ===
     ...renderUserRequestSection(),

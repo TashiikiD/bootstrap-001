@@ -1,0 +1,77 @@
+{
+  "reportId": "audit-guidance-effectiveness-2026-03-16T02-59-48-347Z",
+  "generatedAt": "2026-03-16T02:59:48.347Z",
+  "guidanceOutcomeCount": 1,
+  "analyzedCount": 1,
+  "linkedPostRunAuditCount": 1,
+  "floorEscalationCount": 1,
+  "verdictCounts": {
+    "supportive_signal": 0,
+    "counter_signal": 1,
+    "alternative_signal": 0,
+    "mixed_signal": 0,
+    "insufficient_evidence": 0
+  },
+  "items": [
+    {
+      "guidanceOutcomeReportId": "audit-guidance-outcome-1773629988329",
+      "guidanceOutcomeGeneratedAt": "2026-03-16T02:59:48.329Z",
+      "sessionId": "E:\\Coding\\AIES-runs\\bootstrap-001\\.aies-runtime\\sessions\\2026-03-16T02-32-30-822Z_c108ef54-58ff-4ed9-a1bd-6f927081992f.jsonl",
+      "runId": "run-1773628385444",
+      "relatedCycleId": "cycle-1773628385556",
+      "relatedChangeId": "CHG-2026-03-15-audit-judgment-gate",
+      "guidanceSnapshotId": "audit-2026-03-15T18-59-18-526Z",
+      "guidanceBindingConstraint": "evaluation",
+      "alignmentStatus": "aligned",
+      "trackedDimensions": [
+        "evaluation",
+        "coherence",
+        "harness"
+      ],
+      "matchedTargetDimensions": [],
+      "verification": {
+        "requestedMode": "none",
+        "scopeRecommendedMode": "fast",
+        "effectiveMode": "fast",
+        "recordedMode": "fast",
+        "recordedResult": "passed",
+        "recordedState": "verified",
+        "floorEscalated": true
+      },
+      "linkedPostRunAudit": {
+        "loopId": "audit-loop-2026-03-16T02-59-48-326Z",
+        "loopGeneratedAt": "2026-03-16T02:59:48.326Z",
+        "snapshotId": "audit-2026-03-16T02-59-04-162Z",
+        "outcomeReportId": "audit-outcomes-2026-03-16T02-59-09-866Z",
+        "bindingConstraintAfter": "evaluation",
+        "bindingConstraintOutcome": "persisted"
+      },
+      "targetDimensionEffects": [
+        {
+          "dimension": "evaluation",
+          "outcome": "stagnant"
+        },
+        {
+          "dimension": "coherence",
+          "outcome": "stagnant"
+        },
+        {
+          "dimension": "harness",
+          "outcome": "stagnant"
+        }
+      ],
+      "correctionPathsObserved": [
+        "operator_verification_mode",
+        "verification_recorded"
+      ],
+      "correctionPathEvidence": [
+        ".aies-runtime/sessions/2026-03-15T22-00-30-838Z_8f409014-7704-4414-8327-7b6d0494883c.jsonl verification-mode full (aligned_operator)",
+        ".aies-runtime/sessions/2026-03-15T18-26-23-882Z_f0bfc08c-e481-4254-bb73-c9f8a05060ad.jsonl verification none/passed",
+        ".aies-runtime/sessions/2026-03-15T18-26-23-882Z_f0bfc08c-e481-4254-bb73-c9f8a05060ad.jsonl verification-mode full (aligned_operator)"
+      ],
+      "verdict": "counter_signal",
+      "summary": "Guidance aligned with tracked dimensions evaluation, coherence, harness. Verdict: counter_signal. Improved: none. Regressed: none. Stagnant weak: evaluation, coherence, harness. Binding constraint persisted. Correction paths: operator_verification_mode, verif…"
+    }
+  ],
+  "summary": "Compared 1 guidance outcome report. Linked post-run audits: 1/1. Supportive signals: 0. Counter signals: 1. Alternative signals: 0. Mixed signals: 0. Insufficient evidence: 0. Scope-floor escalations: 1."
+}

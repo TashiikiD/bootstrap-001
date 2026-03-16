@@ -273,6 +273,22 @@ function buildRules(): EvidenceRule[] {
     },
     {
       kind: "file",
+      ruleId: "judgment-pause-brief",
+      dimension: "judgment",
+      relativePath: "aies/extensions/evaluation/audit-judgment-gate.ts",
+      summary: "A dedicated audit judgment gate now scores evidence quality and synthesizes a pre-implementation pause brief instead of trusting policy-only proof.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["export function createAuditJudgmentGateReport(", "AIES JUDGMENT GATE", "thin, ambiguous, or purely post-hoc"]),
+    },
+    {
+      kind: "file",
+      ruleId: "judgment-pause-bridge",
+      dimension: "judgment",
+      relativePath: "aies/extensions/cycle-runner/index.ts",
+      summary: "The cycle runner now injects the audit judgment gate into synthesized cycle prompts so pause-and-doubt guidance appears before implementation.",
+      extractExcerpt: (content) => firstMatchingLine(content, ["buildAuditJudgmentPromptBlock(", "AIES JUDGMENT GATE"]),
+    },
+    {
+      kind: "file",
       ruleId: "coherence-charter",
       dimension: "coherence",
       relativePath: "memory/knowledge/coherence-charter.yaml",

@@ -40,11 +40,11 @@ Invoke-Step -Label 'operator-ui typecheck' -Action {
     }
 }
 
-Invoke-Step -Label 'AIES runtime slash-command smoke' -Action {
-    Write-Host 'Smoke note: this runs /cycle-status in a fresh local Pi session. The live-status lines below describe that smoke session, so any operator-control session mismatch there is advisory context, not a rewrite of the current working session.' -ForegroundColor DarkYellow
-    Push-Location $projectRoot
+Invoke-Step -Label 'AIES non-recursive runtime smoke' -Action {
+    Write-Host 'Smoke note: this quick path stays inside the current process tree. It validates audit evidence scanning, snapshot assessment, and the judgment-gate prompt bridge without spawning a child Pi session.' -ForegroundColor DarkYellow
+    Push-Location (Join-Path $projectRoot 'operator-ui')
     try {
-        .\run-aies-on-pi.ps1 -PiArgs @('--offline', '-p', '/cycle-status')
+        npx tsx ../aies/extensions/verification/quick-smoke.ts
     }
     finally {
         Pop-Location

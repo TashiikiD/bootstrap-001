@@ -1,0 +1,79 @@
+{
+  "loopId": "audit-loop-2026-03-16T02-59-48-326Z",
+  "generatedAt": "2026-03-16T02:59:48.326Z",
+  "orchestrationSource": "cycle_runner",
+  "sessionPath": "E:\\Coding\\AIES-runs\\bootstrap-001\\.aies-runtime\\sessions\\2026-03-16T02-32-30-822Z_c108ef54-58ff-4ed9-a1bd-6f927081992f.jsonl",
+  "relatedCycleId": "cycle-1773628385556",
+  "relatedChangeId": "CHG-2026-03-15-audit-judgment-gate",
+  "snapshotId": "audit-2026-03-16T02-59-04-162Z",
+  "snapshotPath": "memory/knowledge/audit-radar/snapshots/2026-03-16T02-59-04-162Z--audit-2026-03-16T02-59-04-162Z.json",
+  "outcomeReportId": "audit-outcomes-2026-03-16T02-59-09-866Z",
+  "outcomeReportPath": "memory/knowledge/audit-radar/outcomes/2026-03-16T02-59-09-866Z--audit-outcomes-2026-03-16T02-59-09-866Z.json",
+  "verificationRecordId": "ver-2026-03-16T02-59-48-314Z",
+  "verification": {
+    "requestedMode": "none",
+    "scopeRecommendedMode": "fast",
+    "effectiveMode": "fast",
+    "executedCommand": "./verify-aies-quick.ps1",
+    "exitCode": 0,
+    "durationMs": 38420,
+    "result": "passed",
+    "verificationState": "verified",
+    "stdoutExcerpt": "==> operator-ui build > aies-operator-ui@0.1.0 build > vite build \u001b[36mvite v7.3.1 \u001b[32mbuilding client environment for production...\u001b[36m\u001b[39m transforming... \u001b[32m✓\u001b[39m 10 modules transformed. rendering chunks... computing gzip size... \u001b[2mdist/\u001b[22m\u001b[32mindex.html \u001b[39m\u001b[1m\u001b[2m 0.41 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 0.28 kB\u001b[22m \u001b[2mdist/\u001b[22m\u001b[35massets/index-D4N0Cg1S.css \u001b[39m\u001b[1m\u001b[2m 5.42 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 1.85 kB\u001b[22m \u001b[2mdist/\u001b[22m\u001b[36massets/index-BFUKJnpC.js \u001b[39m\u001b[1m\u001b[2m52.27 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 12.86 kB\u001b[22m \u001b[32m✓ built in 1.23s\u001b[39m ==> operator-ui typecheck ==> AIES runtime slash-command smoke Smoke note: this runs /cycle-status in a fresh local Pi session. Th…",
+    "stderrExcerpt": null,
+    "notableFailures": [],
+    "followUpRequired": false
+  },
+  "verificationScope": {
+    "observedAt": "2026-03-16T02:59:04.148Z",
+    "baselineCapturedAt": "2026-03-16T02:33:05.551Z",
+    "scanFailure": null,
+    "introducedFiles": [
+      {
+        "path": "aies/extensions/cycle-runner/index.ts",
+        "status": "modified",
+        "previousPath": null,
+        "area": "runtime_core"
+      },
+      {
+        "path": "aies/extensions/evaluation/audit-radar-assessment.ts",
+        "status": "modified",
+        "previousPath": null,
+        "area": "runtime_core"
+      },
+      {
+        "path": "aies/extensions/evaluation/audit-radar-scanner.ts",
+        "status": "modified",
+        "previousPath": null,
+        "area": "runtime_core"
+      },
+      {
+        "path": "aies/extensions/evaluation/audit-judgment-gate.ts",
+        "status": "untracked",
+        "previousPath": null,
+        "area": "runtime_core"
+      },
+      {
+        "path": "memory/devlog/2026-03-16T02-58-30-000Z-audit-judgment-gate.md",
+        "status": "untracked",
+        "previousPath": null,
+        "area": "documentation"
+      }
+    ],
+    "preexistingDirtyPaths": [],
+    "totalChangedFiles": 5,
+    "docsOnly": false,
+    "categories": [
+      "runtime_core",
+      "documentation"
+    ],
+    "recommendedMode": "fast",
+    "rationale": "The cycle touched core runtime/evaluation harness files (aies/extensions/cycle-runner/index.ts, aies/extensions/evaluation/audit-radar-assessment.ts, aies/extensions/evaluation/audit-radar-scanner.ts, aies/extensions/evaluation/audit-judgment-gate.ts), so fast verification is the minimum proportionate floor.",
+    "suggestedCommands": [
+      "./verify-aies-quick.ps1"
+    ],
+    "summary": "Touched 5 files across runtime_core, documentation; recommend fast verification."
+  },
+  "recoveryId": null,
+  "summary": "Audit snapshot audit-2026-03-16T02-59-04-162Z recorded binding constraint evaluation. Outcome report audit-outcomes-2026-03-16T02-59-09-866Z compared 12 intervals. Verification scope recommended fast: Touched 5 files across runtime_core, documentation; recommend fast verification. Quick verification recorded fast/passed. No recovery entry was needed."
+}

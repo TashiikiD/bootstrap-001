@@ -9,6 +9,7 @@ import {
   AIES_AUDIT_TIERS,
 } from "../../contracts/layer-audit-snapshot.ts";
 import { AIES_DIMENSIONS, type AiesDimension, type EvaluationConfidence } from "../../contracts/primitives.ts";
+import { createAuditJudgmentGateReport } from "./audit-judgment-gate.ts";
 import type { AuditEvidenceScanResult } from "./audit-radar-scanner.ts";
 import { withAuditDrift } from "./audit-radar-drift.ts";
 
@@ -59,7 +60,11 @@ function missingRequiredEvidenceGaps(rule: DimensionRule, evidence: AuditEvidenc
   return missingIds.map((evidenceId) => `Missing expected audit evidence: ${evidenceId}.`);
 }
 
-function conservativeTier(rule: DimensionRule, evidence: AuditEvidenceItem[]): LayerAuditAssessment["tier"] {
+function conservativeTier(
+  rule: DimensionRule,
+  evidence: AuditEvidenceItem[],
+  extraBlockingGaps: string[] = [],
+): LayerAuditAssessment["tier"] {
   if (evidence.length === 0) {
     return "missing";
   }
@@ -67,6 +72,7 @@ function conservativeTier(rule: DimensionRule, evidence: AuditEvidenceItem[]): L
   const gaps = [
     ...missingRequiredEvidenceGaps(rule, evidence),
     ...rule.protocolGapChecks(evidence),
+    ...extraBlockingGaps,
   ];
 
   const presentIds = new Set(evidence.map((item) => item.evidenceId));
@@ -142,6 +148,7 @@ function buildRules(): DimensionRule[] {
       requiredEvidenceIds: [
         "audit-judgment-redlines",
         "audit-judgment-escalation-boundaries",
+        "audit-judgment-pause-bridge",
       ],
       strongSummary: "Judgment engineering is explicit, proactive, and bounded by encoded pause conditions, autonomy limits, and uncertainty protocols.",
       partialSummary: "Judgment engineering has explicit red lines and escalation boundaries, but the audit still lacks strong evidence of proactive pause-and-doubt mechanisms embedded into execution flow.",
@@ -150,12 +157,12 @@ function buildRules(): DimensionRule[] {
         "Explicit red lines constrain unsafe or misleading autonomous behavior.",
         "Autonomy boundaries and escalation triggers are encoded instead of being left implicit.",
       ],
-      protocolGapChecks: () => [
-        "Current evidence shows guardrails and escalation boundaries, but not yet a strong repo-native mechanism that forces pre-implementation pause-and-doubt inside the audit flow itself.",
-      ],
-      highestLeverageNextStep: "Add an audit judgment gate that refuses strong ratings when evidence is thin, ambiguous, or purely post-hoc.",
+      protocolGapChecks: () => [],
+      highestLeverageNextStep: (evidence) => evidence.some((item) => item.evidenceId === "audit-judgment-pause-bridge")
+        ? "Exercise the integrated judgment gate on real cycle work and watch whether it produces narrower, more explicit rationale instead of only stronger audit prose."
+        : "Add an audit judgment gate that refuses strong ratings when evidence is thin, ambiguous, or purely post-hoc.",
       recommendationActionType: "extension",
-      suggestedPaths: ["aies/extensions/evaluation/", "AGENTS.md", ".pi/skills/openspec-apply-change/SKILL.md"],
+      suggestedPaths: ["aies/extensions/evaluation/", "aies/extensions/cycle-runner/", "AGENTS.md", ".pi/skills/openspec-apply-change/SKILL.md"],
     },
     {
       dimension: "coherence",
@@ -312,19 +319,31 @@ function resolveHighestLeverageNextStep(rule: DimensionRule, evidence: AuditEvid
 }
 
 function buildAssessment(rule: DimensionRule, evidence: AuditEvidenceItem[]): LayerAuditAssessment {
-  const tier = conservativeTier(rule, evidence);
+  const judgmentGate = rule.dimension === "judgment"
+    ? createAuditJudgmentGateReport(evidence, {
+        dimension: rule.dimension,
+        requiredEvidenceIds: rule.requiredEvidenceIds,
+      })
+    : null;
+  const gateBlockingGaps = judgmentGate?.canRateStrong ? [] : judgmentGate?.reasons ?? [];
+  const tier = conservativeTier(rule, evidence, gateBlockingGaps);
   const strengths = tier === "missing"
     ? []
     : uniqueStrings([
         ...rule.strengthTemplates,
+        ...(judgmentGate?.canRateStrong ? [judgmentGate.summary] : []),
         ...evidence.slice(0, 2).map(summarizeEvidence),
       ]);
 
   const gaps = tier === "missing"
-    ? [rule.missingSummary]
+    ? uniqueStrings([
+        rule.missingSummary,
+        ...gateBlockingGaps,
+      ])
     : uniqueStrings([
         ...missingRequiredEvidenceGaps(rule, evidence),
         ...rule.protocolGapChecks(evidence),
+        ...gateBlockingGaps,
       ]);
 
   return {

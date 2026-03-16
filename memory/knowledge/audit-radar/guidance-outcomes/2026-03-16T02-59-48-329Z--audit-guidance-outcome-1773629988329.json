@@ -1,0 +1,54 @@
+{
+  "reportId": "audit-guidance-outcome-1773629988329",
+  "generatedAt": "2026-03-16T02:59:48.329Z",
+  "sessionId": "E:\\Coding\\AIES-runs\\bootstrap-001\\.aies-runtime\\sessions\\2026-03-16T02-32-30-822Z_c108ef54-58ff-4ed9-a1bd-6f927081992f.jsonl",
+  "runId": "run-1773628385444",
+  "relatedCycleId": "cycle-1773628385556",
+  "relatedChangeId": "CHG-2026-03-15-audit-judgment-gate",
+  "promptSummary": "Continue CHG-2026-03-15-audit-judgment-gate via one explicit cycle",
+  "guidance": {
+    "snapshotId": "audit-2026-03-15T18-59-18-526Z",
+    "observedAt": "2026-03-15T18:59:18.526Z",
+    "activeChangeId": "CHG-2026-03-15-audit-judgment-gate",
+    "continueActiveChange": true,
+    "recommendedFocusType": "active_change_continuation",
+    "actionType": "tool",
+    "bindingConstraint": "evaluation",
+    "targetDimensions": [
+      "evaluation",
+      "coherence",
+      "harness"
+    ],
+    "suggestedPaths": [
+      "aies/extensions/evaluation/",
+      "aies/extensions/cycle-runner/",
+      "verify-aies-quick.ps1"
+    ],
+    "summary": "Continue CHG-2026-03-15-audit-judgment-gate with a tool-backed implementation step aimed at evaluation, coherence, harness.",
+    "rationale": "Binding constraint: evaluation. Maintenance-loop risk is active, so prefer a reusable capability step over passive maintenance. Binding constraint streak: evaluation x12. Evaluation is the binding constraint because other layers can be partially encoded yet still fail to steer future cycles if AIES cannot compare, diagnose, and trust its own cross-layer evidence. Latest audit-loop evidence: cycle_runner with none/passed @ 2026-03-15T19:00:11.959Z.",
+    "driftSummary": "Improved: none. Regressed: none. Stagnant weak layers: context, judgment, coherence, evaluation, harness. Binding constraint streak: evaluation x12. Maintenance-loop risk is emerging because the same weak layers persist…",
+    "latestLoopGeneratedAt": "2026-03-15T19:00:11.959Z",
+    "latestLoopSource": "cycle_runner",
+    "latestLoopVerification": "none/passed",
+    "latestLoopReportPath": "memory/knowledge/audit-radar/loops/2026-03-15T19-00-11-959Z--audit-loop-2026-03-15T19-00-11-959Z.json"
+  },
+  "actual": {
+    "cycleFocusType": "active_change_continuation",
+    "cycleLinkedDimensions": [
+      "context"
+    ],
+    "cycleLinkedChangeId": "CHG-2026-03-15-audit-judgment-gate",
+    "cycleRationale": "Rationale: I continued `CHG-2026-03-15-audit-judgment-gate` because it was the strongest evolution step available: turn…",
+    "verificationMode": "fast",
+    "verificationResult": "passed",
+    "verificationState": "verified",
+    "recoveryId": null
+  },
+  "alignment": {
+    "status": "aligned",
+    "focusTypeAligned": true,
+    "activeChangeAligned": true,
+    "matchedTargetDimensions": [],
+    "summary": "Cycle focus matched active_change_continuation and continued CHG-2026-03-15-audit-judgment-gate."
+  }
+}
