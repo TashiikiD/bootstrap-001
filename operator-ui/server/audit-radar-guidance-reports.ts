@@ -61,6 +61,17 @@ interface MinimalAuditGuidanceExperimentReviewReport {
   summary: string;
 }
 
+interface MinimalAuditGuidanceExperimentDecisionReport {
+  reportId: string;
+  generatedAt: string;
+  experimentType: string;
+  experimentRecommendedPosture: string;
+  decisionType: string;
+  recommendedGuidancePosture: string;
+  summary: string;
+  recommendationNote: string;
+}
+
 export interface AuditGuidanceOutcomeReportRecord {
   report: MinimalAuditGuidanceOutcomeReport;
   fullPath: string;
@@ -87,6 +98,12 @@ export interface AuditGuidanceExperimentReportRecord {
 
 export interface AuditGuidanceExperimentReviewReportRecord {
   report: MinimalAuditGuidanceExperimentReviewReport;
+  fullPath: string;
+  relativePath: string;
+}
+
+export interface AuditGuidanceExperimentDecisionReportRecord {
+  report: MinimalAuditGuidanceExperimentDecisionReport;
   fullPath: string;
   relativePath: string;
 }
@@ -198,6 +215,22 @@ function isAuditGuidanceExperimentReviewReport(value: unknown): value is Minimal
     && typeof candidate.summary === "string";
 }
 
+function isAuditGuidanceExperimentDecisionReport(value: unknown): value is MinimalAuditGuidanceExperimentDecisionReport {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<MinimalAuditGuidanceExperimentDecisionReport>;
+  return typeof candidate.reportId === "string"
+    && typeof candidate.generatedAt === "string"
+    && typeof candidate.experimentType === "string"
+    && typeof candidate.experimentRecommendedPosture === "string"
+    && typeof candidate.decisionType === "string"
+    && typeof candidate.recommendedGuidancePosture === "string"
+    && typeof candidate.summary === "string"
+    && typeof candidate.recommendationNote === "string";
+}
+
 function toOutcomeRecord(fullPath: string): AuditGuidanceOutcomeReportRecord | null {
   try {
     const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as unknown;
@@ -283,6 +316,23 @@ function toExperimentReviewRecord(fullPath: string): AuditGuidanceExperimentRevi
   }
 }
 
+function toExperimentDecisionRecord(fullPath: string): AuditGuidanceExperimentDecisionReportRecord | null {
+  try {
+    const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as unknown;
+    if (!isAuditGuidanceExperimentDecisionReport(parsed)) {
+      return null;
+    }
+
+    return {
+      report: parsed,
+      fullPath,
+      relativePath: projectRelativePath(fullPath),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function readAuditGuidanceOutcomeReportByRelativePath(
   relativePath: string | null | undefined,
 ): AuditGuidanceOutcomeReportRecord | null {
@@ -316,4 +366,11 @@ export function readAuditGuidanceExperimentReviewReportByRelativePath(
 ): AuditGuidanceExperimentReviewReportRecord | null {
   const fullPath = resolveRelativeProjectPath(relativePath);
   return fullPath ? toExperimentReviewRecord(fullPath) : null;
+}
+
+export function readAuditGuidanceExperimentDecisionReportByRelativePath(
+  relativePath: string | null | undefined,
+): AuditGuidanceExperimentDecisionReportRecord | null {
+  const fullPath = resolveRelativeProjectPath(relativePath);
+  return fullPath ? toExperimentDecisionRecord(fullPath) : null;
 }

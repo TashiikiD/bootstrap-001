@@ -11,6 +11,7 @@ import { formatAuditGuidanceEffectivenessReport, createAuditGuidanceEffectivenes
 import { formatAuditGuidanceLearningReviewReport, createAuditGuidanceLearningReviewReport, persistAuditGuidanceLearningReviewReport } from "./audit-radar-guidance-learning-review.ts";
 import { formatAuditGuidanceExperimentReport, createAuditGuidanceExperimentReport, persistAuditGuidanceExperimentReport } from "./audit-radar-guidance-experiment.ts";
 import { formatAuditGuidanceExperimentReviewReport, createAuditGuidanceExperimentReviewReport, persistAuditGuidanceExperimentReviewReport } from "./audit-radar-guidance-experiment-review.ts";
+import { formatAuditGuidanceExperimentDecisionReport, createAuditGuidanceExperimentDecisionReport, persistAuditGuidanceExperimentDecisionReport } from "./audit-radar-guidance-experiment-decision.ts";
 import { formatAuditGuidanceOutcomeReport, latestAuditGuidanceOutcomeReport } from "./audit-radar-guidance-outcomes.ts";
 import { createAuditRadarGuidance, buildAuditRadarGuidancePromptBlock, formatAuditRadarGuidance } from "./audit-radar-guidance.ts";
 import { createAuditDrivenOpenSpecChange, persistAuditDrivenOpenSpecChange } from "./audit-radar-proposal.ts";
@@ -590,6 +591,22 @@ export default function aiesEvaluationExtension(pi: ExtensionAPI): void {
 
       const persistedPath = persistAuditGuidanceExperimentReviewReport(report);
       writeLine(ctx, `${formatAuditGuidanceExperimentReviewReport(report)}\nPersisted: ${persistedPath}`);
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.auditRadarGuidanceExperimentDecision, {
+    description: "Convert the latest bounded experiment plan plus execution review into a reusable next-guidance steering decision",
+    handler: async (_args, ctx) => {
+      const snapshot = latestAuditSnapshot();
+      updateUi(restoreEvaluationEntry(ctx), ctx);
+      if (!snapshot) {
+        writeLine(ctx, "Audit guidance experiment decisions need a durable audit snapshot. Run /audit-radar-assess first.", "warning");
+        return;
+      }
+
+      const report = createAuditGuidanceExperimentDecisionReport(snapshot.bindingConstraint.dimension, snapshot.recommendedNextStep.targetDimensions);
+      const persistedPath = persistAuditGuidanceExperimentDecisionReport(report);
+      writeLine(ctx, `${formatAuditGuidanceExperimentDecisionReport(report)}\nPersisted: ${persistedPath}`);
     },
   });
 

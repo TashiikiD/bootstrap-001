@@ -892,6 +892,9 @@ class AiesOperatorApp extends LitElement {
                           ${item.guidanceExperimentReviewStatus
                             ? html`<span class="chip">experiment-review:${item.guidanceExperimentReviewStatus}</span>`
                             : nothing}
+                          ${item.guidanceExperimentDecisionType
+                            ? html`<span class="chip">decision:${item.guidanceExperimentDecisionType}</span>`
+                            : nothing}
                           ${item.guidanceExperimentType
                             ? html`<span class="chip">experiment:${item.guidanceExperimentType}</span>`
                             : nothing}
@@ -920,12 +923,16 @@ class AiesOperatorApp extends LitElement {
                         experimentReview=${item.guidanceExperimentReviewReportPath ?? "none"} · durable=${item.hasDurableGuidanceExperimentReviewReport ? "yes" : "no"} · signal=${item.guidanceExperimentReviewSignal ?? "none"}
                       </div>
                       <div class="artifact-meta">
+                        experimentDecision=${item.guidanceExperimentDecisionReportPath ?? "none"} · durable=${item.hasDurableGuidanceExperimentDecisionReport ? "yes" : "no"} · posture=${item.guidanceExperimentDecisionPosture ?? "none"}
+                      </div>
+                      <div class="artifact-meta">
                         experiment=${item.guidanceExperimentReportPath ?? "none"} · durable=${item.hasDurableGuidanceExperimentReport ? "yes" : "no"}
                       </div>
                       <div class="artifact-meta">${item.guidanceOutcomeSummary}</div>
                       <div class="artifact-meta">${item.guidanceEffectivenessSummary}</div>
                       <div class="artifact-meta">${item.guidanceLearningReviewSummary}</div>
                       <div class="artifact-meta">${item.guidanceExperimentReviewSummary}</div>
+                      <div class="artifact-meta">${item.guidanceExperimentDecisionSummary}</div>
                       <div class="artifact-meta">${item.guidanceExperimentSummary}</div>
                       <div class="artifact-meta">${item.auditFailure ?? item.auditSummary}</div>
                     </div>

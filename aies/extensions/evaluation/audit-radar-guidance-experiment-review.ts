@@ -248,6 +248,22 @@ function sourceFromExperimentReport(report: AuditGuidanceExperimentReport, relat
   };
 }
 
+function isAuditGuidanceExperimentReportLike(value: unknown): value is AuditGuidanceExperimentReport {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<AuditGuidanceExperimentReport>;
+  return typeof candidate.reportId === "string"
+    && typeof candidate.generatedAt === "string"
+    && typeof candidate.bindingConstraint === "string"
+    && Array.isArray(candidate.targetDimensions)
+    && typeof candidate.currentLearningPosture === "string"
+    && typeof candidate.recommendedNextPosture === "string"
+    && typeof candidate.experimentType === "string"
+    && typeof candidate.plannedRelevantCycles === "number";
+}
+
 function sourceFromCapturedGuidance(guidance: AuditGuidanceCapturedBrief): ExperimentReviewSource | null {
   const experimentType = normalizeExperimentType(guidance.experimentType);
   const recommendedNextPosture = normalizePosture(guidance.experimentNextPosture ?? null);
@@ -271,10 +287,14 @@ function sourceFromCapturedGuidance(guidance: AuditGuidanceCapturedBrief): Exper
   };
 }
 
-function resolveSource(source?: AuditGuidanceCapturedBrief | string | null): ExperimentReviewSource | null {
+function resolveSource(source?: AuditGuidanceCapturedBrief | AuditGuidanceExperimentReport | string | null): ExperimentReviewSource | null {
   if (typeof source === "string") {
     const report = readExperimentReportByRelativePath(source);
     return report ? sourceFromExperimentReport(report, source) : null;
+  }
+
+  if (isAuditGuidanceExperimentReportLike(source)) {
+    return sourceFromExperimentReport(source, null);
   }
 
   if (source) {
@@ -426,7 +446,7 @@ function isAuditGuidanceExperimentReviewReport(value: unknown): value is AuditGu
 }
 
 export function createAuditGuidanceExperimentReviewReport(
-  source?: AuditGuidanceCapturedBrief | string | null,
+  source?: AuditGuidanceCapturedBrief | AuditGuidanceExperimentReport | string | null,
 ): AuditGuidanceExperimentReviewReport | null {
   const resolvedSource = resolveSource(source);
   if (!resolvedSource) {

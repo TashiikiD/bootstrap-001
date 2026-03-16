@@ -2,7 +2,7 @@
 change_id: CHG-2026-03-15-aies-layer-audit-radar
 title: Build a theory-grounded AIES layer audit radar
 status: active
-updated_at: 2026-03-16T01:25:00.000Z
+updated_at: 2026-03-16T02:05:00.000Z
 last_audit_snapshot: audit-2026-03-15T17-06-59-001Z
 last_audit_reconciled_dimension: evaluation
 ---
@@ -86,6 +86,10 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Added `aies/extensions/evaluation/audit-radar-guidance-experiment-review.ts`, which groups guidance outcomes and effectiveness evidence by bounded experiment signature so the harness can tell whether a planned posture probe is `not_started`, `in_progress`, or `completed`, and whether the early signal is supportive, counter, mixed, or insufficient.
   - Added `/audit-radar-guidance-experiment-review`, updated `aies/extensions/cycle-runner/index.ts`, and extended operator observatory surfaces so guided runs auto-persist a review for the experiment that actually guided the run instead of leaving experiment execution status implicit.
   - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` and `aies/extensions/evaluation/audit-radar-assessment.ts` so future audits can recognize the experiment-execution review bridge and shift the next evaluation question toward accumulating enough real repeated guided cycles to complete the planned experiment rather than only creating the plan artifact.
+- [x] Turn experiment review into explicit future-guidance steering.
+  - Added `aies/extensions/evaluation/audit-radar-guidance-experiment-decision.ts`, which combines the bounded experiment plan plus execution review into a durable steering decision (`start_planned_experiment`, `continue_planned_experiment`, `fallback_to_baseline`, `reinforce_nonbaseline`, `hold_baseline`, `compare_again`) so future guidance can respond to experiment evidence instead of ignoring it.
+  - Added `/audit-radar-guidance-experiment-decision`, updated `aies/extensions/evaluation/audit-radar-guidance.ts`, and wired `aies/extensions/cycle-runner/index.ts` plus operator observatory surfaces so guided runs auto-persist an experiment-decision report and future audit guidance can reuse that steering state during work selection.
+  - Updated `aies/extensions/evaluation/audit-radar-scanner.ts` and `aies/extensions/evaluation/audit-radar-assessment.ts` so future audits can recognize the experiment-decision bridge and shift the next evaluation question toward whether those decisions are improving later audit movement rather than only whether the reports exist.
 - [x] Record the experiment back into memory.
   - Added `memory/devlog/2026-03-15T17-43-18-559Z-audit-radar-orchestration-proof-cost.md` to capture the key observation from this stage of the change: the audit correctly identified an orchestration evidence gap, but forcing proof by launching another autonomous cycle would spend the turn on recursive harness validation.
   - Added `memory/devlog/2026-03-15T21-03-32-538Z-scope-aware-verification-floor.md` to record the next harness observation: prompt/focus-inferred verification is weaker than verification floored by the files a cycle actually changed.
@@ -96,7 +100,8 @@ This change proposes a new `AIES layer audit radar`: a repo-native audit capabil
   - Added `memory/devlog/2026-03-16T00-20-00-000Z-guidance-learning-review-surface.md` to record the next evaluation observation: bounded guidance-learning policy still needs a posture-level review surface that compares constructive versus adverse signals across postures.
   - Added `memory/devlog/2026-03-16T00-50-00-000Z-guidance-experiment-planner.md` to record the next evaluation observation: posture-level review is still one step short of steering action until it is converted into a bounded next experiment.
   - Added `memory/devlog/2026-03-16T01-25-00-000Z-guidance-experiment-execution-review.md` to record the next evaluation observation: a planned bounded posture experiment is still too passive until the harness can review whether that exact experiment is underway, complete, or already producing counter-signals.
-  - Updated `memory/theory-fork/meta/evaluation.md` with explicit experiment notes that posture-level review should stay correlational and sample-aware, that posture review should usually end in a bounded experiment brief rather than stopping at description, and that experiment planning should usually terminate in an execution review rather than another passive artifact.
+  - Added `memory/devlog/2026-03-16T02-05-00-000Z-guidance-experiment-decision-bridge.md` to record the next evaluation observation: experiment execution review is still too passive until the harness can convert that evidence into explicit next-guidance steering.
+  - Updated `memory/theory-fork/meta/evaluation.md` with explicit experiment notes that posture-level review should stay correlational and sample-aware, that posture review should usually end in a bounded experiment brief rather than stopping at description, that experiment planning should usually terminate in an execution review rather than another passive artifact, and that execution review should usually terminate in a steering decision rather than being ignored by later guidance synthesis.
 
 ## Notes
 - This change directly targets the coherence, evaluation, and harness meta-functions while also improving future work selection across all layers.

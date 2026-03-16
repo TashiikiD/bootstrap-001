@@ -84,6 +84,20 @@ That leaves evaluation stuck between planning and evidence. A useful experiment 
 
 This keeps planned experiments from becoming another advisory artifact. The review does not need to prove causality; it only needs to tell future cycles whether the planned probe is actually underway and whether it is already showing reason for caution or reinforcement.
 
+## Experiment Note — Execution Review Should End in Steering
+
+Once the system can review whether a bounded posture experiment is not started, in progress, complete, supportive, or counter-signaling, another failure mode appears: the guidance layer can still ignore that review and generate the next recommendation as if the experiment status did not matter.
+
+That leaves evaluation one step short of judgment. A useful execution review should usually terminate in a bounded steering decision:
+- start the planned experiment
+- continue it until the sample is complete
+- fall back to baseline on early or completed counter-signal
+- reinforce a non-baseline posture only after supportive completion
+- compare again from a safer anchor when the result is mixed or thin
+
+This still is not causal proof. It is a decision bridge.
+Its purpose is to keep future guidance from repeatedly replanning or overreacting while experiment evidence is already telling the harness something proportionate.
+
 ## Open Questions
 
 - What outcome metrics are appropriate for a system whose purpose is self-improvement? How do you avoid Goodhart's Law when the agent can optimize its own metrics?

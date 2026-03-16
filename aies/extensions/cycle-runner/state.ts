@@ -50,6 +50,12 @@ export interface CycleRunGuidanceTrail {
   experimentPlannedRelevantCycles: number;
   experimentReportGeneratedAt: IsoTimestamp | null;
   experimentReportPath: string | null;
+  experimentDecisionType: string | null;
+  experimentDecisionPosture: string | null;
+  experimentDecisionSummary: string;
+  experimentDecisionRecommendation: string;
+  experimentDecisionReportGeneratedAt: IsoTimestamp | null;
+  experimentDecisionReportPath: string | null;
 }
 
 export interface CycleRunEntry {
@@ -76,6 +82,9 @@ export interface CycleRunEntry {
   guidanceExperimentReviewReportPath: string | null;
   guidanceExperimentReviewStatus: string | null;
   guidanceExperimentReviewSummary: string | null;
+  guidanceExperimentDecisionReportPath: string | null;
+  guidanceExperimentDecisionType: string | null;
+  guidanceExperimentDecisionSummary: string | null;
   guidanceExperimentReportPath: string | null;
   guidanceExperimentSummary: string | null;
   postRunAudit: CycleRunAuditTrail | null;
@@ -129,6 +138,9 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     guidanceExperimentReviewReportPath: entry.guidanceExperimentReviewReportPath ?? null,
     guidanceExperimentReviewStatus: entry.guidanceExperimentReviewStatus ?? null,
     guidanceExperimentReviewSummary: entry.guidanceExperimentReviewSummary ?? null,
+    guidanceExperimentDecisionReportPath: entry.guidanceExperimentDecisionReportPath ?? null,
+    guidanceExperimentDecisionType: entry.guidanceExperimentDecisionType ?? null,
+    guidanceExperimentDecisionSummary: entry.guidanceExperimentDecisionSummary ?? null,
     guidanceExperimentReportPath: entry.guidanceExperimentReportPath ?? null,
     guidanceExperimentSummary: entry.guidanceExperimentSummary ?? null,
     postRunAudit: entry.postRunAudit ?? null,

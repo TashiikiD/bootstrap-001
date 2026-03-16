@@ -19,6 +19,10 @@ import {
   createAuditGuidanceExperimentReviewReport,
   persistAuditGuidanceExperimentReviewReport,
 } from "../evaluation/audit-radar-guidance-experiment-review.ts";
+import {
+  createAuditGuidanceExperimentDecisionReport,
+  persistAuditGuidanceExperimentDecisionReport,
+} from "../evaluation/audit-radar-guidance-experiment-decision.ts";
 import { createAuditGuidanceOutcomeReport, captureAuditGuidanceBrief, persistAuditGuidanceOutcomeReport } from "../evaluation/audit-radar-guidance-outcomes.ts";
 import { latestAuditRadarGuidance, type AuditRadarGuidance } from "../evaluation/audit-radar-guidance.ts";
 import { restoreEvaluationEntry, type EvaluationEntry } from "../evaluation/state.ts";
@@ -197,7 +201,7 @@ function updateUi(entry: CycleRunEntry | null, ctx: ExtensionContext): void {
         `audit=${entry.postRunAudit?.verificationMode && entry.postRunAudit?.verificationResult
           ? `${entry.postRunAudit.verificationMode}/${entry.postRunAudit.verificationResult}`
           : entry.postRunAudit?.status ?? "pending"}`,
-        `guide=${entry.guidanceExperimentReviewReportPath ? `experiment-review:${entry.guidanceExperimentReviewStatus ?? "recorded"}` : entry.guidanceExperimentReportPath ? `experiment:${entry.auditGuidance?.experimentNextPosture ?? "planned"}` : entry.guidanceLearningReviewReportPath ? `reviewed:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceEffectivenessReportPath ? `effective:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
+        `guide=${entry.guidanceExperimentDecisionReportPath ? `decision:${entry.guidanceExperimentDecisionType ?? "recorded"}` : entry.guidanceExperimentReviewReportPath ? `experiment-review:${entry.guidanceExperimentReviewStatus ?? "recorded"}` : entry.guidanceExperimentReportPath ? `experiment:${entry.auditGuidance?.experimentNextPosture ?? "planned"}` : entry.guidanceLearningReviewReportPath ? `reviewed:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceEffectivenessReportPath ? `effective:${entry.guidanceEffectivenessVerdict ?? "recorded"}` : entry.guidanceOutcomeReportPath ? "tracked" : entry.auditGuidance ? "captured" : "none"}`,
         `scope=${entry.verificationScope?.recommendedMode ?? (entry.verificationScopeBaseline ? "capturing" : "none")}`,
         `prompt=${entry.promptSummary}`,
       ]
@@ -732,6 +736,10 @@ function formatGuidanceSection(entry: CycleRunEntry): string[] {
     `Audit guidance experiment review report: ${entry.guidanceExperimentReviewReportPath ?? "none"}`,
     `Audit guidance experiment review status: ${entry.guidanceExperimentReviewStatus ?? "none"}`,
     `Audit guidance experiment review summary: ${entry.guidanceExperimentReviewSummary ?? "none"}`,
+    `Audit guidance experiment decision: ${entry.auditGuidance.experimentDecisionType ?? "none"} -> ${entry.auditGuidance.experimentDecisionPosture ?? "none"}`,
+    `Audit guidance experiment decision recommendation: ${entry.auditGuidance.experimentDecisionRecommendation ?? "none"}`,
+    `Audit guidance experiment decision report: ${entry.guidanceExperimentDecisionReportPath ?? "none"}`,
+    `Audit guidance experiment decision summary: ${entry.guidanceExperimentDecisionSummary ?? "none"}`,
     `Audit guidance experiment report: ${entry.guidanceExperimentReportPath ?? "none"}`,
     `Audit guidance experiment summary: ${entry.guidanceExperimentSummary ?? "none"}`,
   ];
@@ -819,6 +827,9 @@ function buildRunEntry(
   guidanceExperimentReviewReportPath: string | null = null,
   guidanceExperimentReviewStatus: string | null = null,
   guidanceExperimentReviewSummary: string | null = null,
+  guidanceExperimentDecisionReportPath: string | null = null,
+  guidanceExperimentDecisionType: string | null = null,
+  guidanceExperimentDecisionSummary: string | null = null,
 ): CycleRunEntry {
   return {
     runId,
@@ -844,6 +855,9 @@ function buildRunEntry(
     guidanceExperimentReviewReportPath,
     guidanceExperimentReviewStatus,
     guidanceExperimentReviewSummary,
+    guidanceExperimentDecisionReportPath,
+    guidanceExperimentDecisionType,
+    guidanceExperimentDecisionSummary,
     guidanceExperimentReportPath,
     guidanceExperimentSummary,
     postRunAudit,
@@ -1135,6 +1149,17 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
     const guidanceExperimentReportPath = guidanceExperimentReport
       ? persistAuditGuidanceExperimentReport(guidanceExperimentReport)
       : null;
+    const guidanceExperimentDecisionReport = guidanceExperimentReport
+      ? createAuditGuidanceExperimentDecisionReport(activeRun.auditGuidance!.bindingConstraint, activeRun.auditGuidance!.targetDimensions, {
+          experimentReport: guidanceExperimentReport,
+          experimentReportPath: guidanceExperimentReportPath,
+          experimentReviewReport: guidanceExperimentReviewReport,
+          experimentReviewReportPath: guidanceExperimentReviewReportPath,
+        })
+      : null;
+    const guidanceExperimentDecisionReportPath = guidanceExperimentDecisionReport
+      ? persistAuditGuidanceExperimentDecisionReport(guidanceExperimentDecisionReport)
+      : null;
     const guidanceEffectivenessItem = guidanceEffectivenessReport?.items[0] ?? null;
     const completed = buildRunEntry(
       activeRun.runId,
@@ -1163,6 +1188,9 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       guidanceExperimentReviewReportPath,
       guidanceExperimentReviewReport?.executionStatus ?? null,
       guidanceExperimentReviewReport?.summary ?? null,
+      guidanceExperimentDecisionReportPath,
+      guidanceExperimentDecisionReport?.decisionType ?? null,
+      guidanceExperimentDecisionReport?.summary ?? null,
     );
     const thoughtEntry: CycleThoughtEntry = {
       runId: activeRun.runId,

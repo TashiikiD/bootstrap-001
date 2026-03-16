@@ -46,6 +46,12 @@ export interface AuditGuidanceCapturedBrief {
   experimentPlannedRelevantCycles: number;
   experimentReportGeneratedAt: IsoTimestamp | null;
   experimentReportPath: string | null;
+  experimentDecisionType: string | null;
+  experimentDecisionPosture: string | null;
+  experimentDecisionSummary: string;
+  experimentDecisionRecommendation: string;
+  experimentDecisionReportGeneratedAt: IsoTimestamp | null;
+  experimentDecisionReportPath: string | null;
 }
 
 export interface AuditGuidanceOutcomeReport {
@@ -177,6 +183,12 @@ export function captureAuditGuidanceBrief(guidance: AuditRadarGuidance): AuditGu
     experimentPlannedRelevantCycles: guidance.experimentPlannedRelevantCycles,
     experimentReportGeneratedAt: guidance.experimentReportGeneratedAt,
     experimentReportPath: guidance.experimentReportPath,
+    experimentDecisionType: guidance.experimentDecisionType,
+    experimentDecisionPosture: guidance.experimentDecisionPosture,
+    experimentDecisionSummary: guidance.experimentDecisionSummary,
+    experimentDecisionRecommendation: guidance.experimentDecisionRecommendation,
+    experimentDecisionReportGeneratedAt: guidance.experimentDecisionReportGeneratedAt,
+    experimentDecisionReportPath: guidance.experimentDecisionReportPath,
   };
 }
 

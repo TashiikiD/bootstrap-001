@@ -553,6 +553,7 @@ function buildState() {
         `guidanceEffectReport=${cycleRunner?.guidanceEffectivenessReportPath ?? "none"}`,
         `guidanceLearningReview=${cycleRunner?.guidanceLearningReviewReportPath ?? "none"}`,
         `guidanceExperimentReview=${cycleRunner?.guidanceExperimentReviewReportPath ?? "none"}`,
+        `guidanceExperimentDecision=${cycleRunner?.guidanceExperimentDecisionReportPath ?? "none"}`,
         `guidanceExperiment=${cycleRunner?.guidanceExperimentReportPath ?? "none"}`,
         `promptLines=${typeof cycleRunner?.promptText === "string" ? cycleRunner.promptText.split(/\r?\n/).length : 0}`,
         `thoughtBlocks=${thoughtStream.length}`,

@@ -14,6 +14,11 @@ import {
   latestAuditGuidanceExperimentReportPath,
   type AuditGuidanceExperimentType,
 } from "./audit-radar-guidance-experiment.ts";
+import {
+  createAuditGuidanceExperimentDecisionReport,
+  latestAuditGuidanceExperimentDecisionReportPath,
+  type AuditGuidanceExperimentDecisionType,
+} from "./audit-radar-guidance-experiment-decision.ts";
 
 export interface AuditRadarGuidance {
   snapshotId: string;
@@ -44,6 +49,12 @@ export interface AuditRadarGuidance {
   experimentPlannedRelevantCycles: number;
   experimentReportGeneratedAt: IsoTimestamp | null;
   experimentReportPath: string | null;
+  experimentDecisionType: AuditGuidanceExperimentDecisionType;
+  experimentDecisionPosture: AuditGuidanceLearningPosture;
+  experimentDecisionSummary: string;
+  experimentDecisionRecommendation: string;
+  experimentDecisionReportGeneratedAt: IsoTimestamp | null;
+  experimentDecisionReportPath: string | null;
 }
 
 function compact(text: string | null | undefined, maxLength = 220): string {
@@ -153,6 +164,17 @@ function experimentSummaryClause(
   return experimentSummary;
 }
 
+function experimentDecisionClause(
+  decisionType: AuditGuidanceExperimentDecisionType,
+  summary: string,
+): string | null {
+  if (decisionType === "start_planned_experiment") {
+    return null;
+  }
+
+  return summary;
+}
+
 export function createAuditRadarGuidance(snapshot: LayerAuditSnapshot, activeChangeId: string | null): AuditRadarGuidance {
   const latestLoop = readLatestLoopReport();
   const continueActiveChange = Boolean(activeChangeId);
@@ -161,14 +183,19 @@ export function createAuditRadarGuidance(snapshot: LayerAuditSnapshot, activeCha
   const suggestedPaths = snapshot.recommendedNextStep.suggestedPaths;
   const learningPolicy = createAuditGuidanceLearningPolicy(snapshot.bindingConstraint.dimension, targetDimensions);
   const experimentPlan = createAuditGuidanceExperimentReport(snapshot.bindingConstraint.dimension, targetDimensions);
+  const experimentDecision = createAuditGuidanceExperimentDecisionReport(snapshot.bindingConstraint.dimension, targetDimensions, {
+    experimentReport: experimentPlan,
+  });
   const experimentReportPath = latestAuditGuidanceExperimentReportPath();
+  const experimentDecisionReportPath = latestAuditGuidanceExperimentDecisionReportPath();
   const baseSummary = continueActiveChange
     ? `Continue ${activeChangeId} with a ${actionLabel(snapshot.recommendedNextStep.actionType, true)} aimed at ${listOrNone(targetDimensions)}.`
     : `Use the latest audit to choose a ${actionLabel(snapshot.recommendedNextStep.actionType, false)} aimed at ${listOrNone(targetDimensions)}.`;
   const summary = compact([
     baseSummary,
     learningSummaryClause(learningPolicy.posture, learningPolicy.recommendationNote),
-    experimentSummaryClause(experimentPlan.experimentType, experimentPlan.summary),
+    experimentDecisionClause(experimentDecision.decisionType, experimentDecision.summary)
+      ?? experimentSummaryClause(experimentPlan.experimentType, experimentPlan.summary),
   ].filter((item): item is string => Boolean(item)).join(" "));
 
   const rationaleParts = [
@@ -180,6 +207,7 @@ export function createAuditRadarGuidance(snapshot: LayerAuditSnapshot, activeCha
     compact(snapshot.recommendedNextStep.rationale),
     `Guidance learning (${learningPolicy.posture}): ${learningPolicy.summary}`,
     `Guidance experiment (${experimentPlan.experimentType} -> ${experimentPlan.recommendedNextPosture}): ${experimentPlan.summary}`,
+    `Guidance experiment decision (${experimentDecision.decisionType} -> ${experimentDecision.recommendedGuidancePosture}): ${experimentDecision.summary}`,
     latestLoop
       ? `Latest audit-loop evidence: ${latestLoop.report.orchestrationSource ?? "unknown"} with ${latestLoopVerification(latestLoop.report)} @ ${latestLoop.report.generatedAt ?? "unknown"}.`
       : null,
@@ -214,6 +242,12 @@ export function createAuditRadarGuidance(snapshot: LayerAuditSnapshot, activeCha
     experimentPlannedRelevantCycles: experimentPlan.plannedRelevantCycles,
     experimentReportGeneratedAt: experimentPlan.generatedAt,
     experimentReportPath,
+    experimentDecisionType: experimentDecision.decisionType,
+    experimentDecisionPosture: experimentDecision.recommendedGuidancePosture,
+    experimentDecisionSummary: experimentDecision.summary,
+    experimentDecisionRecommendation: experimentDecision.recommendationNote,
+    experimentDecisionReportGeneratedAt: experimentDecision.generatedAt,
+    experimentDecisionReportPath,
   };
 }
 
@@ -240,6 +274,10 @@ export function formatAuditRadarGuidance(guidance: AuditRadarGuidance): string {
     `Experiment plan: ${guidance.experimentType} -> ${guidance.experimentNextPosture}`,
     `Experiment summary: ${guidance.experimentSummary}`,
     `Experiment report: ${guidance.experimentReportPath ?? "none"}`,
+    `Experiment decision: ${guidance.experimentDecisionType} -> ${guidance.experimentDecisionPosture}`,
+    `Experiment decision summary: ${guidance.experimentDecisionSummary}`,
+    `Experiment decision recommendation: ${guidance.experimentDecisionRecommendation}`,
+    `Experiment decision report: ${guidance.experimentDecisionReportPath ?? "none"}`,
     `Latest loop evidence: ${guidance.latestLoopSource ?? "none"} · ${guidance.latestLoopVerification} · ${guidance.latestLoopGeneratedAt ?? "none"}`,
     `Latest loop report: ${guidance.latestLoopReportPath ?? "none"}`,
     `Rationale: ${guidance.rationale}`,
@@ -261,6 +299,9 @@ export function buildAuditRadarGuidancePromptBlock(guidance: AuditRadarGuidance)
     `Learning recommendation: ${guidance.learningRecommendation}`,
     `Experiment plan: ${guidance.experimentType} -> ${guidance.experimentNextPosture}`,
     `Experiment summary: ${guidance.experimentSummary}`,
+    `Experiment decision: ${guidance.experimentDecisionType} -> ${guidance.experimentDecisionPosture}`,
+    `Experiment decision summary: ${guidance.experimentDecisionSummary}`,
+    `Experiment decision recommendation: ${guidance.experimentDecisionRecommendation}`,
     `Latest loop evidence: ${guidance.latestLoopSource ?? "none"} · ${guidance.latestLoopVerification}`,
     `Why now: ${guidance.rationale}`,
     "Use this as a judgment aid for the next step. Prefer continuing the active change when justified, but explain any stronger reason to diverge.",
