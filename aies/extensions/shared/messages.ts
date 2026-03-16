@@ -33,6 +33,7 @@ export const AIES_COMMANDS = {
   heartbeatCadence: "heartbeat-cadence",
   cycleRun: "cycle-run",
   cycleStatus: "cycle-status",
+  cyclePreview: "cycle-preview",
   cycleAbort: "cycle-abort",
   memoryStatus: "memory-status",
   memoryLast: "memory-last",

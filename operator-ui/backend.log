@@ -1,0 +1,14 @@
+
+> aies-operator-ui@0.1.0 backend
+> tsx server/index.ts
+
+E:\Coding\AIES-runs\bootstrap-001\operator-ui\server\evolution-evidence.ts:11
+import { AIES_DIMENSIONS, type AiesDimension } from "../../aies/contracts/primitives.ts";
+         ^
+SyntaxError: The requested module '../../aies/contracts/primitives.ts' does not provide an export named 'AIES_DIMENSIONS'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:302:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:405:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.13.0

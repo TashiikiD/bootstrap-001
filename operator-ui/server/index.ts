@@ -869,6 +869,7 @@ function buildState() {
       evaluationTrends,
       verificationStats,
       recoveryStats,
+      requestStats,
       memoryHighlights,
       openspecChanges: openSpecFiles,
       providerUsage,

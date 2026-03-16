@@ -315,13 +315,55 @@ code {
   overflow: hidden;
 }
 
-.panel-header {
-  padding: 14px 16px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+.collapsible-card {
+  overflow: hidden;
 }
 
-.panel-body {
-  padding: 14px 16px 16px;
+.collapsible-details {
+  display: grid;
+  gap: 0;
+}
+
+.collapsible-summary {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.collapsible-summary::-webkit-details-marker {
+  display: none;
+}
+
+.collapsible-summary::marker {
+  content: "";
+}
+
+.collapsible-heading-block {
+  min-width: 0;
+  flex: 1 1 240px;
+}
+
+.collapsible-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.collapsible-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.collapsible-body {
+  padding: 0 16px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .bullet-list,
@@ -394,13 +436,14 @@ code {
   word-break: break-word;
 }
 
-.transcript-details[open] .transcript-preview {
+.transcript-details[open] .transcript-preview,
+.collapsible-details[open] .collapsible-preview {
   display: block;
   -webkit-line-clamp: unset;
   overflow: visible;
 }
 
-.transcript-chevron {
+.collapsible-chevron {
   width: 10px;
   height: 10px;
   border-right: 2px solid var(--text-dim);
@@ -408,9 +451,11 @@ code {
   transform: rotate(45deg);
   transition: transform 0.15s ease;
   margin-right: 4px;
+  flex: 0 0 auto;
 }
 
-.transcript-details[open] .transcript-chevron {
+.transcript-details[open] .collapsible-chevron,
+.collapsible-details[open] .collapsible-chevron {
   transform: rotate(225deg);
 }
 

@@ -1,9 +1,8 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join, relative } from "node:path";
-import {
-  AIES_DIMENSIONS,
-  type AiesDimension,
-  type IsoTimestamp,
+import type {
+  AiesDimension,
+  IsoTimestamp,
 } from "../../contracts/primitives.ts";
 import type {
   EvolutionEvidenceArtifactType,
@@ -37,6 +36,16 @@ type MutableBuildState = {
   snapshotNodeIds: Map<string, string>;
   pathNodeIds: Map<string, string>;
 };
+
+const AIES_DIMENSION_VALUES: readonly AiesDimension[] = [
+  "prompt",
+  "context",
+  "intent",
+  "judgment",
+  "coherence",
+  "evaluation",
+  "harness",
+];
 
 const MAX_SUMMARY_LENGTH = 220;
 const EVIDENCE_INDEX_FILE_NAME = "latest.json";
@@ -176,7 +185,7 @@ function firstParagraph(body: string): string {
 
 function inferDimensions(...texts: Array<string | null | undefined>): AiesDimension[] {
   const combined = texts.map((item) => String(item ?? "").toLowerCase()).join("\n");
-  return AIES_DIMENSIONS.filter((dimension) => combined.includes(dimension));
+  return AIES_DIMENSION_VALUES.filter((dimension) => combined.includes(dimension));
 }
 
 function createCitation(sourcePath: string, excerpt: string): EvolutionEvidenceCitation {
@@ -224,7 +233,7 @@ function addRelation(state: MutableBuildState, relation: EvolutionEvidenceRelati
 }
 
 function ensureDimensionAnchors(state: MutableBuildState): void {
-  for (const dimension of AIES_DIMENSIONS) {
+  for (const dimension of AIES_DIMENSION_VALUES) {
     addNode(state, createNode({
       id: `dimension:${dimension}`,
       artifactType: "dimension_anchor",

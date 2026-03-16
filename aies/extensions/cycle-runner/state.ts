@@ -42,6 +42,24 @@ export interface CycleRunGuidanceTrail {
   adaptationNote: string | null;
 }
 
+export interface CycleRunEvidenceTrail {
+  generatedAt: IsoTimestamp;
+  sourcePath: string;
+  stale: boolean;
+  activeChangeId: string | null;
+  bindingConstraint: AiesDimension | null;
+  summary: string;
+  uncertainty: string | null;
+  items: Array<{
+    id: string;
+    artifactType: string;
+    title: string;
+    sourcePath: string;
+    createdAt: string | null;
+    summary: string;
+  }>;
+}
+
 export interface CycleRunEntry {
   runId: string;
   status: CycleRunStatus;
@@ -55,6 +73,7 @@ export interface CycleRunEntry {
   finishedAt: string | null;
   failureNote: string | null;
   auditGuidance: CycleRunGuidanceTrail | null;
+  evolutionEvidence: CycleRunEvidenceTrail | null;
   verificationScopeBaseline: VerificationScopeBaseline | null;
   verificationScope: VerificationScopeReport | null;
   guidanceOutcomeReportPath: string | null;
@@ -104,6 +123,7 @@ function normalizeCycleRunEntry(entry: Partial<CycleRunEntry> | undefined): Cycl
     finishedAt: entry.finishedAt ?? null,
     failureNote: entry.failureNote ?? null,
     auditGuidance: entry.auditGuidance ?? null,
+    evolutionEvidence: entry.evolutionEvidence ?? null,
     verificationScopeBaseline: entry.verificationScopeBaseline ?? null,
     verificationScope: entry.verificationScope ?? null,
     guidanceOutcomeReportPath: entry.guidanceOutcomeReportPath ?? null,

@@ -14,6 +14,7 @@ import {
 import { createAuditGuidanceOutcomeReport, captureAuditGuidanceBrief, persistAuditGuidanceOutcomeReport } from "../evaluation/audit-radar-guidance-outcomes.ts";
 import { latestAuditRadarGuidance, type AuditRadarGuidance } from "../evaluation/audit-radar-guidance.ts";
 import { buildAuditJudgmentPromptBlock } from "../evaluation/audit-judgment-gate.ts";
+import { buildEvolutionEvidenceRuntimePromptBlock, createEvolutionEvidenceRuntimeBrief } from "../evidence/evolution-evidence-runtime.ts";
 import { restoreEvaluationEntry, type EvaluationEntry } from "../evaluation/state.ts";
 import { restoreOpenSpecEntry, type OpenSpecEntry } from "../openspec/state.ts";
 import { restorePolicyModeEntry } from "../policy/state.ts";
@@ -42,6 +43,7 @@ import {
   restoreCycleRunEntry,
   type CycleRunAuditTrail,
   type CycleRunEntry,
+  type CycleRunEvidenceTrail,
   type CycleRunGuidanceTrail,
   type CycleRunStatus,
   type CycleRunTriggerSource,
@@ -200,6 +202,7 @@ function updateUi(entry: CycleRunEntry | null, ctx: ExtensionContext): void {
                 ? `captured:${entry.auditGuidance.adaptationStatus ?? "none"}`
                 : "none"}`,
         `scope=${entry.verificationScope?.recommendedMode ?? (entry.verificationScopeBaseline ? "capturing" : "none")}`,
+        `evidence=${entry.evolutionEvidence ? `${entry.evolutionEvidence.items.length} anchors${entry.evolutionEvidence.stale ? "/stale" : ""}` : "none"}`,
         `prompt=${entry.promptSummary}`,
       ]
     : [
@@ -573,7 +576,13 @@ function renderUserRequestSection(): string[] {
   return summarizeRequestsForPrompt();
 }
 
-function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: string; relatedChangeId: string | null; auditGuidance: CycleRunGuidanceTrail | null } {
+function buildCyclePrompt(ctx: ExtensionContext): {
+  prompt: string;
+  summary: string;
+  relatedChangeId: string | null;
+  auditGuidance: CycleRunGuidanceTrail | null;
+  evolutionEvidence: CycleRunEvidenceTrail | null;
+} {
   const heartbeat = restoreHeartbeat(ctx);
   const openSpec = restoreOpenSpecEntry(ctx);
   const evaluation = restoreEvaluationEntry(ctx);
@@ -583,10 +592,15 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
   const liveStatus = resolveLiveVerificationStatus(ctx, verificationMode);
   const policyMode = restorePolicyModeEntry(ctx)?.mode ?? "advisory";
   const memory = latestMemorySignals();
-  const auditGuidance = latestAuditRadarGuidance(openSpec?.context.activeChangeId ?? resolveHeartbeatCycle(heartbeat)?.activeChangeId ?? null);
+  const activeChangeId = openSpec?.context.activeChangeId ?? resolveHeartbeatCycle(heartbeat)?.activeChangeId ?? null;
+  const auditGuidance = latestAuditRadarGuidance(activeChangeId);
+  const evolutionEvidence = createEvolutionEvidenceRuntimeBrief({
+    activeChangeId,
+    bindingConstraint: auditGuidance?.bindingConstraint ?? null,
+  });
 
   const openSpecFirst = Boolean(openSpec?.context.activeChangeId);
-  const recoveryFirst = recovery?.status === "open" && (recovery.relatedChangeId === (openSpec?.context.activeChangeId ?? null) || recovery.reasonType === "execution_failed");
+  const recoveryFirst = recovery?.status === "open" && (recovery.relatedChangeId === activeChangeId || recovery.reasonType === "execution_failed");
   const summary = recoveryFirst
     ? `Address ${recovery?.reasonType ?? "recovery debt"} on ${recovery?.relatedChangeId ?? "current work"}`
     : openSpecFirst
@@ -644,8 +658,9 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
     "",
     ...renderAuditGuidanceSection(auditGuidance),
     "",
+    ...(evolutionEvidence ? [buildEvolutionEvidenceRuntimePromptBlock(evolutionEvidence), ""] : []),
     buildAuditJudgmentPromptBlock({
-      activeChangeId: openSpec?.context.activeChangeId ?? resolveHeartbeatCycle(heartbeat)?.activeChangeId ?? null,
+      activeChangeId,
       bindingConstraint: auditGuidance?.bindingConstraint ?? null,
       liveStatusInterpretation: liveStatus.interpretationLabel,
     }),
@@ -689,9 +704,44 @@ function buildCyclePrompt(ctx: ExtensionContext): { prompt: string; summary: str
   return {
     prompt: lines.join("\n"),
     summary,
-    relatedChangeId: openSpec?.context.activeChangeId ?? resolveHeartbeatCycle(heartbeat)?.activeChangeId ?? null,
+    relatedChangeId: activeChangeId,
     auditGuidance: auditGuidance ? captureAuditGuidanceBrief(auditGuidance) : null,
+    evolutionEvidence,
   };
+}
+
+function formatCyclePreviewPrompt(prompt: string, includeFullPrompt: boolean): string[] {
+  const lines = prompt.split(/\r?\n/);
+  if (includeFullPrompt || lines.length <= 36) {
+    return lines;
+  }
+
+  const preview = lines.slice(0, 36);
+  preview.push(`... (${lines.length - 36} more lines in synthesized prompt; run /${AIES_COMMANDS.cyclePreview} --full to inspect all)`);
+  return preview;
+}
+
+function formatCyclePreview(ctx: ExtensionContext, includeFullPrompt: boolean): string {
+  const synthesized = buildCyclePrompt(ctx);
+  const verification = restoreVerificationEntry(ctx);
+  const recovery = restoreRecoveryEntry(ctx);
+  const verificationMode = restoreVerificationModeEntry(ctx);
+  const liveStatus = resolveLiveVerificationStatus(ctx, verificationMode);
+
+  return [
+    `Next cycle summary: ${synthesized.summary}`,
+    `Related change: ${synthesized.relatedChangeId ?? "none"}`,
+    `Prompt lines: ${synthesized.prompt.split(/\r?\n/).length}`,
+    `Audit guidance: ${synthesized.auditGuidance?.summary ?? "none"}`,
+    `Audit guidance trust: ${synthesized.auditGuidance?.adaptationStatus ?? "none"}`,
+    `Evolution evidence: ${synthesized.evolutionEvidence?.summary ?? "none"}`,
+    `Evolution evidence uncertainty: ${synthesized.evolutionEvidence?.uncertainty ?? "none"}`,
+    "",
+    ...renderLiveStatusSection(liveStatus, verification, recovery),
+    "",
+    includeFullPrompt ? "Synthesized prompt:" : "Synthesized prompt preview:",
+    ...formatCyclePreviewPrompt(synthesized.prompt, includeFullPrompt),
+  ].join("\n");
 }
 
 function formatCycleAuditSection(audit: CycleRunAuditTrail | null): string[] {
@@ -734,6 +784,21 @@ function formatGuidanceSection(entry: CycleRunEntry): string[] {
     `Audit guidance adaptation report: ${entry.guidanceAdaptationReportPath ?? "none"}`,
     `Audit guidance adaptation status: ${entry.guidanceAdaptationStatus ?? "none"}`,
     `Audit guidance adaptation note after run: ${entry.guidanceAdaptationNote ?? "none"}`,
+  ];
+}
+
+function formatEvidenceSection(entry: CycleRunEntry): string[] {
+  if (!entry.evolutionEvidence) {
+    return ["Evolution evidence bridge: none"];
+  }
+
+  return [
+    `Evolution evidence summary: ${entry.evolutionEvidence.summary}`,
+    `Evolution evidence generated: ${entry.evolutionEvidence.generatedAt}`,
+    `Evolution evidence source: ${entry.evolutionEvidence.sourcePath}`,
+    `Evolution evidence stale: ${entry.evolutionEvidence.stale}`,
+    `Evolution evidence uncertainty: ${entry.evolutionEvidence.uncertainty ?? "none"}`,
+    `Evolution evidence anchors: ${entry.evolutionEvidence.items.map((item) => `${item.artifactType}:${item.title}`).join(" | ") || "none"}`,
   ];
 }
 
@@ -785,6 +850,7 @@ function formatStatus(entry: CycleRunEntry | null, ctx: ExtensionContext): strin
     `Finished: ${entry.finishedAt ?? "in-progress"}`,
     `Failure note: ${entry.failureNote ?? "none"}`,
     ...formatGuidanceSection(entry),
+    ...formatEvidenceSection(entry),
     ...formatVerificationScopeSection(entry),
     ...formatCycleAuditSection(entry.postRunAudit),
     "",
@@ -805,6 +871,7 @@ function buildRunEntry(
   finishedAt: string | null,
   relatedCycleId: string | null,
   auditGuidance: CycleRunGuidanceTrail | null = null,
+  evolutionEvidence: CycleRunEvidenceTrail | null = null,
   verificationScopeBaseline: VerificationScopeBaseline | null = null,
   verificationScope: VerificationScopeReport | null = null,
   guidanceOutcomeReportPath: string | null = null,
@@ -829,6 +896,7 @@ function buildRunEntry(
     finishedAt,
     failureNote,
     auditGuidance,
+    evolutionEvidence,
     verificationScopeBaseline,
     verificationScope,
     guidanceOutcomeReportPath,
@@ -839,6 +907,13 @@ function buildRunEntry(
     guidanceAdaptationStatus,
     guidanceAdaptationNote,
     postRunAudit,
+  };
+}
+
+function parseCyclePreviewArgs(args: string | undefined): { includeFullPrompt: boolean } {
+  const raw = args?.trim().toLowerCase() ?? "";
+  return {
+    includeFullPrompt: raw.includes("--full"),
   };
 }
 
@@ -874,6 +949,7 @@ export async function runCycleCommand(
       nowIso(),
       activeRun?.relatedCycleId ?? null,
       activeRun?.auditGuidance ?? null,
+      activeRun?.evolutionEvidence ?? null,
       activeRun?.verificationScopeBaseline ?? null,
       activeRun?.verificationScope ?? null,
       activeRun?.guidanceOutcomeReportPath ?? null,
@@ -915,6 +991,7 @@ export async function runCycleCommand(
     null,
     null,
     synthesized.auditGuidance,
+    synthesized.evolutionEvidence,
     verificationScopeBaseline,
   );
   if (activeRunRef) {
@@ -935,6 +1012,7 @@ export async function runCycleCommand(
     null,
     null,
     synthesized.auditGuidance,
+    synthesized.evolutionEvidence,
     verificationScopeBaseline,
   );
   activeRun = running;
@@ -975,6 +1053,7 @@ export async function runCycleCommand(
       nowIso(),
       null,
       synthesized.auditGuidance,
+      synthesized.evolutionEvidence,
       verificationScopeBaseline,
     );
     activeRun = failed;
@@ -1000,6 +1079,16 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       activeRun = restoreCycleRunEntry(ctx);
       updateUi(activeRun, ctx);
       writeLine(ctx, formatStatus(activeRun, ctx));
+    },
+  });
+
+  pi.registerCommand(AIES_COMMANDS.cyclePreview, {
+    description: "Preview the synthesized next-cycle prompt and live guidance context without launching a run; add --full for the full prompt",
+    handler: async (args, ctx) => {
+      const options = parseCyclePreviewArgs(args);
+      activeRun = restoreCycleRunEntry(ctx);
+      updateUi(activeRun, ctx);
+      writeLine(ctx, formatCyclePreview(ctx, options.includeFullPrompt));
     },
   });
 
@@ -1034,6 +1123,7 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
         nowIso(),
         activeRun.relatedCycleId,
         activeRun.auditGuidance,
+        activeRun.evolutionEvidence,
         activeRun.verificationScopeBaseline,
         activeRun.verificationScope,
         activeRun.guidanceOutcomeReportPath,
@@ -1127,6 +1217,7 @@ export default function aiesCycleRunnerExtension(pi: ExtensionAPI): void {
       finishedAt,
       relatedCycleId,
       activeRun.auditGuidance,
+      activeRun.evolutionEvidence,
       activeRun.verificationScopeBaseline,
       verificationScope,
       guidanceOutcomeReportPath,

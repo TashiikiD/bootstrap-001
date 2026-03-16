@@ -34,7 +34,7 @@ The design should stay conservative. It should prefer existing durable artifacts
   - Provide a command or tool-backed surface that can answer focused questions like "show recent evaluation interventions," "what evidence supports the current binding constraint," or "what unresolved threads touch harness verification?"
   - Support filters by dimension, change id, artifact type, date window, and evidence confidence.
   - Require citation-rich output so retrieval strengthens judgment instead of becoming an opaque oracle.
-- [ ] Bridge the index into planning and runtime context in a bounded way.
+- [x] Bridge the index into planning and runtime context in a bounded way.
   - Feed a compact retrieval brief into cycle planning or audit-guidance context only when it adds relevant continuity.
   - Keep the bridge advisory: retrieval may compress history for judgment, but it must not auto-select the next change or override current audit guidance.
 - [x] Expose the evidence map through an operator-visible inspection path.

@@ -1,18 +1,15 @@
 import { existsSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import {
-  EVOLUTION_EVIDENCE_ARTIFACT_TYPES,
-  EVOLUTION_EVIDENCE_CONFIDENCE_LEVELS,
-  type EvolutionEvidenceArtifactType,
-  type EvolutionEvidenceConfidence,
-  type EvolutionEvidenceIndex,
-  type EvolutionEvidenceQuery,
+import type {
+  EvolutionEvidenceArtifactType,
+  EvolutionEvidenceConfidence,
+  EvolutionEvidenceIndex,
+  EvolutionEvidenceQuery,
 } from "../../aies/contracts/evolution-evidence-index.ts";
-import { AIES_DIMENSIONS, type AiesDimension } from "../../aies/contracts/primitives.ts";
+import type { AiesDimension } from "../../aies/contracts/primitives.ts";
 import {
   buildEvolutionEvidenceBrief,
   buildEvolutionEvidenceBriefs,
-  EVOLUTION_EVIDENCE_PRESET_IDS,
   type EvolutionEvidencePresetId,
 } from "../../aies/extensions/evidence/evolution-evidence-brief.ts";
 import {
@@ -21,6 +18,39 @@ import {
 } from "../../aies/extensions/evidence/evolution-evidence-index.ts";
 import { getAiesPaths } from "../../aies/extensions/shared/paths.ts";
 import { projectRoot } from "./lib";
+
+const AIES_DIMENSION_VALUES: readonly AiesDimension[] = [
+  "prompt",
+  "context",
+  "intent",
+  "judgment",
+  "coherence",
+  "evaluation",
+  "harness",
+];
+
+const EVOLUTION_EVIDENCE_ARTIFACT_TYPE_VALUES: readonly EvolutionEvidenceArtifactType[] = [
+  "dimension_anchor",
+  "path_anchor",
+  "openspec_change",
+  "devlog",
+  "knowledge_decision",
+  "theory_note",
+  "audit_snapshot",
+  "audit_outcome",
+  "audit_loop",
+  "guidance_outcome",
+  "guidance_effectiveness",
+  "guidance_adaptation",
+];
+
+const EVOLUTION_EVIDENCE_CONFIDENCE_VALUES: readonly EvolutionEvidenceConfidence[] = ["direct", "heuristic"];
+
+const EVOLUTION_EVIDENCE_PRESET_ID_VALUES: readonly EvolutionEvidencePresetId[] = [
+  "recent_evaluation_interventions",
+  "binding_constraint_support",
+  "harness_verification_threads",
+];
 
 export interface EvolutionEvidenceIndexRecord {
   index: EvolutionEvidenceIndex;
@@ -50,17 +80,17 @@ function projectRelativePath(fullPath: string): string {
 }
 
 function asDimensions(values: string[]): AiesDimension[] {
-  return values.filter((value): value is AiesDimension => AIES_DIMENSIONS.includes(value as AiesDimension));
+  return values.filter((value): value is AiesDimension => AIES_DIMENSION_VALUES.includes(value as AiesDimension));
 }
 
 function asArtifactTypes(values: string[]): EvolutionEvidenceArtifactType[] {
   return values.filter((value): value is EvolutionEvidenceArtifactType =>
-    EVOLUTION_EVIDENCE_ARTIFACT_TYPES.includes(value as EvolutionEvidenceArtifactType));
+    EVOLUTION_EVIDENCE_ARTIFACT_TYPE_VALUES.includes(value as EvolutionEvidenceArtifactType));
 }
 
 function asConfidence(values: string[]): EvolutionEvidenceConfidence[] {
   return values.filter((value): value is EvolutionEvidenceConfidence =>
-    EVOLUTION_EVIDENCE_CONFIDENCE_LEVELS.includes(value as EvolutionEvidenceConfidence));
+    EVOLUTION_EVIDENCE_CONFIDENCE_VALUES.includes(value as EvolutionEvidenceConfidence));
 }
 
 export function readLatestEvolutionEvidenceIndexRecord(): EvolutionEvidenceIndexRecord | null {
@@ -98,7 +128,7 @@ export function parseEvolutionEvidenceQuery(searchParams: URLSearchParams): Evol
 
 export function parseEvolutionEvidencePreset(searchParams: URLSearchParams): EvolutionEvidencePresetId | null {
   const preset = searchParams.get("preset");
-  return EVOLUTION_EVIDENCE_PRESET_IDS.includes(preset as EvolutionEvidencePresetId)
+  return EVOLUTION_EVIDENCE_PRESET_ID_VALUES.includes(preset as EvolutionEvidencePresetId)
     ? preset as EvolutionEvidencePresetId
     : null;
 }
